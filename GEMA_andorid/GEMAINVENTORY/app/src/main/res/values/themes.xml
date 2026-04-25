@@ -1,0 +1,50 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.GemaInventory" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorSecondaryVariant">@color/accent</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:colorBackground">@color/light_gray_bg</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/black</item>
+        <item name="colorOutlineVariant">#dddddd</item>
+    </style>
+
+    <style name="Theme.GemaInventory.Splash" parent="Theme.GemaInventory">
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+
+    <style name="Theme.GemaInventory.NoActionBar" parent="Theme.GemaInventory" />
+
+    <style name="Theme.GemaInventory.BottomSheetDialog" parent="Theme.Material3.DayNight.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.GemaInventory.BottomSheet</item>
+    </style>
+    <style name="Widget.GemaInventory.BottomSheet" parent="Widget.Material3.BottomSheet">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.GemaInventory.BottomSheet</item>
+    </style>
+    <style name="ShapeAppearance.GemaInventory.BottomSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">16dp</item>
+        <item name="cornerSizeTopRight">16dp</item>
+    </style>
+
+    <style name="ShapeAppearance.Material3.Circle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+ 
+    <style name="MaterialAlertDialog_Rounded" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.GemaInventory.RoundedDialog</item>
+    </style>
+ 
+    <style name="ShapeAppearance.GemaInventory.RoundedDialog" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">24dp</item>
+    </style>
+ 
+    <style name="BottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog"><item name="bottomSheetStyle">@style/BottomSheetStyle</item></style>
+    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal"><item name="android:background">@android:color/transparent</item></style>
+    <style name="CustomAlertDialog" parent="Theme.Material3.DayNight.Dialog.Alert"><item name="android:windowBackground">@drawable/dialog_background_dark</item><item name="android:windowMinWidthMajor">90%</item><item name="android:windowMinWidthMinor">90%</item></style>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paleta Principal (Modo Noche) -->
+    <color name="primary_night">#60a5fa</color> <!-- Azul claro -->
+    <color name="accent_night">#60a5fa</color>
+    <color name="black_night_bg">#0c0c0f</color> <!-- Fondo principal -->
+    <color name="gray_night_surface">#1f2937</color> <!-- Fondo de Cards (gray-800) -->
+    <color name="alert_bg_light">#2C2115</color>
+    <color name="alert_stroke_light">#FFB300</color>
+    <color name="alert_body_light">#FFB74D</color>
+    <color name="logo_tint_color">#FFFFFF</color>
+</resources>

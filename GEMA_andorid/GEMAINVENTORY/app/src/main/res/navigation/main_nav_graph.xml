@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/navigation_dashboard">
+
+    <!-- Secciones principales -->
+    <fragment
+        android:id="@+id/navigation_dashboard"
+        android:name="com.example.gemainventory.ui.dashboard.DashboardFragment"
+        android:label="@string/title_dashboard"
+        tools:layout="@layout/fragment_dashboard" />
+
+    <fragment
+        android:id="@+id/navigation_orders"
+        android:name="com.example.gemainventory.ui.orders.OrdersFragment"
+        android:label="@string/title_orders"
+        tools:layout="@layout/fragment_orders">
+
+        <!-- === INICIO DE LO NUEVO === -->
+        <action
+            android:id="@+id/action_orders_to_add_form"
+            app:destination="@id/navigation_add_order"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <!-- === FIN DE LO NUEVO === -->
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_finances"
+        android:name="com.example.gemainventory.ui.finances.FinancesFragment"
+        android:label="@string/title_finances"
+        tools:layout="@layout/fragment_finances" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.example.gemainventory.ui.settings.SettingsFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/fragment_settings">
+
+        <action
+            android:id="@+id/action_navigation_edit_profile_self"
+            app:destination="@id/navigation_edit_profile" />
+
+        <action
+            android:id="@+id/action_settings_to_manage"
+            app:destination="@id/navigation_settings_manage" />
+
+        <!-- ACCIÓN HACIA EL MANUAL -->
+        <action
+            android:id="@+id/action_settings_to_manual"
+            app:destination="@id/navigation_user_manual" />
+
+        <!-- NUEVA ACCIÓN GESTIÓN DE USUARIOS -->
+        <action
+            android:id="@+id/action_settings_to_users"
+            app:destination="@id/navigation_manage_users" />
+
+        <!-- ACCIÓN PARA CAMBIAR DE NEGOCIO -->
+        <action
+            android:id="@+id/action_settings_to_switch_business"
+            app:destination="@id/navigation_switch_business" />
+    </fragment>
+
+    <!-- GESTIÓN DE USUARIOS (EQUIPO) -->
+    <fragment
+        android:id="@+id/navigation_manage_users"
+        android:name="com.example.gemainventory.ui.settings.ManageUsersFragment"
+        android:label="Gestión de Equipo"
+        tools:layout="@layout/fragment_manage_users">
+        <action
+            android:id="@+id/action_users_to_addUser"
+            app:destination="@id/navigation_add_user" />
+        <action
+            android:id="@+id/action_users_to_editRole"
+            app:destination="@id/navigation_edit_user_role" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_edit_user_role"
+        android:name="com.example.gemainventory.ui.settings.EditUserRoleFragment"
+        android:label="Editar Rol"
+        tools:layout="@layout/fragment_edit_user_role">
+        <argument
+            android:name="userId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_add_user"
+        android:name="com.example.gemainventory.ui.settings.AddUserFragment"
+        android:label="Añadir al Equipo"
+        tools:layout="@layout/fragment_add_user" />
+
+    <!-- ***** CORRECCIÓN AQUÍ ***** -->
+    <!-- Apunta al 'SettingsManageFragment' y 'fragment_settings_manage' correctos -->
+    <fragment
+        android:id="@+id/navigation_settings_manage"
+        android:name="com.example.gemainventory.ui.settings.SettingsManageFragment"
+        android:label="Gestión de Catálogos"
+        tools:layout="@layout/fragment_settings_manage">
+
+        <action
+            android:id="@+id/action_manage_to_clients"
+            app:destination="@id/navigation_manage_clients" />
+
+        <action
+            android:id="@+id/action_manage_to_categories"
+            app:destination="@id/navigation_manage_categories" />
+
+        <action
+            android:id="@+id/action_manage_to_warehouses"
+            app:destination="@id/navigation_manage_warehouses" />
+
+        <action
+            android:id="@+id/action_manage_to_suppliers"
+            app:destination="@id/navigation_manage_suppliers" />
+
+    </fragment>
+
+    <!-- Sección de inventario -->
+    <fragment
+        android:id="@+id/navigation_inventory"
+        android:name="com.example.gemainventory.ui.inventory.InventoryFragment"
+        android:label="@string/title_inventory"
+        tools:layout="@layout/fragment_inventory">
+
+        <action
+            android:id="@+id/action_inventory_to_detail"
+            app:destination="@id/navigation_product_detail"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+
+        <action
+            android:id="@+id/action_inventory_to_create_form"
+            app:destination="@id/navigation_product_form"
+            app:popUpTo="@id/navigation_inventory"
+            app:popUpToInclusive="false"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+
+        <action
+            android:id="@+id/action_inventory_to_addProduct"
+            app:destination="@id/navigation_add_product"
+            app:popUpTo="@id/navigation_inventory"
+            app:popUpToInclusive="false"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_product_detail"
+        android:name="com.example.gemainventory.ui.inventory.ProductDetailFragment"
+        android:label="Detalle de Producto"
+        tools:layout="@layout/fragment_product_detail">
+
+        <argument
+            android:name="productId"
+            app:argType="integer" />
+        <!-- The TextInputLayout block is UI specific and belongs in a layout XML file, not the navigation graph.
+             It has been omitted here to maintain the syntactic correctness of the navigation graph. -->
+        <action
+            android:id="@+id/action_detail_to_edit_form"
+            app:destination="@id/navigation_product_form" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_product_form"
+        android:label="Formulario de Producto"
+        tools:layout="@layout/fragment_product_form_full" >
+        <argument
+            android:name="productId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <action
+            android:id="@+id/action_product_form_to_addCategory"
+            app:destination="@id/navigation_add_category" />
+        <action
+            android:id="@+id/action_product_form_to_addWarehouse"
+            app:destination="@id/navigation_add_warehouse" />
+    </fragment>
+
+    <!-- === INICIO DE LO NUEVO === -->
+    <!-- Este es el fragmento del formulario que acabamos de crear -->
+    <fragment
+        android:id="@+id/navigation_add_order"
+        android:name="com.example.gemainventory.ui.orders.AddOrderFragment"
+        android:label="Agregar Pedido"
+        tools:layout="@layout/fragment_add_order" />
+    <!-- === FIN DE LO NUEVO === -->
+
+    <fragment
+        android:id="@+id/navigation_add_product"
+        android:name="com.example.gemainventory.ui.inventory.AddProductFragment"
+        android:label="Agregar Producto"
+        tools:layout="@layout/fragment_product_form_full" >
+        <action
+            android:id="@+id/action_addProduct_to_addCategory"
+            app:destination="@id/navigation_add_category" />
+        <action
+            android:id="@+id/action_addProduct_to_addWarehouse"
+            app:destination="@id/navigation_add_warehouse" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_edit_profile"
+        android:name="com.example.gemainventory.ui.settings.EditProfileFragment"
+        android:label="Editar Perfil"
+        tools:layout="@layout/fragment_edit_profile" >
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_manage_clients"
+        android:name="com.example.gemainventory.ui.settings.ManageClientsFragment"
+        android:label="Gestionar Clientes"
+        tools:layout="@layout/fragment_manage_clients">
+
+        <action
+            android:id="@+id/action_clients_to_addClient"
+            app:destination="@id/navigation_add_client" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_add_client"
+        android:name="com.example.gemainventory.ui.settings.AddClientFragment"
+        android:label="Nuevo Cliente"
+        tools:layout="@layout/fragment_add_client" />
+
+    <fragment
+        android:id="@+id/navigation_manage_categories"
+        android:name="com.example.gemainventory.ui.settings.ManageCategoriesFragment"
+        android:label="Gestionar Categorías"
+        tools:layout="@layout/fragment_manage_categories">
+
+        <action
+            android:id="@+id/action_categories_to_addCategory"
+            app:destination="@id/navigation_add_category" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_add_category"
+        android:name="com.example.gemainventory.ui.settings.AddCategoryFragment"
+        android:label="Nueva Categoría"
+        tools:layout="@layout/fragment_add_category" />
+
+    <fragment
+        android:id="@+id/navigation_manage_warehouses"
+        android:name="com.example.gemainventory.ui.settings.ManageWarehousesFragment"
+        android:label="Almacenes"
+        tools:layout="@layout/fragment_manage_warehouses">
+        <action
+            android:id="@+id/action_warehouses_to_addWarehouse"
+            app:destination="@id/navigation_add_warehouse" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_add_warehouse"
+        android:name="com.example.gemainventory.ui.settings.AddWarehouseFragment"
+        android:label="Nuevo Almacén"
+        tools:layout="@layout/fragment_add_warehouse" />
+
+    <fragment
+        android:id="@+id/navigation_user_manual"
+        android:name="com.example.gemainventory.ui.settings.UserManualFragment"
+        android:label="Manual de Usuario"
+        tools:layout="@layout/fragment_user_manual" />
+
+    <fragment
+        android:id="@+id/navigation_notifications"
+        android:name="com.example.gemainventory.ui.notifications.NotificationsFragment"
+        android:label="Notificaciones"
+        tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/navigation_scanner"
+        android:name="com.example.gemainventory.ui.inventory.ScannerFragment"
+        android:label="Escáner"
+        tools:layout="@layout/fragment_scanner" />
+
+    <fragment
+        android:id="@+id/navigation_notification_settings"
+        android:name="com.example.gemainventory.ui.settings.NotificationSettingsFragment"
+        android:label="Ajustes de Notificaciones"
+        tools:layout="@layout/fragment_notification_settings" />
+
+    <fragment
+        android:id="@+id/navigation_switch_business"
+        android:name="com.example.gemainventory.ui.settings.SwitchBusinessFragment"
+        android:label="Cambiar de Negocio"
+        tools:layout="@layout/fragment_switch_business" />
+
+    <fragment
+        android:id="@+id/navigation_manage_suppliers"
+        android:name="com.example.gemainventory.ui.settings.ManageSuppliersFragment"
+        android:label="Proveedores"
+        tools:layout="@layout/fragment_manage_suppliers">
+        <action
+            android:id="@+id/action_suppliers_to_addSupplier"
+            app:destination="@id/navigation_add_supplier" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_add_supplier"
+        android:name="com.example.gemainventory.ui.settings.AddSupplierFragment"
+        android:label="Nuevo Proveedor"
+        tools:layout="@layout/fragment_add_supplier" />
+
+</navigation>

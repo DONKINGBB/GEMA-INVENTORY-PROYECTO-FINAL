@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paleta Principal (Modo Día) -->
+    <color name="primary">#0d2558</color>
+    <color name="primary_dark">#081A3F</color>
+    <color name="accent">#1e3a8a</color>
+
+    <!-- Paleta Neutral -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="light_gray_bg">#f0f2f5</color>
+
+    <color name="yellow_light_bg">#fefce8</color>
+    <color name="yellow_dark_text">#854d0e</color>
+    <color name="red">#dc2626</color>
+    <color name="green">#16a34a</color>
+
+    <color name="primary_night">#60a5fa</color>
+    <color name="accent_night">#60a5fa</color>
+    <color name="black_night_bg">#f0f2f5</color>
+    <color name="gray_night_surface">#FFFFFFFF</color>
+    <color name="sku_box_pink_bg">#FCE7F3</color>
+    <color name="sku_box_pink_text">#DB2777</color>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="red_bg">#FFEBEE</color>
+    <color name="red_text">#D32F2F</color>
+    <color name="amber_bg">#FFF8E1</color>
+    <color name="amber_text">#FFA000</color>
+    <color name="green_bg">#E8F5E9</color>
+    <color name="green_text">#388E3C</color>
+    <color name="alert_card_bg">#2C2115</color>
+    <color name="alert_stroke">#FFB300</color>
+    <color name="alert_title">#FFCA28</color>
+    <color name="alert_body">#FFB74D</color>
+    <color name="alert_link">#448AFF</color>
+    <color name="alert_bg_light">#FFF8E1</color>
+    <color name="alert_stroke_light">#F57C00</color>
+    <color name="alert_body_light">#5D4037</color>
+    <color name="logo_tint_color">#FFFFFF</color>
+    <color name="arrow_tint">#FF000000</color>
+
+    <!-- Role-Specific Colors (Blue Scale) -->
+    <color name="role_1_bg">#0D2558</color>
+    <color name="role_2_bg">#1E3A8A</color>
+    <color name="role_3_bg">#3B82F6</color>
+    <color name="role_base_bg">#EFF6FF</color>
+</resources>

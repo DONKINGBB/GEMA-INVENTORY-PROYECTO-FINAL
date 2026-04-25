@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_dashboard"
+        android:icon="@drawable/inicio"
+        android:title="@string/title_home" />
+
+    <item
+        android:id="@+id/navigation_inventory"
+        android:icon="@drawable/inventario"
+        android:title="@string/title_inventory" />
+
+    <item
+        android:id="@+id/navigation_orders"
+        android:icon="@drawable/pedidos"
+        android:title="@string/title_orders" />
+
+    <item
+        android:id="@+id/navigation_finances"
+        android:icon="@drawable/finanzas"
+        android:title="@string/title_finances" />
+
+    <item
+        android:id="@+id/navigation_settings"
+        android:icon="@drawable/ajustes"
+        android:title="@string/title_settings" />
+
+</menu>

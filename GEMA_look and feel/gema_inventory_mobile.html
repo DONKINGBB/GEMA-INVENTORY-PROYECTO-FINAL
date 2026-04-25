@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Gema Inventory - Look & Feel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #0d2558;
+            --accent-color: #1e3a8a;
+            --safe-area-inset-top: env(safe-area-inset-top);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom);
+        }
+        html.dark { color-scheme: dark; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            padding-top: var(--safe-area-inset-top);
+            padding-bottom: var(--safe-area-inset-bottom);
+            background: #f0f2f5;
+        }
+        html.dark body { background: #0c0c0f; }
+        .app-container-wrapper { height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem 0.5rem; }
+
+        /* --- Screen Transitions --- */
+        .screen {
+            position: absolute; width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            backface-visibility: hidden;
+            transition: transform 0.4s cubic-bezier(0.45, 0, 0.55, 1), opacity 0.4s ease;
+            background-color: #f0f2f5;
+        }
+        html.dark .screen { background-color: #0c0c0f; }
+        .screen.bg-white { background-color: #fff; }
+        html.dark .screen.bg-white { background-color: #1f2937; }
+
+
+        .screen-enter-from-right { transform: translateX(100%); opacity: 0.8; }
+        .screen-exit-to-left { transform: translateX(-30%); opacity: 0; }
+        .screen-enter-from-left { transform: translateX(-100%); opacity: 0.8; }
+        .screen-exit-to-right { transform: translateX(100%); opacity: 0; }
+        .screen-enter-from-bottom { transform: translateY(100%); }
+        .screen-exit-to-bottom { transform: translateY(0%); opacity: 0.9; }
+        .screen-enter-from-top-back { transform: translateY(100%); }
+
+
+        /* --- General UI --- */
+        .custom-scrollbar::-webkit-scrollbar { display: none; }
+        .nav-active i, .nav-active span { color: var(--primary-color); }
+        html.dark .nav-active i, html.dark .nav-active span { color: #60a5fa; }
+        .header { 
+            background: rgba(255, 255, 255, 0.8); 
+            backdrop-filter: blur(10px); 
+            border-bottom: 1px solid #e5e7eb;
+        }
+        html.dark .header { 
+            background: rgba(17, 24, 39, 0.8);
+            border-color: #374151;
+        }
+
+        .placeholder-card {
+            border: 2px dashed #d1d5db;
+            color: #6b7280;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 0.75rem;
+            margin: 1rem 0;
+        }
+        html.dark .placeholder-card { 
+            border-color: #4b5563;
+            color: #9ca3af;
+        }
+
+
+        /* Formulario */
+        .form-label {
+            @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1;
+        }
+        .form-input {
+            @apply w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-gray-100;
+        }
+        .form-select {
+             @apply w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-gray-100 appearance-none;
+        }
+        .form-textarea {
+             @apply w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-gray-100 h-24;
+        }
+        .form-upload-btn {
+            @apply w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-500 dark:text-gray-400;
+        }
+
+
+        /* Loader */
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #d1d5db;
+            border-bottom-color: var(--primary-color);
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        html.dark .loader {
+            border-color: #4b5563;
+            border-bottom-color: #60a5fa;
+        }
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+         .fab {
+            @apply absolute bottom-6 right-6 bg-gradient-to-br from-blue-600 to-blue-800 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl z-20;
+         }
+
+    </style>
+</head>
+<body class="bg-gray-200 dark:bg-gray-900">
+
+    <div class="app-container-wrapper">
+        <div id="app-shell" class="w-full max-w-sm h-full bg-white dark:bg-gray-800 rounded-[44px] shadow-2xl overflow-hidden flex flex-col relative">
+            
+            <div id="app-container" class="flex-grow flex flex-col overflow-hidden relative">
+            </div>
+            
+            <nav id="bottom-nav" class="flex bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700">
+            </nav>
+            <div id="modal-container" class="hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- MOCKUP DE DATOS ---
+        const AppData = {
+            inventory: [
+                { id: 'prod-001', nombre: 'Suturas Absorbibles PGA', sku: 'SUT-001', categoria: 'Material Quirúrgico', stock_actual: 4, stock_minimo: 10, almacen: 'Almacén Principal', imagen: 'https://placehold.co/80x80/fecaca/b91c1c?text=SUT-001', precio_venta: 150.00, precio_compra: 95.00, descripcion: 'Suturas de ácido poliglicólico para cirugía.' },
+                { id: 'prod-002', nombre: 'Guantes de Nitrilo (Caja 100)', sku: 'GUA-002', categoria: 'Consumibles', stock_actual: 0, stock_minimo: 20, almacen: 'Almacén Principal', imagen: 'https://placehold.co/80x80/fee2e2/b91c1c?text=GUA-002', precio_venta: 85.50, precio_compra: 50.00, descripcion: 'Guantes desechables de nitrilo, talla M.' },
+                { id: 'prod-003', nombre: 'Jeringas 10ml (Caja 100)', sku: 'JER-001', categoria: 'Consumibles', stock_actual: 50, stock_minimo: 30, almacen: 'Almacén Principal', imagen: 'https://placehold.co/80x80/d1fae5/047857?text=JER-001', precio_venta: 120.00, precio_compra: 70.00, descripcion: 'Jeringas estériles de 10ml con aguja.' },
+                { id: 'prod-004', nombre: 'Bisturí Desechable #11', sku: 'BIS-003', categoria: 'Instrumental', stock_actual: 120, stock_minimo: 50, almacen: 'Almacén Principal', imagen: 'https://placehold.co/80x80/e0f2fe/0c4a6e?text=BIS-003', precio_venta: 15.00, precio_compra: 8.00, descripcion: 'Bisturí estéril desechable, hoja #11.' },
+                { id: 'prod-005', nombre: 'Monitor de Signos Vitales', sku: 'MON-001', categoria: 'Equipo Médico', stock_actual: 3, stock_minimo: 2, almacen: 'Almacén Equipos', imagen: 'https://placehold.co/80x80/e0e7ff/3730a3?text=MON-001', precio_venta: 8500.00, precio_compra: 5500.00, descripcion: 'Monitor multiparámetro para signos vitales.' },
+            ],
+            orders: [
+                { id: 'P-001', cliente: 'Clínica Central', fecha: '2025-10-20', estado: 'Pendiente', total: 450.00 },
+                { id: 'P-002', cliente: 'Dr. Martínez', fecha: '2025-10-18', estado: 'Enviado', total: 171.00 },
+                { id: 'P-003', cliente: 'Hospital Regional', fecha: '2025-10-15', estado: 'Entregado', total: 12500.00 },
+            ],
+            categories: ['Consumibles', 'Material Quirúrgico', 'Instrumental', 'Equipo Médico', 'Medicamentos'],
+            clients: ['Clínica Central', 'Dr. Martínez', 'Hospital Regional', 'Consultorio Dental Sur'],
+            warehouses: ['Almacén Principal', 'Almacén Equipos', 'Farmacia']
+        };
+
+        const App = {
+            screens: {},
+            history: [],
+            currentScreenName: null,
+            addScreen: function(n, g) { this.screens[n] = g; },
+            render: function(screenName, params = {}, direction = 'forward') {
+                const container = document.getElementById('app-container');
+                if (!container || !this.screens[screenName]) {
+                    console.error(`Screen "${screenName}" not found.`);
+                    return;
+                }
+
+                const oldScreen = container.querySelector('.screen');
+                const newScreenHTML = this.screens[screenName](params);
+                const newScreen = document.createElement('div');
+                newScreen.innerHTML = newScreenHTML.trim(); 
+
+                const newScreenContent = newScreen.firstElementChild;
+                if (!newScreenContent) {
+                    console.error(`Could not create screen content for "${screenName}". Check HTML template.`);
+                    return;
+                }
+
+                if (!newScreenContent.classList.contains('screen')) {
+                    newScreenContent.classList.add('screen');
+                }
+
+                let oldAnim = '', newAnim = '';
+                
+                if (direction === 'forward') {
+                    oldAnim = 'screen-exit-to-left'; newAnim = 'screen-enter-from-right';
+                    if(oldScreen) this.history.push(oldScreen);
+                } else if (direction === 'back') {
+                    oldAnim = 'screen-exit-to-right'; newAnim = 'screen-enter-from-left';
+                } else if (direction === 'modal') {
+                    oldAnim = 'screen-exit-to-bottom'; newAnim = 'screen-enter-from-bottom';
+                    if(oldScreen) this.history.push(oldScreen);
+                } else if (direction === 'modal-back') {
+                    oldAnim = 'screen-enter-from-top-back'; newAnim = 'screen-enter-from-left';
+                }
+
+                newScreenContent.classList.add(newAnim);
+                container.appendChild(newScreenContent);
+
+                newScreenContent.getBoundingClientRect();
+
+                requestAnimationFrame(() => {
+                    if (oldScreen && oldAnim) oldScreen.classList.add(oldAnim);
+                    newScreenContent.classList.remove(newAnim);
+                });
+
+                if(oldScreen) {
+                    oldScreen.addEventListener('transitionend', () => oldScreen.remove(), { once: true });
+                }
+
+                const navContainer = document.getElementById('bottom-nav');
+                if (screenName === 'splash' || screenName === 'login') {
+                    navContainer.style.display = 'none';
+                } else {
+                    navContainer.style.display = 'flex';
+                }
+
+                this.currentScreenName = screenName;
+                if (direction !== 'modal-back') this.updateBottomNav(screenName);
+                lucide.createIcons();
+                
+                const eventInitializer = `${screenName}Init`;
+                if (typeof window[eventInitializer] === 'function') {
+                    window[eventInitializer](params);
+                }
+            },
+            goBack: function() {
+                const lastScreen = this.history.pop();
+                if (!lastScreen) {
+                    this.render('dashboard', {}, 'back');
+                    return;
+                }
+                
+                const container = document.getElementById('app-container');
+                const oldScreen = container.querySelector('.screen');
+                
+                container.appendChild(lastScreen);
+                lastScreen.classList.remove('screen-exit-to-left', 'screen-exit-to-bottom', 'screen-exit-to-right');
+                
+                let oldAnim = 'screen-enter-from-top-back';
+                
+                oldScreen.classList.add(oldAnim);
+                oldScreen.addEventListener('transitionend', () => oldScreen.remove(), { once: true });
+
+                this.currentScreenName = lastScreen.dataset.screenName || 'dashboard';
+                this.updateBottomNav(this.currentScreenName);
+                lucide.createIcons();
+            },
+            updateBottomNav: function(activeScreen) {
+                const navContainer = document.getElementById('bottom-nav');
+                const screens = [
+                    { name: 'dashboard', label: 'Inicio', icon: 'home' },
+                    { name: 'inventory', label: 'Inventario', icon: 'package' },
+                    { name: 'orders', label: 'Pedidos', icon: 'shopping-cart' },
+                    { name: 'finances', label: 'Finanzas', icon: 'trending-up' },
+                    { name: 'settings', label: 'Ajustes', icon: 'settings' }
+                ];
+                const navItemsHTML = screens.map(screen => `
+                    <a href="#" class="nav-item flex-1 flex flex-col items-center justify-center p-2 text-gray-500 dark:text-gray-400 ${activeScreen === screen.name ? 'nav-active' : ''}" data-screen="${screen.name}">
+                        <i data-lucide="${screen.icon}" class="w-6 h-6 mb-1"></i>
+                        <span class="text-xs font-medium">${screen.label}</span>
+                    </a>`).join('');
+                navContainer.innerHTML = navItemsHTML;
+                this.attachNavEvents();
+                lucide.createIcons();
+            },
+            attachNavEvents: function() {
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.onclick = (e) => {
+                        e.preventDefault();
+                        const screenName = item.dataset.screen;
+                        if (screenName !== App.currentScreenName) {
+                            this.history = [];
+                            App.render(screenName);
+                        }
+                    };
+                });
+            },
+            setDarkMode(isDark) { document.documentElement.classList.toggle("dark", isDark); localStorage.setItem("darkMode", isDark ? "enabled" : "disabled"); },
+            showPlaceholderModal(featureName) {
+                 console.log(`Funcionalidad "${featureName}" aún no implementada.`);
+             },
+            formatCurrency: (amount) => `$${(amount || 0).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`
+        };
+
+
+        App.api = {
+            getInventoryList: () => {
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        resolve(AppData.inventory);
+                    }, 500);
+                });
+            },
+            getOrdersList: () => {
+                 return new Promise(resolve => {
+                    setTimeout(() => {
+                        resolve(AppData.orders);
+                    }, 500);
+                });
+            },
+            getProductById: (id) => {
+                 return new Promise(resolve => {
+                    setTimeout(() => {
+                        resolve(AppData.inventory.find(p => p.id === id));
+                    }, 100);
+                });
+            },
+            saveProduct: (productData) => {
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        if (productData.id) {
+                            const index = AppData.inventory.findIndex(p => p.id === productData.id);
+                            if (index !== -1) {
+                                AppData.inventory[index] = { ...AppData.inventory[index], ...productData };
+                            }
+                        } else {
+                            productData.id = `prod-${String(Math.random()).slice(2, 7)}`;
+                            productData.sku = productData.sku || 'SKU-NEW';
+                            productData.imagen = productData.imagen || 'https://placehold.co/80x80/eee/aaa?text=NEW';
+                            productData.stock_actual = 0;
+                            AppData.inventory.unshift(productData);
+                        }
+                        resolve({ success: true, product: productData });
+                    }, 600);
+                });
+            },
+             saveOrder: (orderData) => {
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        orderData.id = `P-${String(Math.random()).slice(2, 5)}`;
+                        orderData.fecha = new Date().toISOString().split('T')[0];
+                        orderData.estado = 'Pendiente';
+                        orderData.total = 0.00;
+                        AppData.orders.unshift(orderData);
+                        resolve({ success: true, order: orderData });
+                    }, 600);
+                });
+            }
+        };
+
+
+        // --- SCREEN TEMPLATE GENERATORS ---
+
+        // Splash
+        App.addScreen('splash', () => `
+            <div class="screen flex-grow flex flex-col items-center justify-center p-8 text-center bg-white dark:bg-gray-900" data-screen-name="splash">
+                <img src="GEMA INVENTORY CUADRADO BB.PNG" alt="Gema Inventory Logo" class="w-48 mb-6">
+                <div class="w-6 h-6 border-4 border-gray-300 border-t-blue-800 rounded-full animate-spin mt-4"></div>
+            </div>`);
+
+        // Login
+        App.addScreen('login', () => `
+            <div class="screen flex-grow flex flex-col justify-center p-8" data-screen-name="login">
+                <img src="GEMA INVENTORY CUADRADO BB.PNG" alt="Gema Inventory Logo" class="w-32 mb-8 self-center">
+                <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">Bienvenido</h1>
+                <!-- CAMBIO: Texto "Inicia sesión" eliminado de aquí -->
+                <form id="login-form">
+                    <div class="space-y-4">
+                        <!-- CAMBIO: Se revierten los estilos de input a los originales -->
+                        <input type="email" class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg dark:text-gray-100" placeholder="Correo" value="demo@gema.com">
+                        <input type="password" class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg dark:text-gray-100" placeholder="Contraseña" value="password">
+                    </div>
+                    <!-- CAMBIO: Texto del botón -->
+                    <button type="submit" class="mt-8 w-full bg-gradient-to-br from-blue-700 to-blue-900 text-white font-bold py-3.5 rounded-lg shadow-lg">Iniciar Sesión</button>
+                </form>
+                
+                <!-- CAMBIO: Botón de Google y divisor -->
+                <div class="flex items-center justify-center my-6">
+                    <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+                    <span class="mx-4 text-sm text-gray-500 dark:text-gray-400">o</span>
+                    <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+                </div>
+                
+                <button class="w-full bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold py-3 rounded-lg shadow-md border border-gray-300 dark:border-gray-600 flex items-center justify-center" onclick="App.showPlaceholderModal('Iniciar con Google')">
+                    <!-- SVG de Google -->
+                    <svg class="w-5 h-5 mr-3" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                        <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"/>
+                        <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+                        <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C42.012 34.417 44 29.566 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+                    </svg>
+                    Iniciar sesión con Google
+                </button>
+                <!-- FIN CAMBIO -->
+
+                <!-- CAMBIO: Enlace de registro agregado -->
+                <div class="text-center mt-6">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        ¿No tienes cuenta? 
+                        <a href="#" class="font-semibold text-blue-600 dark:text-blue-400" onclick="App.showPlaceholderModal('Registrarse')">Regístrate</a>
+                    </p>
+                </div>
+            </div>`);
+
+        // Dashboard Screen
+        App.addScreen('dashboard', () => `
+            <div class="screen flex flex-col h-full" data-screen-name="dashboard">
+                <header class="header flex items-center justify-between p-4 z-10">
+                    <!-- CAMBIO: Título "Inicio" -->
+                    <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">Inicio</h1>
+                    <button class="text-gray-500 dark:text-gray-400"><i data-lucide="bell" class="w-5 h-5"></i></button>
+                </header>
+                <main class="flex-grow overflow-y-auto custom-scrollbar p-4">
+                    <h2 class="text-lg font-semibold mb-3 dark:text-gray-200">Resumen Rápido</h2>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-sm"><p class="text-sm text-gray-500 dark:text-gray-400">Valor Inventario</p><p class="text-xl font-bold dark:text-white">${App.formatCurrency(15750.50)}</p></div>
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-sm"><p class="text-sm text-gray-500 dark:text-gray-400">Pedidos Pendientes</p><p class="text-xl font-bold dark:text-white">3</p></div>
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-sm"><p class="text-sm text-gray-500 dark:text-gray-400">Facturas por Cobrar</p><p class="text-xl font-bold dark:text-white">${App.formatCurrency(850.00)}</p></div>
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-sm"><p class="text-sm text-gray-500 dark:text-gray-400">Beneficio (Mes)</p><p class="text-xl font-bold text-green-600 dark:text-green-400">${App.formatCurrency(1230.75)}</p></div>
+                    </div>
+
+                    <div class="bg-yellow-100 dark:bg-yellow-900/50 border border-yellow-300 dark:border-yellow-700 p-3 rounded-xl mb-6 flex items-start space-x-3">
+                         <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-1"></i>
+                         <div>
+                             <h3 class="font-semibold text-yellow-800 dark:text-yellow-300">Alerta de Stock Mínimo</h3>
+                             <p class="text-sm text-yellow-700 dark:text-yellow-400">Suturas Absorbibles (4), Guantes de Nitrilo (0) necesitan reordenarse.</p>
+                             <button class="text-xs font-semibold text-blue-600 dark:text-blue-400 mt-1" onclick="App.render('inventory')">Ver Inventario</button>
+                         </div>
+                    </div>
+
+                    <h2 class="text-lg font-semibold mb-3 dark:text-gray-200">Actividad Reciente</h2>
+                     <div class="space-y-3">
+                         <div class="bg-white dark:bg-gray-700 p-3 rounded-xl shadow-sm flex items-center space-x-3"><i data-lucide="shopping-cart" class="text-blue-500"></i><p class="text-sm dark:text-gray-300">Compra #C001 registrada.</p><span class="text-xs text-gray-400 ml-auto">Hace 1h</span></div>
+                         <div class="bg-white dark:bg-gray-700 p-3 rounded-xl shadow-sm flex items-center space-x-3"><i data-lucide="package-check" class="text-green-500"></i><p class="text-sm dark:text-gray-300">Pedido #P005 enviado.</p><span class="text-xs text-gray-400 ml-auto">Hace 3h</span></div>
+                     </div>
+                </main>
+            </div>`);
+
+        // Inventory Screen (Conexión a formulario)
+        App.addScreen('inventory', () => `
+            <div class="screen flex flex-col h-full" data-screen-name="inventory">
+                <header class="header flex items-center justify-between p-4 z-10">
+                    <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">Inventario</h1>
+                    <div class="flex space-x-2">
+                        <button class="text-gray-500 dark:text-gray-400"><i data-lucide="filter" class="w-5 h-5"></i></button>
+                        <button class="text-gray-500 dark:text-gray-400"><i data-lucide="search" class="w-5 h-5"></i></button>
+                    </div>
+                </header>
+                <main class="flex-grow overflow-y-auto custom-scrollbar p-4 relative">
+                    
+                    <!-- CAMBIO: "Asistente de Reorden" Card -->
+                    <div id="reorder-assistant-card" class="hidden bg-white dark:bg-gray-700 p-4 rounded-xl shadow-md mb-6">
+                        <div class="flex items-center mb-3">
+                            <i data-lucide="brain-circuit" class="w-6 h-6 text-blue-600 dark:text-blue-400 mr-3"></i>
+                            <h3 class="text-lg font-bold dark:text-gray-100">Asistente de Reorden</h3>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">Detectamos que estos productos necesitan tu atención:</p>
+                        <div id="reorder-list" class="space-y-2">
+                            <!-- Items de reorden se insertan aquí -->
+                        </div>
+                    </div>
+                    
+                    <!-- Contenedor dinámico para la lista -->
+                    <div id="inventory-list-container" class="space-y-3">
+                         <div class="flex justify-center items-center h-64">
+                             <div class="loader"></div>
+                         </div>
+                    </div>
+                    
+                     <!-- CAMBIO: Botón llama al formulario modal -->
+                     <button class="absolute bottom-6 right-6 bg-blue-800 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl transform hover:scale-110 transition active:scale-100" onclick="App.render('productForm', { mode: 'add' }, 'modal')">
+                        <i data-lucide="plus" class="w-7 h-7"></i>
+                     </button>
+                </main>
+            </div>`);
+
+        // --- Formulario de Producto (Agregar/Editar) ---
+        App.addScreen('productForm', (params) => {
+            const isEdit = params.mode === 'edit';
+            const product = params.product || {};
+            const title = isEdit ? 'Editar Producto' : 'Agregar Producto';
+
+            return `
+            <div class="screen flex flex-col h-full bg-white dark:bg-gray-800" data-screen-name="productForm">
+                <header class="header flex items-center justify-between p-4 z-10">
+                    <button class="text-gray-500 dark:text-gray-400" onclick="App.goBack()">
+                        <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                    </button>
+                    <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">${title}</h1>
+                    <!-- CAMBIO: Botón de guardar movido al formulario -->
+                    <div class="w-6"></div> <!-- Espaciador -->
+                </header>
+                <main class="flex-grow bg-gray-50 dark:bg-gray-900 overflow-y-auto custom-scrollbar p-5">
+    <form id="product-form" class="space-y-5">
+        <input type="hidden" id="product-id" value="${product.id || ''}">
+        
+        <div>
+            <label for="nombre" class="text-sm font-medium text-gray-600 dark:text-gray-400">Nombre del Producto</label>
+            <input type="text" id="nombre" name="nombre" class="mt-1 w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg" value="${product.nombre || ''}" required>
+        </div>
+        
+        <div>
+            <label for="sku" class="text-sm font-medium text-gray-600 dark:text-gray-400">SKU</label>
+            <input type="text" id="sku" name="sku" class="mt-1 w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg" value="${product.sku || ''}">
+        </div>
+        
+        <div>
+            <label for="cantidad" class="text-sm font-medium text-gray-600 dark:text-gray-400">Cantidad</label>
+            <input type="number" id="cantidad" name="cantidad" class="mt-1 w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg" value="${product.stock_actual || '0'}" ${isEdit ? '' : ''}>
+        </div>
+
+        <div>
+            <label for="id_categoria" class="text-sm font-medium text-gray-600 dark:text-gray-400">Categoría</label>
+            <select id="id_categoria" name="id_categoria" class="mt-1 w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg">
+                ${AppData.categories.map(cat => `
+                    <option value="${cat}" ${product.categoria === cat ? 'selected' : ''}>${cat}</option>
+                `).join('')}
+            </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="precio_compra" class="text-sm font-medium text-gray-600 dark:text-gray-400">Precio de Compra</label>
+                <input type="number" id="precio_compra" name="precio_compra" class="mt-1 w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg" value="${product.precio_compra || ''}" placeholder="0.00">
+            </div>
+            <div>
+                <label for="precio_venta" class="text-sm font-medium text-gray-600 dark:text-gray-400">Precio de Venta</label>
+                <input type="number" id="precio_venta" name="precio_venta" class="mt-1 w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg" value="${product.precio_venta || ''}" placeholder="0.00">
+            </div>
+        </div>
+
+        <div>
+            <label for="descripcion" class="text-sm font-medium text-gray-600 dark:text-gray-400">Descripción</label>
+            <textarea id="descripcion" name="descripcion" class="mt-1 w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg" rows="3">${product.descripcion || ''}</textarea>
+        </div>
+        
+        <button type="submit" id="save-product-btn" class="mt-8 w-full bg-gradient-to-br from-blue-700 to-blue-900 text-white font-bold py-3.5 rounded-lg shadow-lg">
+            ${isEdit ? 'Guardar Cambios' : 'Crear Producto'}
+        </button>
+    </form>
+</main>
+            </div>
+            `;
+        });
+
+
+        // Orders (Pedidos) Screen
+        App.addScreen('orders', () => `
+            <div class="screen flex flex-col h-full" data-screen-name="orders">
+                 <header class="header flex items-center justify-between p-4 z-10">
+                    <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">Pedidos (Ventas)</h1>
+                    <button class="text-gray-500 dark:text-gray-400"><i data-lucide="filter" class="w-5 h-5"></i></button>
+                 </header>
+                 <main class="flex-grow overflow-y-auto custom-scrollbar p-4 relative">
+                    <!-- Contenedor dinámico para la lista -->
+                    <div id="orders-list-container" class="space-y-3">
+                         <div class="flex justify-center items-center h-64">
+                             <div class="loader"></div>
+                         </div>
+                    </div>
+                    
+                    <!-- CAMBIO: Botón llama al formulario modal -->
+                    <button class="absolute bottom-6 right-6 bg-blue-800 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl transform hover:scale-110 transition active:scale-100" onclick="App.render('orderForm', { mode: 'add' }, 'modal')">
+                        <i data-lucide="plus" class="w-7 h-7"></i>
+                    </button>
+                 </main>
+            </div>`);
+        
+        // --- Formulario de Pedido (Simplificado) ---
+        App.addScreen('orderForm', (params) => {
+    const isEdit = params.mode === 'edit';
+    const order = params.order || {};
+    const title = isEdit ? 'Editar Pedido' : 'Agregar Pedido';
+    
+    return `
+    <div class="screen flex flex-col h-full bg-white dark:bg-gray-800" data-screen-name="orderForm">
+       <header class="header flex items-center justify-between p-4 z-10 border-b border-gray-200 dark:border-gray-700">
+           <button class="text-gray-500 dark:text-gray-400" onclick="App.goBack()">
+               <i data-lucide="chevron-left" class="w-6 h-6"></i>
+           </button>
+           <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">${title}</h1>
+           <button id="save-order-btn" class="text-blue-600 dark:text-blue-400 font-semibold">
+               Guardar
+           </button>
+       </header>
+       <main class="flex-grow bg-gray-50 dark:bg-gray-900 overflow-y-auto custom-scrollbar p-5">
+            <form id="order-form" class="space-y-5">
+               <input type="hidden" id="order-id" value="${order.id || ''}">
+               
+                <div>
+                   <label for="id_cliente" class="text-sm font-medium text-gray-600 dark:text-gray-400">Cliente</label>
+                   <select id="id_cliente" name="id_cliente" class="mt-1 w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg">
+                       ${AppData.clients.map(client => `
+                           <option value="${client}" ${order.cliente === client ? 'selected' : ''}>${client}</option>
+                       `).join('')}
+                   </select>
+               </div>
+               
+                <div>
+                   <label for="id_almacen_origen" class="text-sm font-medium text-gray-600 dark:text-gray-400">Almacén de Origen</label>
+                   <select id="id_almacen_origen" name="id_almacen_origen" class="mt-1 w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg">
+                       ${AppData.warehouses.map(wh => `
+                           <option value="${wh}" ${order.almacen === wh ? 'selected' : ''}>${wh}</option>
+                       `).join('')}
+                   </select>
+               </div>
+               
+               <!-- Sección de Productos (Placeholder) -->
+               <div>
+                   <label class="text-sm font-medium text-gray-600 dark:text-gray-400">Productos</label>
+                   <div class="mt-1 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg text-center text-gray-500 dark:text-gray-400 text-sm">
+                       <p class="mb-3">Los productos se agregarán aquí.</p>
+                       <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm" onclick="App.showPlaceholderModal('Seleccionar Productos')">
+                           <i data-lucide="plus" class="w-4 h-4 inline-block -mt-1 mr-1"></i>
+                           Agregar Producto
+                       </button>
+                   </div>
+               </div>
+               
+               ${isEdit ? `
+               <div>
+                   <label class="text-sm font-medium text-gray-600 dark:text-gray-400">Total</label>
+                   <input type="text" class="mt-1 w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg" value="${App.formatCurrency(order.total)}" readonly>
+               </div>
+               ` : ''}
+               
+            </form>
+       </main>
+    </div>
+    `;
+});
+
+
+        // Finances (Finanzas / Reportes) Screen
+        App.addScreen('finances', () => `
+            <div class="screen flex flex-col h-full" data-screen-name="finances">
+                 <header class="header p-4 z-10"><h1 class="text-xl font-bold text-center dark:text-gray-100">Finanzas y Reportes</h1></header>
+                 <main class="flex-grow overflow-y-auto custom-scrollbar p-5">
+                    <div class="grid grid-cols-1 gap-4 mb-6">
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-xl"><p class="text-sm text-gray-500 dark:text-gray-400">Beneficio Neto</p><p class="text-3xl font-bold text-blue-800 dark:text-blue-400">${App.formatCurrency(1230.75)}</p></div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white dark:bg-gray-700 p-4 rounded-xl"><p class="text-sm text-gray-500 dark:text-gray-400">Ingresos Totales</p><p class="text-xl font-bold text-green-600">${App.formatCurrency(3500.00)}</p></div>
+                            <!-- CAMBIO: "Compras Totales" -->
+                            <div class="bg-white dark:bg-gray-700 p-4 rounded-xl"><p class="text-sm text-gray-500 dark:text-gray-400">Compras Totales</p><p class="text-xl font-bold text-red-600">${App.formatCurrency(2269.25)}</p></div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-700 p-4 rounded-xl mb-6">
+                        <h3 class="font-bold mb-3 dark:text-gray-100">Balance Financiero</h3>
+                        <div class="h-64"><canvas id="financialChart"></canvas></div>
+                    </div>
+                     <div class="bg-white dark:bg-gray-700 p-4 rounded-xl">
+                         <h3 class="font-bold mb-3 dark:text-gray-100">Generar Reporte</h3>
+                         <select class="form-select mb-3">
+                            <option>Reporte de Ventas Mensual</option>
+                            <option>Reporte de Inventario Actual</option>
+                            <option>Reporte de Compras por Proveedor</option>
+                         </select>
+                         <button class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg text-sm" onclick="App.showPlaceholderModal('Generar Reporte')">Generar</button>
+                    </div>
+                 </main>
+            </div>`);
+
+        // Settings Screen
+        App.addScreen('settings', () => {
+             const isDarkMode = localStorage.getItem("darkMode") === "enabled";
+             return `
+            <div class="screen flex flex-col h-full" data-screen-name="settings">
+                <header class="header p-4 z-10"><h1 class="text-xl font-bold text-center dark:text-gray-100">Ajustes</h1></header>
+                <main class="flex-grow overflow-y-auto custom-scrollbar p-5">
+                    <div class="bg-white dark:bg-gray-700 p-4 rounded-xl flex items-center space-x-4 mb-6 cursor-pointer" onclick="App.showPlaceholderModal('Editar Perfil')">
+                        <img src="https://placehold.co/100x100/e0f2fe/0c4a6e?text=AG" class="w-16 h-16 rounded-full">
+                        <div class="flex-grow">
+                            <p class="font-bold text-lg dark:text-gray-100">Dr. Alejandro G.</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">a.gomez@clinicamed.com</p>
+                        </div>
+                        <i data-lucide="chevron-right" class="text-gray-400"></i>
+                    </div>
+                    
+                    <!-- CAMBIO: Se reestructuraron las opciones -->
+                    <div class="bg-white dark:bg-gray-700 rounded-xl mb-6">
+                        <div class="p-4 flex justify-between items-center border-b dark:border-gray-600">
+                             <div class="flex items-center space-x-3"><i data-lucide="moon" class="dark:text-gray-300"></i><span class="font-medium dark:text-gray-100">Modo Oscuro</span></div>
+                             <label class="relative inline-flex items-center"><input type="checkbox" id="dark-mode-toggle" class="sr-only peer" ${isDarkMode ? "checked" : ""}><div class="w-11 h-6 bg-gray-200 dark:bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div></label>
+                        </div>
+                         <div class="p-4 flex justify-between items-center cursor-pointer" onclick="App.render('settingsManage', {}, 'forward')">
+                             <div class="flex items-center space-x-3"><i data-lucide="database" class="dark:text-gray-300"></i><span class="font-medium dark:text-gray-100">Gestión de Catálogos</span></div>
+                             <i data-lucide="chevron-right" class="text-gray-400"></i>
+                        </div>
+                         <div class="p-4 flex justify-between items-center cursor-pointer border-t dark:border-gray-600" onclick="App.showPlaceholderModal('Alertas y Notificaciones')">
+                             <div class="flex items-center space-x-3"><i data-lucide="bell" class="dark:text-gray-300"></i><span class="font-medium dark:text-gray-100">Alertas y Notificaciones</span></div>
+                             <i data-lucide="chevron-right" class="text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full text-red-600 font-semibold py-3 rounded-lg bg-red-100 dark:bg-red-800/50" onclick="App.render('login', {}, 'back')">Cerrar Sesión</button>
+                </main>
+            </div>`;
+        });
+        
+        // --- Submenú de Ajustes ---
+        App.addScreen('settingsManage', () => `
+            <div class="screen flex flex-col h-full bg-white dark:bg-gray-800" data-screen-name="settingsManage">
+                <header class="header flex items-center p-4 z-10">
+                    <button class="text-gray-500 dark:text-gray-400" onclick="App.goBack()">
+                        <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                    </button>
+                    <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100 text-center flex-grow -ml-6">Gestión de Catálogos</h1>
+                </header>
+                <main class="flex-grow overflow-y-auto custom-scrollbar p-5">
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-xl">
+                        <div class="p-4 flex justify-between items-center cursor-pointer border-b dark:border-gray-600" onclick="App.render('inventory', {}, 'back')">
+                             <div class="flex items-center space-x-3"><i data-lucide="package" class="dark:text-gray-300"></i><span class="font-medium dark:text-gray-100">Gestionar Productos</span></div>
+                             <i data-lucide="chevron-right" class="text-gray-400"></i>
+                        </div>
+                        <div class="p-4 flex justify-between items-center cursor-pointer border-b dark:border-gray-600" onclick="App.showPlaceholderModal('Gestionar Categorías')">
+                             <div class="flex items-center space-x-3"><i data-lucide="tag" class="dark:text-gray-300"></i><span class="font-medium dark:text-gray-100">Gestionar Categorías</span></div>
+                             <i data-lucide="chevron-right" class="text-gray-400"></i>
+                        </div>
+                         <div class="p-4 flex justify-between items-center cursor-pointer" onclick="App.showPlaceholderModal('Gestionar Clientes y Proveedores')">
+                             <div class="flex items-center space-x-3"><i data-lucide="users" class="dark:text-gray-300"></i><span class="font-medium dark:text-gray-100">Clientes y Proveedores</span></div>
+                             <i data-lucide="chevron-right" class="text-gray-400"></i>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        `);
+
+
+        // --- EVENT INITIALIZERS ---
+        function loginInit() { document.getElementById('login-form').onsubmit = e => { e.preventDefault(); App.history = []; App.render('dashboard'); }; }
+        function dashboardInit() {  }
+        
+        async function inventoryInit() {
+            const container = document.getElementById('inventory-list-container');
+            if (!container) return;
+            container.innerHTML = `<div class="flex justify-center items-center h-64"><div class="loader"></div></div>`;
+            
+            const reorderCard = document.getElementById('reorder-assistant-card');
+            const reorderListContainer = document.getElementById('reorder-list');
+
+            const products = await App.api.getInventoryList();
+            
+            const lowStockProducts = products.filter(p => p.stock_actual <= p.stock_minimo);
+            
+            if (lowStockProducts.length > 0 && reorderCard && reorderListContainer) {
+                reorderCard.classList.remove('hidden');
+                const reorderHTML = lowStockProducts.map(p => `
+                    <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-800 p-2 rounded-lg">
+                        <span class="text-sm font-medium dark:text-gray-200">${p.nombre}</span>
+                        <span class="text-sm font-bold ${p.stock_actual === 0 ? 'text-red-500' : 'text-yellow-500'}">
+                            Stock: ${p.stock_actual}
+                        </span>
+                    </div>
+                `).join('');
+                reorderListContainer.innerHTML = reorderHTML;
+            } else if (reorderCard) {
+                reorderCard.classList.add('hidden');
+            }
+
+            const productHTML = products.map(product => {
+                return `
+                <div class="bg-white dark:bg-gray-700 p-3.5 rounded-xl shadow-sm flex items-center space-x-4 cursor-pointer" onclick='App.render("productForm", { mode: "edit", product: ${JSON.stringify(product)} }, "modal")'>
+                    <img src="${product.imagen}" class="w-14 h-14 rounded-lg object-cover bg-gray-200 flex-shrink-0">
+                    <div class="flex-grow min-w-0">
+                        <p class="font-semibold dark:text-gray-100 truncate">${product.nombre}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">SKU: ${product.sku}</p>
+                    </div>
+                    <i data-lucide="chevron-right" class="text-gray-400 flex-shrink-0"></i>
+                </div>`;
+            }).join('');
+
+            container.innerHTML = productHTML;
+            lucide.createIcons();
+        }
+        
+        function productFormInit(params) {
+            const form = document.getElementById('product-form');
+            if (!form) return;
+            
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+                
+                const saveBtn = document.getElementById('save-product-btn');
+                if(!saveBtn) return;
+
+                const formData = {
+                    id: document.getElementById('product-id').value,
+                    nombre: document.getElementById('nombre').value,
+                    sku: document.getElementById('sku').value,
+                    stock_actual: parseInt(document.getElementById('cantidad').value),
+                    descripcion: document.getElementById('descripcion').value,
+                    precio_compra: parseFloat(document.getElementById('precio_compra').value),
+                    precio_venta: parseFloat(document.getElementById('precio_venta').value),
+                    categoria: document.getElementById('id_categoria').value,
+                };
+                
+                const originalBtnText = saveBtn.innerHTML;
+                saveBtn.innerHTML = '<div class="w-5 h-5 border-2 border-white/50 border-t-white rounded-full animate-spin mx-auto"></div>';
+                saveBtn.disabled = true;
+                
+                await App.api.saveProduct(formData);
+                
+                saveBtn.innerHTML = originalBtnText;
+                saveBtn.disabled = false;
+                App.goBack();
+                App.render('inventory', {}, 'back');
+                setTimeout(() => App.render('inventory'), 50); 
+            };
+        }
+
+        async function ordersInit() {
+            const container = document.getElementById('orders-list-container');
+            if (!container) return;
+            container.innerHTML = `<div class="flex justify-center items-center h-64"><div class="loader"></div></div>`;
+            
+            const orders = await App.api.getOrdersList();
+            
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="placeholder-card mt-10">
+                        <i data-lucide="shopping-cart" class="w-12 h-12 mx-auto mb-3 text-gray-400 dark:text-gray-500"></i>
+                        <p class="text-gray-600 dark:text-gray-400">Aquí se listarán los pedidos de tus clientes.</p>
+                        <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm" onclick="App.render('orderForm', { mode: 'add' }, 'modal')">
+                            Crear Nuevo Pedido
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+            
+            const ordersHTML = orders.map(order => {
+                let stateColor = 'text-yellow-600 bg-yellow-100 dark:text-yellow-300 dark:bg-yellow-800/50';
+                if(order.estado === 'Enviado') stateColor = 'text-blue-600 bg-blue-100 dark:text-blue-300 dark:bg-blue-800/50';
+                if(order.estado === 'Entregado') stateColor = 'text-green-600 bg-green-100 dark:text-green-300 dark:bg-green-800/50';
+
+                return `
+                <div class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-sm cursor-pointer" onclick="App.showPlaceholderModal('Ver Pedido ${order.id}')">
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="font-bold text-lg dark:text-white">${order.id}</p>
+                        <p class="font-bold text-lg text-blue-800 dark:text-blue-400">${App.formatCurrency(order.total)}</p>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">${order.cliente}</p>
+                    <div class="flex justify-between items-center mt-3">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Fecha: ${order.fecha}</p>
+                        <span class="text-xs font-bold ${stateColor} px-2 py-0.5 rounded-full">${order.estado}</span>
+                    </div>
+                </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = ordersHTML;
+            lucide.createIcons();
+        }
+        
+         function orderFormInit(params) {
+            const saveBtn = document.getElementById('save-order-btn');
+            if (!saveBtn) return;
+            
+            saveBtn.onclick = async () => {
+                 const formData = {
+                    id_cliente: document.getElementById('id_cliente').value,
+                    id_almacen_origen: document.getElementById('id_almacen_origen').value
+                };
+                
+                saveBtn.innerHTML = '<div class="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto"></div>';
+                await App.api.saveOrder(formData);
+                saveBtn.innerHTML = 'Guardar';
+                
+                App.goBack();
+                setTimeout(() => App.render('orders'), 50);
+            };
+         }
+        
+        function financesInit() {
+            const ctx = document.getElementById('financialChart')?.getContext('2d');
+            if(!ctx) return;
+            const isDark = document.documentElement.classList.contains('dark');
+            new Chart(ctx, { type: 'line', data: { labels: ['Ene', 'Feb', 'Mar', 'Abr'], datasets: [{ label: 'Ingresos', data: [1200, 1900, 3000, 2400], borderColor: '#16a34a', fill: true, tension: 0.4 }, { label: 'Compras', data: [800, 1100, 1500, 1300], borderColor: '#dc2626', fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }, ticks: { color: isDark ? '#d1d5db' : '#374151' } }, x: { grid: { display: false }, ticks: { color: isDark ? '#d1d5db' : '#374151' } } }, plugins: { legend: { labels: { color: isDark ? '#d1d5db' : '#374151' } } } } });
+        }
+        function settingsInit() {
+            const toggle = document.getElementById('dark-mode-toggle');
+            if(toggle) toggle.onchange = () => App.setDarkMode(toggle.checked);
+        }
+        function settingsManageInit() { /* Placeholder */ }
+
+        // --- INITIAL APP LOAD ---
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('darkMode') === 'enabled') App.setDarkMode(true);
+            App.render('splash');
+            setTimeout(() => App.render('login'), 1500);
+        });
+    </script>
+</body>
+</html>

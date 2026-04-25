@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "208708140475",
+    "project_id": "gemainventory",
+    "storage_bucket": "gemainventory.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:208708140475:android:cddc79832d227e5aac989e",
+        "android_client_info": {
+          "package_name": "com.example.gemainventory"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "208708140475-iqf93e655s257jkus3f5k3pcqv88qaju.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDNZc_Zm0sX3I9pNeRAbmD9t3VQKJHyUA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "208708140475-iqf93e655s257jkus3f5k3pcqv88qaju.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

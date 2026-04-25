@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="16dp"
+    android:background="?attr/colorSurface">
+
+    <!-- Handler bar for visual indication -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:background="#E0E0E0"
+        android:backgroundTint="?attr/colorOnSurfaceVariant"
+        android:alpha="0.5"/>
+
+    <TextView
+        android:id="@+id/tv_sheet_order_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp"
+        android:text="Pedido #12345"
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+        android:textStyle="bold"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_sheet_view_details"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start|center_vertical"
+        android:paddingStart="24dp"
+        android:text="Ver Productos"
+        android:textColor="?attr/colorOnSurface"
+        android:drawableStart="@drawable/pedidos"
+        android:drawableTint="?attr/colorPrimary"
+        android:drawablePadding="16dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_sheet_mark_delivered"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start|center_vertical"
+        android:paddingStart="24dp"
+        android:text="Marcar Entregado"
+        android:textColor="?attr/colorOnSurface"
+        android:drawableStart="@drawable/ic_check_circle_24"
+        android:drawableTint="?attr/colorSecondary"
+        android:drawablePadding="16dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="8dp"
+        android:background="?attr/colorOutline"
+        android:alpha="0.2"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_sheet_delete"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start|center_vertical"
+        android:paddingStart="24dp"
+        android:text="Eliminar Pedido"
+        android:textColor="?attr/colorError"
+        android:drawableStart="@drawable/ic_delete_24"
+        android:drawableTint="?attr/colorError"
+        android:drawablePadding="16dp"/>
+
+</LinearLayout>

@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.finances.FinancesFragment"
+    tools:theme="@style/Theme.Material3.Dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Título principal -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Finanzas y Reportes"
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+            android:fontFamily="@font/poppins_bold"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 💰 Tarjeta de Beneficio Neto -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@android:color/transparent">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:padding="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_dashboard_card_premium">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/finanzas"
+                    app:tint="#60A5FA"
+                    android:layout_marginEnd="16dp"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:text="Beneficio Neto"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:fontFamily="@font/poppins_medium"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content" />
+
+                    <TextView
+                        android:id="@+id/tv_net_profit"
+                        android:text="$0.00"
+                        android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="#FFFFFF"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 💵 Fila con Ingresos y Compras -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:layout_marginBottom="12dp">
+
+            <!-- Ingresos Totales -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/transparent">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_dashboard_card_premium">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_shopping_cart"
+                        app:tint="#10B981"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:text="Ingresos Totales"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:fontFamily="@font/poppins_medium"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content" />
+
+                    <TextView
+                        android:id="@+id/tv_total_income"
+                        android:text="$0.00"
+                        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="#10B981"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Compras Totales -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/transparent">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_dashboard_card_premium">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/carro_azul"
+                        app:tint="#EF4444"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:text="Compras Totales"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:fontFamily="@font/poppins_medium"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content" />
+
+                    <TextView
+                        android:id="@+id/tv_total_expenses"
+                        android:text="$0.00"
+                        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="#EF4444"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- 📊 Card de Gráfica -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardElevation="2dp"
+            app:cardUseCompatPadding="true"
+            android:layout_marginTop="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Balance Financiero"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                    android:fontFamily="@font/poppins_semibold" />
+
+                <!-- Contenedor para la Gráfica -->
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/financial_chart"
+                    android:layout_width="match_parent"
+                    android:layout_height="250dp"
+                    android:layout_marginTop="16dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 📄 Card para Generar Reporte -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@android:color/transparent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:background="@drawable/bg_dashboard_card_premium">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <FrameLayout
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="12dp"
+                        android:background="@drawable/bg_notification_icon"
+                        android:backgroundTint="#1A60A5FA">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_download"
+                            app:tint="#60A5FA" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Generar Reporte"
+                        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                        android:fontFamily="@font/poppins_semibold" />
+                </LinearLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/report_menu_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Seleccionar Reporte">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/tv_report_type"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:text="Reporte Mensual"
+                        android:fontFamily="@font/poppins_medium" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/generate_report_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="16dp"
+                    android:text="Generar PDF"
+                    android:fontFamily="@font/poppins_bold"
+                    app:cornerRadius="12dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

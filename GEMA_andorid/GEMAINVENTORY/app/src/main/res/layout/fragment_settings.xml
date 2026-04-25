@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.settings.SettingsFragment"
+    tools:theme="@style/Theme.Material3.Dark">
+
+    <com.google.android.material.button.MaterialButton
+    android:id="@+id/button_logout"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:text="Cerrar Sesión"
+    android:paddingVertical="14dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginBottom="16dp"
+    android:fontFamily="@font/poppins_bold"
+    app:backgroundTint="#E53935"
+    app:cornerRadius="12dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_view_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/button_logout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- TÍTULO PRINCIPAL -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ajustes"
+                android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+                android:fontFamily="@font/poppins_bold"
+                android:layout_marginBottom="24dp"
+                android:letterSpacing="-0.02"/>
+
+            <!-- TARJETA DE PERFIL -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_profile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/colorSurface"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="1dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:padding="16dp">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/profile_avatar"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:src="@drawable/ic_account_circle"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Circle"
+                        android:scaleType="centerCrop"
+                        android:padding="2dp"
+                        app:strokeColor="#FFFFFF"
+                        app:strokeWidth="2dp"/>
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp">
+
+                        <TextView
+                            android:id="@+id/tv_ajustes_nombre"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                            android:fontFamily="@font/poppins_bold"
+                            android:textSize="20sp"
+                            tools:text="Dante" />
+
+                        <TextView
+                            android:id="@+id/tv_ajustes_correo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:fontFamily="@font/poppins_regular"
+                            android:alpha="0.7"
+                            tools:text="elchancli10@gmail.com" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:src="@drawable/ic_chevron_right"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        app:tint="?attr/colorOnSurfaceVariant"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- SECCIÓN 1: APP Y SEGURIDAD -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Aplicación y Seguridad"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="8dp"
+                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="@color/primary_night"
+                android:textAllCaps="true"
+                android:letterSpacing="0.1"/>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/colorSurface"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <RelativeLayout
+                        android:id="@+id/row_dark_mode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:id="@+id/icon_dark_mode"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_moon"
+                            app:tint="@color/primary_night"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="16dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Modo Oscuro"
+                            android:layout_toEndOf="@id/icon_dark_mode"
+                            android:layout_centerVertical="true"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"/>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switch_dark_mode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"/>
+                    </RelativeLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1AFFFFFF" android:layout_marginStart="56dp"/>
+
+                    <RelativeLayout
+                        android:id="@+id/row_biometric"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:id="@+id/icon_biometric"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/proteccionbiometrica"
+                            app:tint="@color/primary_night"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="16dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Protección Biométrica"
+                            android:layout_toEndOf="@id/icon_biometric"
+                            android:layout_centerVertical="true"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"/>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switch_biometric"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"/>
+                    </RelativeLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- SECCIÓN 2: NEGOCIO Y EQUIPO -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Administración de Negocio"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="8dp"
+                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="@color/primary_night"
+                android:textAllCaps="true"
+                android:letterSpacing="0.1"/>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/colorSurface"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:id="@+id/row_manage_catalog"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="16dp"
+                        android:background="?attr/selectableItemBackground">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_database" app:tint="@color/primary_night" android:layout_marginEnd="16dp"/>
+                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Gestión de Catálogos" android:fontFamily="@font/poppins_semibold" android:textAppearance="@style/TextAppearance.Material3.BodyLarge"/>
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_chevron_right" app:tint="?attr/colorOnSurfaceVariant"/>
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1AFFFFFF" android:layout_marginStart="56dp"/>
+
+                    <LinearLayout
+                        android:id="@+id/row_business"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="16dp"
+                        android:background="?attr/selectableItemBackground">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/minegocio" app:tint="@color/primary_night" android:layout_marginEnd="16dp"/>
+                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Mi Negocio / Invitar" android:fontFamily="@font/poppins_semibold" android:textAppearance="@style/TextAppearance.Material3.BodyLarge"/>
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_chevron_right" app:tint="?attr/colorOnSurfaceVariant"/>
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1AFFFFFF" android:layout_marginStart="56dp"/>
+
+                    <LinearLayout
+                        android:id="@+id/row_join_create_business"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="16dp"
+                        android:background="?attr/selectableItemBackground">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_plus" app:tint="@color/primary_night" android:layout_marginEnd="16dp"/>
+                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Unirse o Crear Nuevo Negocio" android:fontFamily="@font/poppins_semibold" android:textAppearance="@style/TextAppearance.Material3.BodyLarge"/>
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_chevron_right" app:tint="?attr/colorOnSurfaceVariant"/>
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1AFFFFFF" android:layout_marginStart="56dp"/>
+
+                    <LinearLayout
+                        android:id="@+id/row_switch_business"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="16dp"
+                        android:background="?attr/selectableItemBackground">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/cambiardenegocio" app:tint="@color/primary_night" android:layout_marginEnd="16dp"/>
+                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Cambiar de Negocio" android:fontFamily="@font/poppins_semibold" android:textAppearance="@style/TextAppearance.Material3.BodyLarge"/>
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_chevron_right" app:tint="?attr/colorOnSurfaceVariant"/>
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/divider_manage_users"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#1AFFFFFF"
+                        android:layout_marginStart="56dp"
+                        android:visibility="gone"/>
+
+                    <LinearLayout
+                        android:id="@+id/row_manage_users"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="16dp"
+                        android:visibility="gone"
+                        android:background="?attr/selectableItemBackground">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/gestiondeequipo" app:tint="@color/primary_night" android:layout_marginEnd="16dp"/>
+                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Gestión de Equipo" android:fontFamily="@font/poppins_semibold" android:textAppearance="@style/TextAppearance.Material3.BodyLarge"/>
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_chevron_right" app:tint="?attr/colorOnSurfaceVariant"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- SECCIÓN 3: SOPORTE -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Soporte y Ayuda"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="8dp"
+                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="@color/primary_night"
+                android:textAllCaps="true"
+                android:letterSpacing="0.1"/>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/colorSurface"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:id="@+id/row_notifications"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="16dp"
+                        android:background="?attr/selectableItemBackground">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_notification_bell" app:tint="@color/primary_night" android:layout_marginEnd="16dp"/>
+                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Alertas y Notificaciones" android:fontFamily="@font/poppins_semibold" android:textAppearance="@style/TextAppearance.Material3.BodyLarge"/>
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_chevron_right" app:tint="?attr/colorOnSurfaceVariant"/>
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1AFFFFFF" android:layout_marginStart="56dp"/>
+
+                    <LinearLayout
+                        android:id="@+id/user_manual"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="16dp"
+                        android:background="?attr/selectableItemBackground">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_user_manual" app:tint="@color/primary_night" android:layout_marginEnd="16dp"/>
+                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Manual del Usuario" android:fontFamily="@font/poppins_semibold" android:textAppearance="@style/TextAppearance.Material3.BodyLarge"/>
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_chevron_right" app:tint="?attr/colorOnSurfaceVariant"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <View android:layout_width="match_parent" android:layout_height="24dp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

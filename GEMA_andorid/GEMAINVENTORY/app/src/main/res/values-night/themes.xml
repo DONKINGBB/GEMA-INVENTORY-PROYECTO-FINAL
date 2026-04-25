@@ -1,0 +1,27 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Tema Principal (Modo Noche) -->
+    <style name="Theme.GemaInventory" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Color primario -->
+        <item name="colorPrimary">@color/primary_night</item>
+        <item name="colorPrimaryVariant">@color/primary</item>
+        <item name="colorOnPrimary">@color/black_night_bg</item>
+        <!-- Color secundario -->
+        <item name="colorSecondary">@color/accent_night</item>
+        <item name="colorSecondaryVariant">@color/accent_night</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Color de fondo de la app -->
+        <item name="android:colorBackground">@color/black_night_bg</item>
+        <!-- Color de superficies (cards) -->
+        <item name="colorSurface">@color/gray_night_surface</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="colorOutlineVariant">#444444</item>
+        <!-- Fuente por defecto -->
+        <!-- <item name="android:fontFamily">@font/poppins</item> -->
+        <!-- <item name="fontFamily">@font/poppins</item> -->
+    </style>
+
+    <style name="Theme.GemaInventory.Splash" parent="Theme.GemaInventory">
+        <item name="android:windowBackground">@color/black_night_bg</item>
+    </style>
+    <color name="arrow_tint">#FFFFFFFF</color>
+</resources>

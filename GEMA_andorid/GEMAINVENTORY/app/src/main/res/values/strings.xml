@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">Gema Inventory</string>
+
+    <!-- Títulos del Menú Inferior -->
+    <string name="title_home">Inicio</string>
+    <string name="title_dashboard">Inicio</string>
+    <string name="title_inventory">Inventario</string>
+    <string name="title_orders">Pedidos</string>
+    <string name="title_finances">Finanzas</string>
+    <string name="title_settings">Ajustes</string>
+    <string name="title_manage_settings">Gestión de Catálogos</string>
+
+    <!-- Login -->
+    <string name="bienvenido">Bienvenido</string>
+    <string name="correo">Correo</string>
+    <string name="contrase_a">Contraseña</string>
+    <string name="iniciar_sesi_n">Iniciar Sesión</string>
+    <string name="o">o</string>
+    <string name="iniciar_sesi_n_con_google">Iniciar sesión con Google</string>
+    <string name="no_tienes_cuenta_reg_strate">¿No tienes cuenta? Regístrate</string>
+    <string name="olvidaste_tu_contrase_a">¿Olvidaste tu contraseña?</string>
+    <string name="recuperar_contrasena">Recuperar Contraseña</string>
+    <string name="desc_recuperar">Ingresa tu correo electrónico para recibir un código de recuperación de 6 dígitos.</string>
+    <string name="enviar_codigo">Enviar Código</string>
+    <string name="restablecer_contrasena">Restablecer Contraseña</string>
+    <string name="desc_restablecer">Ingresa el código enviado a tu correo y tu nueva contraseña.</string>
+    <string name="nueva_contrasena">Nueva Contraseña</string>
+    <string name="logo_de_gema_inventory">Logo de Gema Inventory</string>
+    <string name="agregar_producto">Agregar Producto</string>
+
+    <!-- Inventario -->
+    <string name="cero_decimal">0.0</string>
+
+
+</resources>

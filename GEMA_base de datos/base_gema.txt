@@ -1,0 +1,190 @@
+DROP DATABASE IF EXISTS sql_gemma;
+CREATE DATABASE sql_gemma;
+USE sql_gemma;
+SET FOREIGN_KEY_CHECKS = 0;
+-- ==========================================
+-- 1. SEGURIDAD Y ACCESO
+-- ==========================================
+-- Catálogo de Roles
+CREATE TABLE cat_roles (
+  id_rol INT NOT NULL AUTO_INCREMENT,
+  nombre VARCHAR(50) NOT NULL,
+  PRIMARY KEY (id_rol)
+);
+-- Negocios (La entidad principal del Multi-Tenant)
+CREATE TABLE negocios (
+  id_negocio VARCHAR(36) NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  propietario_id VARCHAR(36) NOT NULL, -- Referencia al usuario creador
+  codigo_invitacion VARCHAR(10) UNIQUE, -- Para que otros se unan
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id_negocio)
+);
+-- Usuarios
+CREATE TABLE usuarios (
+  id_usuario VARCHAR(36) NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  correo VARCHAR(100) NOT NULL,
+  contraseña VARCHAR(255) NOT NULL,
+  id_rol INT NOT NULL,
+  id_negocio VARCHAR(36), -- A qué negocio pertenece
+  direccion TEXT NULL,
+  telefono VARCHAR(20) NULL,
+  fcm_token TEXT NULL,
+  notify_low_stock TINYINT(1) DEFAULT 1,
+  notify_new_orders TINYINT(1) DEFAULT 1,
+  notify_inventory_changes TINYINT(1) DEFAULT 1,
+  activo TINYINT(1) DEFAULT 1,
+  fecha_registro TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id_usuario),
+  UNIQUE (correo),
+  CONSTRAINT fk_usuarios_rol FOREIGN KEY (id_rol) REFERENCES cat_roles (id_rol),
+  CONSTRAINT fk_usuarios_negocio FOREIGN KEY (id_negocio) REFERENCES negocios (id_negocio)
+);
+-- ==========================================
+-- 2. CATÁLOGOS DEL NEGOCIO (COMPARTIDOS)
+-- ==========================================
+-- Almacenes
+CREATE TABLE almacenes (
+  id_almacen INT NOT NULL AUTO_INCREMENT,
+  nombre VARCHAR(100) NOT NULL,
+  ubicacion TEXT,
+  id_negocio VARCHAR(36) NOT NULL,
+  PRIMARY KEY (id_almacen),
+  CONSTRAINT fk_almacenes_negocio FOREIGN KEY (id_negocio) REFERENCES negocios (id_negocio)
+);
+-- Categorías de Productos
+CREATE TABLE categorias_productos (
+  id_categoria INT NOT NULL AUTO_INCREMENT,
+  nombre VARCHAR(100) NOT NULL,
+  id_negocio VARCHAR(36) NOT NULL,
+  PRIMARY KEY (id_categoria),
+  CONSTRAINT fk_categorias_negocio FOREIGN KEY (id_negocio) REFERENCES negocios (id_negocio)
+);
+-- Productos
+CREATE TABLE productos (
+  id_producto VARCHAR(36) NOT NULL,
+  sku VARCHAR(50) NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  descripcion TEXT,
+  id_categoria INT,
+  id_negocio VARCHAR(36) NOT NULL,
+  imagen_url TEXT,
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id_producto),
+  CONSTRAINT fk_productos_categoria FOREIGN KEY (id_categoria) REFERENCES categorias_productos (id_categoria),
+  CONSTRAINT fk_productos_negocio FOREIGN KEY (id_negocio) REFERENCES negocios (id_negocio)
+);
+-- Clientes
+CREATE TABLE clientes (
+  id_cliente VARCHAR(36) NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  contacto VARCHAR(255),
+  direccion TEXT,
+  id_tipo_cliente INT DEFAULT 1,
+  id_negocio VARCHAR(36) NOT NULL,
+  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id_cliente),
+  CONSTRAINT fk_clientes_negocio FOREIGN KEY (id_negocio) REFERENCES negocios (id_negocio)
+);
+-- ==========================================
+-- 3. OPERACIONES E INVENTARIO
+-- ==========================================
+-- Inventario (Stock por Almacén)
+CREATE TABLE inventario (
+  id_inventario INT NOT NULL AUTO_INCREMENT,
+  id_producto VARCHAR(36) NOT NULL,
+  id_almacen INT NOT NULL,
+  cantidad_actual INT DEFAULT 0,
+  stock_minimo INT DEFAULT 5,
+  PRIMARY KEY (id_inventario),
+  CONSTRAINT fk_inv_producto FOREIGN KEY (id_producto) REFERENCES productos (id_producto),
+  CONSTRAINT fk_inv_almacen FOREIGN KEY (id_almacen) REFERENCES almacenes (id_almacen)
+);
+-- Pedidos (Ventas)
+CREATE TABLE pedidos (
+  id_pedido VARCHAR(36) NOT NULL,
+  nombre_pedido VARCHAR(100),
+  id_cliente VARCHAR(36),
+  id_usuario VARCHAR(36) NOT NULL, -- Quién lo hizo
+  id_negocio VARCHAR(36) NOT NULL, -- Del negocio
+  id_almacen_origen INT NOT NULL,
+  fecha_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_limite DATE,
+  id_estado INT DEFAULT 1, -- 1-Pendiente, 2-Completado, 3-Cancelado
+  total DECIMAL(10,2),
+  PRIMARY KEY (id_pedido),
+  CONSTRAINT fk_pedidos_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario),
+  CONSTRAINT fk_pedidos_negocio FOREIGN KEY (id_negocio) REFERENCES negocios (id_negocio)
+);
+-- Detalle de Pedidos
+CREATE TABLE detalle_pedidos (
+  id_detalle INT NOT NULL AUTO_INCREMENT,
+  id_pedido VARCHAR(36) NOT NULL,
+  id_producto VARCHAR(36) NOT NULL,
+  cantidad INT NOT NULL,
+  precio_unitario DECIMAL(10,2) NOT NULL,
+  subtotal DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (id_detalle),
+  CONSTRAINT fk_det_pedido FOREIGN KEY (id_pedido) REFERENCES pedidos (id_pedido) ON DELETE CASCADE,
+  CONSTRAINT fk_det_producto FOREIGN KEY (id_producto) REFERENCES productos (id_producto)
+);
+-- Compras (Gastos)
+CREATE TABLE compras (
+  id_compra VARCHAR(36) NOT NULL,
+  id_proveedor VARCHAR(36),
+  id_usuario VARCHAR(36) NOT NULL,
+  id_negocio VARCHAR(36) NOT NULL,
+  id_almacen_destino INT,
+  fecha_compra TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  total DECIMAL(10,2),
+  PRIMARY KEY (id_compra),
+  CONSTRAINT fk_compras_negocio FOREIGN KEY (id_negocio) REFERENCES negocios (id_negocio)
+);
+-- Actividades (Audit Log)
+CREATE TABLE actividades (
+  id_actividad VARCHAR(36) NOT NULL,
+  id_usuario VARCHAR(36) NOT NULL,
+  id_negocio VARCHAR(36) NOT NULL,
+  id_tipo_actividad INT NOT NULL,
+  descripcion TEXT,
+  entidad_afectada VARCHAR(50),
+  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id_actividad),
+  CONSTRAINT fk_act_negocio FOREIGN KEY (id_negocio) REFERENCES negocios (id_negocio)
+);
+-- Proveedores
+CREATE TABLE proveedores (
+  id_proveedor VARCHAR(36) NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  contacto VARCHAR(100),
+  direccion TEXT,
+  id_negocio VARCHAR(36) NOT NULL,
+  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id_proveedor),
+  CONSTRAINT fk_proveedores_negocio FOREIGN KEY (id_negocio) REFERENCES negocios (id_negocio)
+);
+
+-- ==========================================
+-- 4. DATOS INICIALES
+-- ==========================================
+INSERT INTO cat_roles (nombre) VALUES ('PROPIETARIO'), ('EMPLEADO');
+
+-- Crear tabla de relaciones Mucho-a-Muchos
+CREATE TABLE IF NOT EXISTS usuarios_negocios (
+    id_usuario VARCHAR(36) NOT NULL,
+    id_negocio VARCHAR(36) NOT NULL,
+    id_rol INT NOT NULL,
+    fecha_union TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_usuario, id_negocio),
+    CONSTRAINT fk_rel_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario),
+    CONSTRAINT fk_rel_negocio FOREIGN KEY (id_negocio) REFERENCES negocios (id_negocio)
+);
+-- Migrar datos actuales
+INSERT IGNORE INTO usuarios_negocios (id_usuario, id_negocio, id_rol)
+SELECT id_usuario, id_negocio, id_rol 
+FROM usuarios 
+WHERE id_negocio IS NOT NULL;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
