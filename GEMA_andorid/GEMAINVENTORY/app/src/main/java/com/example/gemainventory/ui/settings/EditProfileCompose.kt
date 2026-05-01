@@ -121,7 +121,7 @@ fun EditProfileScreen(
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                         shape = CircleShape
                     ) {
-                        Icon(painter = painterResource(R.id.ic_camera), contentDescription = "Cambiar foto", modifier = Modifier.size(16.dp))
+                        Icon(painter = painterResource(R.drawable.ic_camera), contentDescription = "Cambiar foto", modifier = Modifier.size(16.dp))
                     }
                 }
 
@@ -187,7 +187,7 @@ fun EditProfileScreen(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
-                                painter = painterResource(R.id.ic_security),
+                                painter = painterResource(R.drawable.ic_security),
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(24.dp)
@@ -210,7 +210,7 @@ fun EditProfileScreen(
 
                         SecurityActionItem(
                             title = "Eliminar Cuenta",
-                            icon = painterResource(R.id.ic_delete_24),
+                            icon = painterResource(R.drawable.ic_delete_24),
                             color = MaterialTheme.colorScheme.error,
                             onClick = onDeleteAccountClick
                         )

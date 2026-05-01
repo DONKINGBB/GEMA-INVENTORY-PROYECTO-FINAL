@@ -121,5 +121,6 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.icons.extended)
     implementation(libs.activity.compose)
+    implementation("io.coil-kt:coil-compose:2.6.0")
     debugImplementation(libs.compose.ui.tooling)
 }

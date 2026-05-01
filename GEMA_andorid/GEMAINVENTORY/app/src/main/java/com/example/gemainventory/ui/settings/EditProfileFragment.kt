@@ -26,9 +26,9 @@ import com.example.gemainventory.model.Usuario
 import com.example.gemainventory.model.UsuarioUpdateDto
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -133,7 +133,8 @@ class EditProfileFragment : Fragment() {
                 return
             }
 
-            val requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageBytes)
+            val mediaType = "image/jpeg".toMediaTypeOrNull()
+            val requestFile = imageBytes.toRequestBody(mediaType)
             val body = MultipartBody.Part.createFormData("file", "profile.jpg", requestFile)
 
             RetrofitClient.instance.uploadImage(body).enqueue(object : Callback<UploadResponse> {

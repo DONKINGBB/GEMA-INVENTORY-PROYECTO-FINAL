@@ -30,13 +30,13 @@ object RetrofitClient {
 
     private val errorInterceptor = Interceptor { chain ->
         val request = chain.request()
-        val path = request.url().encodedPath()
+        val path = request.url.encodedPath
         val response = chain.proceed(request)
         
         if (!response.isSuccessful) {
-            android.util.Log.e("API_ERROR", "Error en " + path + " | Código: " + response.code())
+            android.util.Log.e("API_ERROR", "Error en " + path + " | Código: " + response.code)
         }
-        if (response.code() == 401) {
+        if (response.code == 401) {
             if (!path.contains("fcm-token") && !path.contains("auth/login") && !path.contains("auth/google")) {
                 val prefs = GemaApplication.instance.getSharedPreferences("GemaPrefs", Context.MODE_PRIVATE)
                 val editor = prefs.edit()
