@@ -132,12 +132,12 @@ public class NegocioController {
 
         currentUser.setIdNegocio(negocioGuardado.getIdNegocio());
         currentUser.setIdRol(1); // 1 = PROPIETARIO
-        usuarioRepository.save(currentUser);
+        Usuario managedUser = usuarioRepository.save(currentUser);
 
         // --- REGISTRAMOS LA RELACIÓN MULTI-NEGOCIO ---
         com.example.demo.model.UsuarioNegocio rel = com.example.demo.model.UsuarioNegocio.builder()
-                .id(new com.example.demo.model.UsuarioNegocio.UsuarioNegocioId(currentUser.getId(), negocioGuardado.getIdNegocio()))
-                .usuario(currentUser)
+                .id(new com.example.demo.model.UsuarioNegocio.UsuarioNegocioId(managedUser.getId(), negocioGuardado.getIdNegocio()))
+                .usuario(managedUser)
                 .negocio(negocioGuardado)
                 .idRol(1) // 1 = PROPIETARIO
                 .build();
@@ -200,12 +200,12 @@ public class NegocioController {
         // Unirse al negocio como Almacenista (rol 6 - nivel base)
         currentUser.setIdNegocio(negocioOpt.get().getIdNegocio());
         currentUser.setIdRol(6); 
-        usuarioRepository.save(currentUser);
+        Usuario managedUser = usuarioRepository.save(currentUser);
 
         // --- REGISTRAMOS LA RELACIÓN MULTI-NEGOCIO ---
         com.example.demo.model.UsuarioNegocio rel = com.example.demo.model.UsuarioNegocio.builder()
-                .id(new com.example.demo.model.UsuarioNegocio.UsuarioNegocioId(currentUser.getId(), negocioOpt.get().getIdNegocio()))
-                .usuario(currentUser)
+                .id(new com.example.demo.model.UsuarioNegocio.UsuarioNegocioId(managedUser.getId(), negocioOpt.get().getIdNegocio()))
+                .usuario(managedUser)
                 .negocio(negocioOpt.get())
                 .idRol(6)
                 .build();

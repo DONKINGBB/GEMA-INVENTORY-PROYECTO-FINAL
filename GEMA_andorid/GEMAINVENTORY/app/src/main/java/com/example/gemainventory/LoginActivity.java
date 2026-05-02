@@ -196,17 +196,18 @@ public class LoginActivity extends AppCompatActivity {
             // ¡ÉXITO! Google dice que el usuario es válido.
             String email = account.getEmail();
             String nombre = account.getDisplayName();
+            String googleId = account.getId();
 
             // AHORA: Enviamos estos datos a TU Spring Boot
-            loginConGoogleEnBackend(email, nombre);
+            loginConGoogleEnBackend(googleId, email, nombre);
 
         } catch (ApiException e) {
             Toast.makeText(this, "Fallo Google: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void loginConGoogleEnBackend(String email, String nombre) {
-        GoogleLoginDto dto = new GoogleLoginDto(email, nombre);
+    private void loginConGoogleEnBackend(String id, String email, String nombre) {
+        GoogleLoginDto dto = new GoogleLoginDto(id, email, nombre);
 
         Call<LoginResponse> call = RetrofitClient.INSTANCE.getInstance().loginGoogle(dto);
 

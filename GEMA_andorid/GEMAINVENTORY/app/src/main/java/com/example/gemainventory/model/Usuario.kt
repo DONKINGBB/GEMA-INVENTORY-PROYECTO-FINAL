@@ -7,7 +7,7 @@ class Usuario @JvmOverloads constructor(
     var idUsuario: String? = null,
     @SerializedName("nombre")
     var nombre: String? = null,
-    @SerializedName("user")
+    @SerializedName("correo")
     var correo: String? = null,
     @SerializedName("direccion")
     var direccion: String? = null,
