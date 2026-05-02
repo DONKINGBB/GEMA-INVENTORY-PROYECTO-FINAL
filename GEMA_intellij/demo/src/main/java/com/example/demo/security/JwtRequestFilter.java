@@ -58,9 +58,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            Usuario usuario = usuarioRepository.findByUserAndActivoTrue(username).orElse(null);
+            Usuario usuario = usuarioRepository.findByCorreoAndActivoTrue(username).orElse(null);
 
-            if (usuario != null && jwtUtil.validateToken(jwt, usuario.getUser())) {
+            if (usuario != null && jwtUtil.validateToken(jwt, usuario.getCorreo())) {
 
                 // Mapping 1=ROLE_ADMIN, 2=ROLE_SUPERVISOR, 3=ROLE_OPERARIO
                 String roleName = "ROLE_OPERARIO";

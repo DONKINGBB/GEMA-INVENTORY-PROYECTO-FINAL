@@ -39,7 +39,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             currentUser = (Usuario) principal;
         } else {
             // Si el principal es un String o UserDetails, buscamos el objeto completo (SOLO ACTIVOS)
-            currentUser = usuarioRepository.findByUserAndActivoTrue(auth.getName()).orElse(null);
+            currentUser = usuarioRepository.findByCorreoAndActivoTrue(auth.getName()).orElse(null);
         }
 
         if (currentUser != null && currentUser.getIdNegocio() != null) {
@@ -76,12 +76,12 @@ public class UsuarioServiceImpl implements UsuarioService {
         String username = null;
         Object principal = auth.getPrincipal();
         if (principal instanceof Usuario) {
-            username = ((Usuario) principal).getUser();
+            username = ((Usuario) principal).getCorreo();
         } else {
             username = auth.getName();
         }
 
-        Usuario modificador = usuarioRepository.findByUserAndActivoTrue(username).orElse(null);
+        Usuario modificador = usuarioRepository.findByCorreoAndActivoTrue(username).orElse(null);
 
         if (modificador == null) {
             System.err.println(">>> ERROR: No se encontró al modificador (o está inactivo) en DB: " + username);
@@ -166,7 +166,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
 
         Object principal = auth.getPrincipal();
-        Usuario modificador = (principal instanceof Usuario) ? (Usuario) principal : usuarioRepository.findByUserAndActivoTrue(auth.getName()).orElse(null);
+        Usuario modificador = (principal instanceof Usuario) ? (Usuario) principal : usuarioRepository.findByCorreoAndActivoTrue(auth.getName()).orElse(null);
 
         if (modificador == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Modificador no encontrado");
@@ -217,10 +217,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
 
         // 4. Actualizar campos
-        objetivo.setUser(usuario.getUser());
+        objetivo.setCorreo(usuario.getCorreo());
         objetivo.setNombre(usuario.getNombre());
-        if (usuario.getPassword() != null && !usuario.getPassword().isEmpty()) {
-            objetivo.setPassword(usuario.getPassword());
+        if (usuario.getPasswordHash() != null && !usuario.getPasswordHash().isEmpty()) {
+            objetivo.setPasswordHash(usuario.getPasswordHash());
         }
         objetivo.setIdRol(usuario.getIdRol());
 
@@ -269,11 +269,11 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
  
         // Validación de contraseña actual (Plain text como el resto del proyecto)
-        if (!u.getPassword().equals(oldPassword)) {
+        if (!u.getPasswordHash().equals(oldPassword)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La contraseña actual es incorrecta");
         }
  
-        u.setPassword(newPassword);
+        u.setPasswordHash(newPassword);
         usuarioRepository.save(u);
     }
 }

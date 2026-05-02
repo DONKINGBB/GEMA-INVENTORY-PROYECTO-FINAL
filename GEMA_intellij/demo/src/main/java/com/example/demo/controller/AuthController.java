@@ -28,11 +28,11 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> login(@RequestParam String correo, @RequestParam String contrasena) {
         Map<String, Object> response = new HashMap<>();
 
-        Optional<Usuario> userOpt = usuarioRepository.findByUserAndActivoTrue(correo);
+        Optional<Usuario> userOpt = usuarioRepository.findByCorreoAndActivoTrue(correo);
 
-        if (userOpt.isPresent() && userOpt.get().getPassword().equals(contrasena)) {
+        if (userOpt.isPresent() && userOpt.get().getPasswordHash().equals(contrasena)) {
             Usuario user = userOpt.get();
-            String token = jwtUtil.generateToken(user.getUser(), user.getId(), user.getIdRol());
+            String token = jwtUtil.generateToken(user.getCorreo(), user.getId(), user.getIdRol());
 
             response.put("success", true);
             response.put("usuario", user);
@@ -58,7 +58,7 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
 
         // Verificar si existe
-        Optional<Usuario> userOpt = usuarioRepository.findByUserAndActivoTrue(correo);
+        Optional<Usuario> userOpt = usuarioRepository.findByCorreoAndActivoTrue(correo);
 
         if (userOpt.isPresent()) {
             response.put("success", false);
@@ -71,8 +71,8 @@ public class AuthController {
         // Crear nuevo usuario SIN negocio asigando inicialmente
         Usuario nuevo = Usuario.builder()
                 .nombre(nombre)
-                .user(correo) // Mapeado a columna 'correo'
-                .password(contrasena)
+                .correo(correo) // Mapeado a columna 'correo'
+                .passwordHash(contrasena)
                 .direccion(direccion)
                 .telefono(telefono)
                 .idRol(1) // Rol por defecto (Dueño) si crean uno
@@ -82,7 +82,7 @@ public class AuthController {
         usuarioRepository.save(nuevo);
 
         // Generar token para permitir login inmediato
-        String token = jwtUtil.generateToken(nuevo.getUser(), nuevo.getId(), nuevo.getIdRol());
+        String token = jwtUtil.generateToken(nuevo.getCorreo(), nuevo.getId(), nuevo.getIdRol());
 
         response.put("success", true);
         response.put("message", "Usuario registrado con éxito");
@@ -116,30 +116,34 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> googleLogin(@RequestBody GoogleLoginDto dto) {
         Map<String, Object> response = new HashMap<>();
 
-        // 1. Buscar si ya existe
-        Optional<Usuario> userOpt = usuarioRepository.findByUserAndActivoTrue(dto.getCorreo());
+        // 1. Buscar si ya existe por Google ID o por Correo
+        Optional<Usuario> userOpt = usuarioRepository.findByCorreoAndActivoTrue(dto.getCorreo());
 
         Usuario usuarioFinal;
 
         if (userOpt.isPresent()) {
-            // YA EXISTE: Iniciamos sesión
             usuarioFinal = userOpt.get();
+            // Si no tenía google_id, se lo asignamos ahora
+            if (usuarioFinal.getGoogleId() == null) {
+                usuarioFinal.setGoogleId(dto.getId());
+                usuarioRepository.save(usuarioFinal);
+            }
         } else {
-            // NO EXISTE: Lo registramos automáticamente SIN negocio asignado
-            // Esto obliga al usuario a pasar por el Onboarding (Crear o Unirse)
+            // NO EXISTE: Lo registramos
             Usuario nuevo = new Usuario();
-            nuevo.setUser(dto.getCorreo());
+            nuevo.setGoogleId(dto.getId());
+            nuevo.setCorreo(dto.getCorreo());
             nuevo.setNombre(dto.getNombre());
-            nuevo.setPassword(""); // Sin contraseña porque entra con Google
+            nuevo.setPasswordHash(""); 
             nuevo.setDireccion("Pendiente");
             nuevo.setTelefono("Pendiente");
-            nuevo.setIdRol(1); // Rol inicial 1 (Administrador potencial)
-            nuevo.setIdNegocio(null); // Obligatorio para ruteo a Onboarding
+            nuevo.setIdRol(1);
+            nuevo.setIdNegocio(null);
 
             usuarioFinal = usuarioRepository.save(nuevo);
         }
 
-        String token = jwtUtil.generateToken(usuarioFinal.getUser(), usuarioFinal.getId(), usuarioFinal.getIdRol());
+        String token = jwtUtil.generateToken(usuarioFinal.getCorreo(), usuarioFinal.getId(), usuarioFinal.getIdRol());
 
         // Devolvemos éxito
         response.put("success", true);

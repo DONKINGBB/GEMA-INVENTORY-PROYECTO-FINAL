@@ -27,7 +27,7 @@ public class UsuarioController {
     private UsuarioDto convertirADto(Usuario u) {
         return UsuarioDto.builder()
                 .id(u.getId())
-                .user(u.getUser())
+                .user(u.getCorreo())
                 .nombre(u.getNombre())
                 .idRol(u.getIdRol())
                 .fcmToken(u.getFcmToken())
@@ -71,9 +71,9 @@ public class UsuarioController {
     @PostMapping("/usuario")
     public ResponseEntity<UsuarioDto> save(@RequestBody UsuarioDto usuarioDto) {
         Usuario u = Usuario.builder()
-                .user(usuarioDto.getUser())
+                .correo(usuarioDto.getUser())
                 .nombre(usuarioDto.getNombre())
-                .password(usuarioDto.getPassword()) // ⚠️ solo se usa internamente
+                .passwordHash(usuarioDto.getPassword()) // ⚠️ solo se usa internamente
                 .idRol(usuarioDto.getIdRol())
                 .build();
  
@@ -84,9 +84,9 @@ public class UsuarioController {
     @PutMapping("/usuario/{id}")
     public ResponseEntity<UsuarioDto> update(@PathVariable String id, @RequestBody UsuarioDto usuarioDto) {
         Usuario datosParaActualizar = Usuario.builder()
-                .user(usuarioDto.getUser())
+                .correo(usuarioDto.getUser())
                 .nombre(usuarioDto.getNombre())
-                .password(usuarioDto.getPassword())
+                .passwordHash(usuarioDto.getPassword())
                 .idRol(usuarioDto.getIdRol())
                 .build();
  

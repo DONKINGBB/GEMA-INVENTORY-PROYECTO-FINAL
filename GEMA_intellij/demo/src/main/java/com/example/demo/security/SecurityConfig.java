@@ -23,43 +23,37 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable() // Desactivamos CSRF porque usamos JWT (Stateless)
-                .cors().and()
-                .authorizeHttpRequests()
+        http
+            .csrf(csrf -> csrf.disable()) // Desactivamos CSRF porque usamos JWT (Stateless)
+            .cors(cors -> {}) // Usar configuración predeterminada de CORS
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
                 // --- ENDPOINTS PÚBLICOS ---
-                .requestMatchers("/api/auth/**", "/uploads/**", "/api/upload").permitAll() // Login, Registro, Upload e Imágenes abiertos
-
+                .requestMatchers("/", "/api/auth/**", "/uploads/**", "/api/upload", "/error").permitAll() // Raíz, Login, Registro, Upload, Imágenes y Error abiertos
+                
                 // --- SISTEMA DE NEGOCIOS (Onboarding) ---
-                .requestMatchers("/api/negocios/**").authenticated() // Cualquier usuario logueado puede crear/unirse
+                .requestMatchers("/api/negocios/**").authenticated() 
 
                 // --- REGLAS BASADAS EN ROLES ---
-                // ID Rol 1 = ROLE_ADMIN | ID Rol 2 = ROLE_SUPERVISOR | ID Rol 3 = ROLE_OPERARIO
-
-                // Los operarios solo pueden consultar, crear productos y hacer salidas de
-                // inventario.
-                .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/catalogos/**", "/api/inventario/**",
-                        "/api/almacenes/**")
-                .hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERVISOR", "ROLE_OPERARIO")
+                .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/catalogos/**", "/api/inventario/**", "/api/almacenes/**")
+                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERVISOR", "ROLE_OPERARIO")
                 .requestMatchers(HttpMethod.POST, "/api/productos/**")
-                .hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERVISOR", "ROLE_OPERARIO")
+                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERVISOR", "ROLE_OPERARIO")
                 .requestMatchers(HttpMethod.POST, "/api/movimiento-inventario/**")
-                .hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERVISOR", "ROLE_OPERARIO")
+                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERVISOR", "ROLE_OPERARIO")
 
-                // Todo lo de FINANZAS y balances es exclusivo de ADMIN y SUPERVISOR
+                // Todo lo de FINANZAS es exclusivo de ADMIN y SUPERVISOR
                 .requestMatchers("/api/finanzas/**", "/api/balance-financiero/**", "/api/compras/**")
-                .hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERVISOR")
+                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERVISOR")
 
-                // Gestionar Usuarios, Roles o Eliminación forzada (Hard delete) de catálogos
+                // Gestionar Usuarios
                 .requestMatchers("/api/usuarios/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERVISOR")
                 .requestMatchers(HttpMethod.DELETE, "/api/catalogos/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/productos/**").hasAuthority("ROLE_ADMIN")
 
                 // --- DEFAULT ---
-                // Cualquier otra petición debe estar al menos autenticada
                 .anyRequest().authenticated()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS); // Nunca usar sesiones en el servidor
+            );
 
         // Agregamos el filtro JWT ANTES del filtro predeterminado de Spring Security
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);

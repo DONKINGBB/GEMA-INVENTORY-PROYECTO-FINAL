@@ -28,7 +28,7 @@ public class PasswordResetService {
     @Transactional
     public void requestPasswordReset(String email) {
         // 1. Verificar si el usuario existe
-        usuarioRepository.findByUserAndActivoTrue(email).orElseThrow(() -> 
+        usuarioRepository.findByCorreoAndActivoTrue(email).orElseThrow(() -> 
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Correo no registrado"));
  
         // 2. Limpiar tokens anteriores
@@ -106,10 +106,10 @@ public class PasswordResetService {
         }
  
         // 2. Actualizar contraseña del usuario
-        Usuario user = usuarioRepository.findByUserAndActivoTrue(email)
+        Usuario user = usuarioRepository.findByCorreoAndActivoTrue(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
         
-        user.setPassword(newPassword); // Plain text como el resto del proyecto
+        user.setPasswordHash(newPassword); // Plain text como el resto del proyecto
         usuarioRepository.save(user);
  
         // 3. Eliminar token usado

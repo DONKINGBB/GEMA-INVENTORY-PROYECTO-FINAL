@@ -22,18 +22,20 @@ public class Usuario {
     private String id;
 
     @Column(name = "correo", unique = true)
-    private String user; // En Android lo mandas como 'correo', aquí lo mapeas a 'user'
+    private String correo;
 
     @Column(name = "nombre")
     private String nombre;
 
-    @Column(name = "contraseña", nullable = false)
-    private String password;
+    @Column(name = "contrase\u00f1a")
+    private String passwordHash;
 
     @Column(name = "id_rol", nullable = false)
     private Integer idRol;
 
-    // --- AGREGAMOS ESTOS DOS ---
+    @Column(name = "google_id", unique = true)
+    private String googleId;
+
     @Column(name = "direccion")
     private String direccion;
 

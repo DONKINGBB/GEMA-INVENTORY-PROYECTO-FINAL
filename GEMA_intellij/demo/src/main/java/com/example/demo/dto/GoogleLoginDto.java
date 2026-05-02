@@ -3,6 +3,7 @@ import lombok.Data;
 
 @Data
 public class GoogleLoginDto {
+    private String id;
     private String correo;
     private String nombre;
 }

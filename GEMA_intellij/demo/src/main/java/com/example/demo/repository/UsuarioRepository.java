@@ -9,6 +9,6 @@ import java.util.Optional;
 @Repository
 // El segundo tipo genérico debe ser String, no Integer
 public interface UsuarioRepository extends JpaRepository<Usuario, String> {
-    Optional<Usuario> findByUserAndActivoTrue(String user);
+    Optional<Usuario> findByCorreoAndActivoTrue(String correo);
     java.util.List<Usuario> findByIdNegocioAndActivoTrue(String idNegocio);
 }
