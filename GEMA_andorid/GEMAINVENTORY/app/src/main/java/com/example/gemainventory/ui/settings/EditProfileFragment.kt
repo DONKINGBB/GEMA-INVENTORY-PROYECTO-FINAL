@@ -99,8 +99,8 @@ class EditProfileFragment : Fragment() {
                     photoUrl = photoPreview,
                     onPhotoClick = { openGallery() },
                     onSaveClick = { handleSave() },
-                    onChangePasswordClick = { showChangePasswordDialog() },
-                    onDeleteAccountClick = { showDeleteConfirmationDialog() },
+                    onPasswordChangeRequest = { oldP, newP -> executePasswordChange(oldP, newP) },
+                    onDeleteAccountClick = { executeAccountDeletion() },
                     onBackClick = { findNavController().popBackStack() },
                     isLoading = isLoading
                 )
@@ -193,27 +193,6 @@ class EditProfileFragment : Fragment() {
         })
     }
 
-    private fun showChangePasswordDialog() {
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_change_password, null)
-        val etOld = dialogView.findViewById<TextInputEditText>(R.id.et_old_password)
-        val etNew = dialogView.findViewById<TextInputEditText>(R.id.et_new_password)
-
-        MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
-            .setTitle("Cambiar Contraseña")
-            .setView(dialogView)
-            .setPositiveButton("Actualizar") { _, _ ->
-                val oldP = etOld.text.toString().trim()
-                val newP = etNew.text.toString().trim()
-                if (oldP.isEmpty() || newP.isEmpty()) {
-                    Toast.makeText(context, "Campos requeridos", Toast.LENGTH_SHORT).show()
-                } else {
-                    executePasswordChange(oldP, newP)
-                }
-            }
-            .setNegativeButton("Cancelar", null)
-            .show()
-    }
-
     private fun executePasswordChange(oldP: String, newP: String) {
         val userId = prefs.getString("user_id", null) ?: return
         val dto = PasswordUpdateDto(oldP, newP)
@@ -231,16 +210,6 @@ class EditProfileFragment : Fragment() {
                 Toast.makeText(context, "Fallo de red", Toast.LENGTH_SHORT).show()
             }
         })
-    }
-
-    private fun showDeleteConfirmationDialog() {
-        MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
-            .setTitle("¿Eliminar cuenta definitivamente?")
-            .setMessage("Esta acción no se puede deshacer. Perderás todo el acceso a tus inventarios, reportes y configuraciones de negocio.")
-            .setIcon(R.drawable.ic_delete_24)
-            .setPositiveButton("SÍ, ELIMINAR TODO") { _, _ -> executeAccountDeletion() }
-            .setNegativeButton("CANCELAR", null)
-            .show()
     }
 
     private fun executeAccountDeletion() {

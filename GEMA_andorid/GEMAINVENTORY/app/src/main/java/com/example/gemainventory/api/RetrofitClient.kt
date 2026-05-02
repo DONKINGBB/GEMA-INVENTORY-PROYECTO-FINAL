@@ -13,7 +13,7 @@ object RetrofitClient {
 
     // Si es emulador: "http://10.0.2.2:8080/"
     // Si es físico: "http://192.168.0.X:8080/"
-    const val BASE_URL = "http://192.168.0.103:8080/"
+    const val BASE_URL = "https://gema-inventory-backend.onrender.com"
 
     private val authInterceptor = Interceptor { chain ->
         val reqBuilder = chain.request().newBuilder()

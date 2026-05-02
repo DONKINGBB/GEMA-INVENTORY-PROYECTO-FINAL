@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .cors().and()
                 .authorizeHttpRequests()
                 // --- ENDPOINTS PÚBLICOS ---
-                .requestMatchers("/api/auth/**", "/uploads/**").permitAll() // Login, Registro, Google e Imágenes abiertos
+                .requestMatchers("/api/auth/**", "/uploads/**", "/api/upload").permitAll() // Login, Registro, Upload e Imágenes abiertos
 
                 // --- SISTEMA DE NEGOCIOS (Onboarding) ---
                 .requestMatchers("/api/negocios/**").authenticated() // Cualquier usuario logueado puede crear/unirse

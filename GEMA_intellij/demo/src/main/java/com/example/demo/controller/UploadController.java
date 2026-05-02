@@ -1,28 +1,28 @@
 package com.example.demo.controller;
 
+import com.example.demo.service.SupabaseStorageService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/upload")
 public class UploadController {
 
-    private final String UPLOAD_DIR = "uploads/";
+    @Autowired
+    private SupabaseStorageService supabaseStorageService;
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Map<String, String>> uploadFile(
+            @RequestParam(value = "folder", defaultValue = "general") String folder,
+            @RequestParam("file") MultipartFile file) {
+        
         Map<String, String> response = new HashMap<>();
         
         if (file.isEmpty()) {
@@ -31,34 +31,30 @@ public class UploadController {
         }
 
         try {
-            // Crear el directorio si no existe
-            Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
+            // Determinar el bucket de Supabase (SIEMPRE EN MINÚSCULAS)
+            String bucket = "general"; 
+            if ("profiles".equalsIgnoreCase(folder)) {
+                bucket = "profiles";
+            } else if ("products".equalsIgnoreCase(folder)) {
+                bucket = "products";
             }
 
-            // Generar nombre de archivo único para evitar colisiones
-            String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
-            String extension = "";
-            int i = originalFileName.lastIndexOf('.');
-            if (i > 0) {
-                extension = originalFileName.substring(i);
-            }
-            String uniqueFileName = UUID.randomUUID().toString() + extension;
+            System.out.println("Intentando subir a Supabase. Bucket: " + bucket + " | Folder param: " + folder);
 
-            // Guardar el archivo
-            Path targetLocation = uploadPath.resolve(uniqueFileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            // Subir a Supabase Storage
+            String fileUrl = supabaseStorageService.uploadFile(bucket, file);
 
-            // Devolver la ruta relativa a la imagen
-            String fileUrl = "/uploads/" + uniqueFileName;
+            System.out.println("Subida exitosa: " + fileUrl);
+
+            // Devolver la URL pública devuelta por Supabase
             response.put("url", fileUrl);
             
             return ResponseEntity.ok(response);
 
-        } catch (IOException ex) {
+        } catch (Exception ex) {
+            System.err.println("ERROR CRÍTICO EN UPLOAD: " + ex.getMessage());
             ex.printStackTrace();
-            response.put("error", "Error al guardar el archivo en el servidor");
+            response.put("error", "Error al subir el archivo a Supabase: " + ex.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
