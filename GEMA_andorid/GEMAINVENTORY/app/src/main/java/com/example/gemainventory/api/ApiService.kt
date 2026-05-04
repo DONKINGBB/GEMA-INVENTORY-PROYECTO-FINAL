@@ -150,7 +150,7 @@ interface ApiService {
     fun getProductosParaPedido(@Path("userId") userId: String): Call<List<ProductoSeleccionDto>>
 
     // 2. Para CREAR un producto (usamos CreacionDto)
-    @POST("productos")
+    @POST("api/productos")
     fun crearProducto(@Body productoDto: ProductoCreacionDto): Call<Void>
 
     @GET("api/productos/usuario/{userId}")

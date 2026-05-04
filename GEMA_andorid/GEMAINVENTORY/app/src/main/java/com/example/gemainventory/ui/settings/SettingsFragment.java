@@ -20,13 +20,18 @@ import com.example.gemainventory.model.NegocioDto;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.compose.ui.platform.ComposeView;
+
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
+import com.google.mlkit.vision.barcode.common.Barcode;
 
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.button.MaterialButton;
@@ -35,152 +40,96 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.example.gemainventory.R;
 import com.example.gemainventory.LoginActivity;
 
+import androidx.lifecycle.ViewTreeLifecycleOwner;
+import androidx.lifecycle.ViewTreeViewModelStoreOwner;
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
+
 public class SettingsFragment extends Fragment {
 
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "GemaPrefs";
     private static final String DARK_MODE_KEY = "DarkMode";
-    ImageView ivProfileAvatar;
+    private ComposeView composeView;
 
-    // --- ¡AÑADIDAS VARIABLES PARA LOS DATOS DE USUARIO! ---
-    TextView tvNombreUsuario, tvCorreoUsuario;
-
-    public View onCreateView(@NonNull LayoutInflater inflater,
-            ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_settings, container, false);
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        sharedPreferences = requireContext().getSharedPreferences("GemaPrefs", Context.MODE_PRIVATE);
+        
+        composeView = new ComposeView(requireContext());
+        return composeView;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        updateSettingsUI();
+    }
 
-        sharedPreferences = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+    private void updateSettingsUI() {
+        if (composeView == null) return;
 
-        // --- Encontrar componentes ---
-        MaterialCardView profileCard = view.findViewById(R.id.card_profile);
-        LinearLayout manageCatalogRow = view.findViewById(R.id.row_manage_catalog);
-        LinearLayout notificationsRow = view.findViewById(R.id.row_notifications);
-        MaterialButton logoutButton = view.findViewById(R.id.button_logout);
-        SwitchMaterial darkModeSwitch = view.findViewById(R.id.switch_dark_mode);
-        LinearLayout rowSwitchBusiness = view.findViewById(R.id.row_switch_business);
-        LinearLayout rowJoinCreateBusiness = view.findViewById(R.id.row_join_create_business);
-        // --- ¡AÑADIDA REFERENCIA AL BOTÓN DEL MANUAL! ---
-        LinearLayout userManualRow = view.findViewById(R.id.user_manual);
-
-        // --- ¡AÑADIDA BÚSQUEDA DE TEXTVIEWS DE USUARIO! ---
-        // (Asegúrate de que estos IDs existan en tu fragment_settings.xml)
-        tvNombreUsuario = view.findViewById(R.id.tv_ajustes_nombre);
-        tvCorreoUsuario = view.findViewById(R.id.tv_ajustes_correo);
-        ivProfileAvatar = view.findViewById(R.id.profile_avatar);
-
-        // --- NUEVAS REFERENCIAS PARA GESTIÓN DE EQUIPO ---
-        LinearLayout manageUsersRow = view.findViewById(R.id.row_manage_users);
-        View dividerManageUsers = view.findViewById(R.id.divider_manage_users);
-        
-        // --- NUEVAS REFERENCIAS PARA MI NEGOCIO ---
-        LinearLayout rowBusiness = view.findViewById(R.id.row_business);
-
-        // --- ¡AÑADIDA LLAMADA PARA CARGAR DATOS! ---
-        cargarDatosDeSesion();
-
-        // --- LÓGICA DEL MODO OSCURO (Esto ya estaba bien) ---
+        String nombre = sharedPreferences.getString("user_nombre", "Sin Nombre");
+        String correo = sharedPreferences.getString("user_correo", "Sin Correo");
+        String rawPhotoUrl = sharedPreferences.getString("user_foto_url", null);
+        String photoUrl = com.example.gemainventory.api.RetrofitClient.getFullImageUrl(rawPhotoUrl);
         boolean isDarkMode = sharedPreferences.getBoolean(DARK_MODE_KEY, false);
-        darkModeSwitch.setChecked(isDarkMode);
-
-        darkModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                saveThemePreference(true);
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                saveThemePreference(false);
-            }
-        });
-        // --- LÓGICA DEL MODO OSCURO (FIN) ---
-
-        // --- Listeners de los otros botones (Esto ya estaba bien) ---
-        profileCard.setOnClickListener(v -> {
-            // Navegar a Editar Perfil
-            NavHostFragment.findNavController(this)
-                    .navigate(R.id.action_navigation_edit_profile_self);
-        });
-
-        manageCatalogRow.setOnClickListener(v -> {
-            NavHostFragment.findNavController(this)
-                    .navigate(R.id.action_settings_to_manage);
-        });
-
-        notificationsRow.setOnClickListener(v -> {
-            NavHostFragment.findNavController(this)
-                    .navigate(R.id.navigation_notification_settings);
-        });
-
-        logoutButton.setOnClickListener(v -> {
-            showLogoutDialog();
-        });
-
-        // --- LISTENER DEL MANUAL ---
-        userManualRow.setOnClickListener(v -> {
-            NavHostFragment.findNavController(this)
-                    .navigate(R.id.action_settings_to_manual);
-        });
-
-        if (rowSwitchBusiness != null) {
-            rowSwitchBusiness.setOnClickListener(v -> {
-                NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_settings_to_switch_business);
-            });
-        }
-
-        if (rowJoinCreateBusiness != null) {
-            rowJoinCreateBusiness.setOnClickListener(v -> {
-                showBusinessChoiceBottomSheet();
-            });
-        }
-
-        // --- LISTENER DE NEGOCIO ---
-        if (rowBusiness != null) {
-            rowBusiness.setOnClickListener(v -> {
-                openBusinessActivity();
-            });
-        }
-
-        // --- LÓGICA DE VISIBILIDAD GESTIÓN DE EQUIPO (SOLO ADMIN) ---
+        boolean useBiometric = sharedPreferences.getBoolean("use_biometric", false);
         int userRol = sharedPreferences.getInt("user_rol", -1);
-        if (userRol == 1) { // 1 = ROLE_ADMIN
-            if (manageUsersRow != null)
-                manageUsersRow.setVisibility(View.VISIBLE);
-            if (dividerManageUsers != null)
-                dividerManageUsers.setVisibility(View.VISIBLE);
-        }
+        boolean showManageUsers = (userRol == 1);
 
-        if (manageUsersRow != null) {
-            manageUsersRow.setOnClickListener(v -> {
-                NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_settings_to_users);
-            });
-        }
+        SettingsComposeHelper.setSettingsContent(
+            composeView,
+            isDarkMode,
+            nombre,
+            correo,
+            photoUrl,
+            useBiometric,
+            showManageUsers,
+            () -> { navigateTo(R.id.action_navigation_edit_profile_self); return kotlin.Unit.INSTANCE; },
+            isChecked -> { toggleDarkMode(isChecked); return kotlin.Unit.INSTANCE; },
+            isChecked -> { toggleBiometric(isChecked); return kotlin.Unit.INSTANCE; },
+            () -> { navigateTo(R.id.action_settings_to_manage); return kotlin.Unit.INSTANCE; },
+            () -> { openBusinessActivity(); return kotlin.Unit.INSTANCE; },
+            () -> { showBusinessChoiceBottomSheet(); return kotlin.Unit.INSTANCE; },
+            () -> { navigateTo(R.id.action_settings_to_switch_business); return kotlin.Unit.INSTANCE; },
+            () -> { navigateTo(R.id.action_settings_to_users); return kotlin.Unit.INSTANCE; },
+            () -> { navigateTo(R.id.navigation_notification_settings); return kotlin.Unit.INSTANCE; },
+            () -> { navigateTo(R.id.action_settings_to_manual); return kotlin.Unit.INSTANCE; },
+            () -> { showLogoutDialog(); return kotlin.Unit.INSTANCE; }
+        );
+    }
 
-        // --- LÓGICA DEL SWITCH BIOMÉTRICO ---
-        SwitchMaterial biometricSwitch = view.findViewById(R.id.switch_biometric);
-        if (biometricSwitch != null) {
-            boolean useBiometric = sharedPreferences.getBoolean("use_biometric", false);
-            biometricSwitch.setChecked(useBiometric);
-
-            biometricSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (isChecked) {
-                    if (com.example.gemainventory.util.BiometricHelper.isBiometricAvailable(requireContext())) {
-                        sharedPreferences.edit().putBoolean("use_biometric", true).apply();
-                        Toast.makeText(getContext(), "Seguridad Biométrica activada", Toast.LENGTH_SHORT).show();
-                    } else {
-                        biometricSwitch.setChecked(false);
-                        Toast.makeText(getContext(), "Tu dispositivo no soporta biometría", Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    sharedPreferences.edit().putBoolean("use_biometric", false).apply();
-                }
-            });
+    private void navigateTo(int actionId) {
+        try {
+            NavHostFragment.findNavController(this).navigate(actionId);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
+
+    private void toggleDarkMode(boolean isChecked) {
+        if (isChecked) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            saveThemePreference(true);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            saveThemePreference(false);
+        }
+        updateSettingsUI();
+    }
+
+    private void toggleBiometric(boolean isChecked) {
+        if (isChecked) {
+            if (com.example.gemainventory.util.BiometricHelper.isBiometricAvailable(requireContext())) {
+                sharedPreferences.edit().putBoolean("use_biometric", true).apply();
+                Toast.makeText(getContext(), "Seguridad Biométrica activada", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Tu dispositivo no soporta biometría", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            sharedPreferences.edit().putBoolean("use_biometric", false).apply();
+        }
+        updateSettingsUI();
     }
 
     private void saveThemePreference(boolean isDarkMode) {
@@ -189,34 +138,6 @@ public class SettingsFragment extends Fragment {
         editor.apply();
     }
 
-    // --- ¡AÑADIDO ESTE MÉTODO COMPLETO! ---
-    private void cargarDatosDeSesion() {
-        // 1. Obtener las preferencias
-        String nombre = sharedPreferences.getString("user_nombre", "Sin Nombre");
-        String correo = sharedPreferences.getString("user_correo", "Sin Correo");
-        String remotePhotoUrl = sharedPreferences.getString("user_foto_url", null);
-        String legacyPhotoUri = sharedPreferences.getString("user_photo_uri", null);
-
-        // 2. Mostrar datos de texto
-        if (tvNombreUsuario != null) tvNombreUsuario.setText(nombre);
-        if (tvCorreoUsuario != null) tvCorreoUsuario.setText(correo);
-
-        // --- CARGAR LA FOTO (Prioridad: Remota > Local) ---
-        if (ivProfileAvatar != null) {
-            String photoPath = (remotePhotoUrl != null && !remotePhotoUrl.isEmpty()) 
-                ? RetrofitClient.getFullImageUrl(remotePhotoUrl) 
-                : legacyPhotoUri;
-
-            if (photoPath != null) {
-                com.bumptech.glide.Glide.with(requireContext())
-                    .load(photoPath)
-                    .centerCrop()
-                    .placeholder(R.drawable.ic_account_circle)
-                    .into(ivProfileAvatar);
-                ivProfileAvatar.setColorFilter(null);
-            }
-        }
-    }
 
     // --- MÉTODO 'showLogoutDialog' ACTUALIZADO ---
     private void showLogoutDialog() {
@@ -276,46 +197,40 @@ public class SettingsFragment extends Fragment {
     }
 
     private void showCreateBusinessDialog() {
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_input_universal, null);
-        TextView title = dialogView.findViewById(R.id.dialog_title);
-        TextView subtitle = dialogView.findViewById(R.id.dialog_subtitle);
-        EditText input = dialogView.findViewById(R.id.dialog_input);
-        com.google.android.material.textfield.TextInputLayout inputLayout = dialogView.findViewById(R.id.dialog_input_layout);
-        MaterialButton btnConfirm = dialogView.findViewById(R.id.btn_confirm);
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
+        ComposeView composeView = new ComposeView(requireContext());
+        boolean isDarkMode = sharedPreferences.getBoolean(DARK_MODE_KEY, false);
 
-        title.setText("✨ Nuevo Negocio");
-        subtitle.setText("Asigna un nombre único y empieza a brillar.");
-        input.setHint("Nombre del negocio...");
-
-        AlertDialog dialog = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
-                .setView(dialogView)
-                .create();
-
-        // Limpiar error al escribir
-        input.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                inputLayout.setError(null);
+        SettingsComposeHelper.setCreateBusinessContent(
+            composeView,
+            isDarkMode,
+            name -> {
+                createBusiness(name, bottomSheetDialog);
+                return kotlin.Unit.INSTANCE;
+            },
+            () -> {
+                bottomSheetDialog.dismiss();
+                return kotlin.Unit.INSTANCE;
             }
-            @Override public void afterTextChanged(android.text.Editable s) {}
-        });
+        );
 
-        btnConfirm.setOnClickListener(v -> {
-            String name = input.getText().toString().trim();
-            if (name.isEmpty()) {
-                inputLayout.setError("El nombre es obligatorio");
-                return;
-            }
-            createBusiness(name, dialog, inputLayout);
-        });
+        composeView.setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed.INSTANCE);
+        bottomSheetDialog.setContentView(composeView);
+        bottomSheetDialog.show();
 
-        dialog.show();
+        // IMPORTANTE: Para Diálogos, los owners deben estar en la DecorView del diálogo
+        View decorView = bottomSheetDialog.getWindow().getDecorView();
+        ViewTreeLifecycleOwner.set(decorView, getViewLifecycleOwner());
+        ViewTreeViewModelStoreOwner.set(decorView, this);
+        ViewTreeSavedStateRegistryOwner.set(decorView, this);
     }
 
-    private void createBusiness(String name, AlertDialog dialog, com.google.android.material.textfield.TextInputLayout inputLayout) {
+    private void createBusiness(String name, BottomSheetDialog dialog) {
         ApiService api = RetrofitClient.INSTANCE.getInstance();
         java.util.Map<String, String> body = new java.util.HashMap<>();
         body.put("nombre", name);
+
+        Toast.makeText(getContext(), "Creando negocio...", Toast.LENGTH_SHORT).show();
 
         api.createNegocio(body).enqueue(new Callback<java.util.Map<String, Object>>() {
             @Override
@@ -325,84 +240,122 @@ public class SettingsFragment extends Fragment {
                     Toast.makeText(getContext(), "¡Negocio '" + name + "' creado con éxito!", Toast.LENGTH_LONG).show();
                     reiniciarSesionPorCambio();
                 } else if (response.code() == 409) {
-                    inputLayout.setError("⚠️ Este nombre ya brilla en otro negocio. Prueba con uno único.");
+                    Toast.makeText(getContext(), "⚠️ Este nombre ya existe. Prueba con uno único.", Toast.LENGTH_LONG).show();
                 } else {
-                    inputLayout.setError("Error al crear negocio: " + response.code());
+                    Toast.makeText(getContext(), "Error al crear negocio: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<java.util.Map<String, Object>> call, Throwable t) {
-                inputLayout.setError("Error de conexión");
+                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void showJoinBusinessDialog() {
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_input_universal, null);
-        TextView title = dialogView.findViewById(R.id.dialog_title);
-        TextView subtitle = dialogView.findViewById(R.id.dialog_subtitle);
-        EditText input = dialogView.findViewById(R.id.dialog_input);
-        com.google.android.material.textfield.TextInputLayout inputLayout = dialogView.findViewById(R.id.dialog_input_layout);
-        MaterialButton btnConfirm = dialogView.findViewById(R.id.btn_confirm);
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
+        ComposeView composeView = new ComposeView(requireContext());
+        
+        boolean isDarkMode = sharedPreferences.getBoolean(DARK_MODE_KEY, false);
 
-        title.setText("🤝 Unirse a Negocio");
-        subtitle.setText("Ingresa el código de invitación compartido contigo.");
-        input.setHint("Código de 8 caracteres...");
-
-        AlertDialog dialog = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
-                .setView(dialogView)
-                .create();
-
-        // Limpiar error al escribir
-        input.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                inputLayout.setError(null);
+        SettingsComposeHelper.setJoinBusinessContent(
+            composeView,
+            isDarkMode,
+            code -> {
+                bottomSheetDialog.dismiss();
+                joinBusiness(code, null, null);
+                return kotlin.Unit.INSTANCE;
+            },
+            () -> {
+                bottomSheetDialog.dismiss();
+                scanQrCode();
+                return kotlin.Unit.INSTANCE;
+            },
+            () -> {
+                bottomSheetDialog.dismiss();
+                return kotlin.Unit.INSTANCE;
             }
-            @Override public void afterTextChanged(android.text.Editable s) {}
-        });
+        );
 
-        btnConfirm.setOnClickListener(v -> {
-            String code = input.getText().toString().trim();
-            if (code.isEmpty()) {
-                inputLayout.setError("El código es obligatorio");
-                return;
-            }
-            joinBusiness(code, dialog, inputLayout);
-        });
+        composeView.setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed.INSTANCE);
+        bottomSheetDialog.setContentView(composeView);
+        bottomSheetDialog.show();
 
-        dialog.show();
+        // IMPORTANTE: Para Diálogos, los owners deben estar en la DecorView del diálogo
+        View decorView = bottomSheetDialog.getWindow().getDecorView();
+        ViewTreeLifecycleOwner.set(decorView, getViewLifecycleOwner());
+        ViewTreeViewModelStoreOwner.set(decorView, this);
+        ViewTreeSavedStateRegistryOwner.set(decorView, this);
     }
 
-    private void joinBusiness(String code, AlertDialog dialog, com.google.android.material.textfield.TextInputLayout inputLayout) {
+    private void scanQrCode() {
+        com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions options = 
+            new com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions.Builder()
+                .setBarcodeFormats(com.google.mlkit.vision.barcode.common.Barcode.FORMAT_QR_CODE)
+                .build();
+        com.google.mlkit.vision.codescanner.GmsBarcodeScanner scanner = 
+            com.google.mlkit.vision.codescanner.GmsBarcodeScanning.getClient(requireContext(), options);
+
+        scanner.startScan()
+            .addOnSuccessListener(barcode -> {
+                String rawValue = barcode.getRawValue();
+                if (rawValue != null) {
+                    joinBusiness(rawValue, null, null);
+                }
+            })
+            .addOnCanceledListener(() -> {
+                Toast.makeText(getContext(), "Escaneo cancelado", Toast.LENGTH_SHORT).show();
+            })
+            .addOnFailureListener(e -> {
+                Toast.makeText(getContext(), "Fallo al escanear: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
+    }
+
+    private void joinBusiness(String code, @Nullable AlertDialog dialog, @Nullable com.google.android.material.textfield.TextInputLayout inputLayout) {
         ApiService api = RetrofitClient.INSTANCE.getInstance();
         java.util.Map<String, String> body = new java.util.HashMap<>();
-        body.put("codigoInvitacion", code); // <-- Corregido a 'codigoInvitacion' para coincidir con el backend
+        body.put("codigoInvitacion", code);
         
         long userIdLocal = sharedPreferences.getLong("user_id", -1);
         body.put("userId", String.valueOf(userIdLocal));
+
+        // Mostrar un pequeño brindis de carga si no hay dialog (porque venimos de Compose/QR)
+        if (dialog == null) {
+            Toast.makeText(getContext(), "Uniéndote al negocio...", Toast.LENGTH_SHORT).show();
+        }
 
         api.joinNegocio(body).enqueue(new Callback<java.util.Map<String, Object>>() {
             @Override
             public void onResponse(Call<java.util.Map<String, Object>> call, Response<java.util.Map<String, Object>> response) {
                 if (response.isSuccessful()) {
-                    dialog.dismiss();
+                    if (dialog != null) dialog.dismiss();
                     Toast.makeText(getContext(), "¡Te has unido al negocio con éxito!", Toast.LENGTH_LONG).show();
                     reiniciarSesionPorCambio();
                 } else {
-                    inputLayout.setError("Código inválido o error al unirse: " + response.code());
+                    String errorMsg = "Código inválido o error al unirse: " + response.code();
+                    if (inputLayout != null) {
+                        inputLayout.setError(errorMsg);
+                    } else {
+                        Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<java.util.Map<String, Object>> call, Throwable t) {
-                inputLayout.setError("Error de conexión");
+                if (inputLayout != null) {
+                    inputLayout.setError("Error de conexión");
+                } else {
+                    Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
     private void reiniciarSesionPorCambio() {
+        if (!isAdded() || getActivity() == null) return;
+        
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove("user_id");
         editor.remove("user_nombre");

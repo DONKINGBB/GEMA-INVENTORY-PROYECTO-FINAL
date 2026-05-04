@@ -167,7 +167,7 @@
 
         <argument
             android:name="productId"
-            app:argType="integer" />
+            app:argType="string" />
         <!-- The TextInputLayout block is UI specific and belongs in a layout XML file, not the navigation graph.
              It has been omitted here to maintain the syntactic correctness of the navigation graph. -->
         <action
@@ -177,12 +177,13 @@
 
     <fragment
         android:id="@+id/navigation_product_form"
+        android:name="com.example.gemainventory.ui.inventory.AddProductFragment"
         android:label="Formulario de Producto"
         tools:layout="@layout/fragment_product_form_full" >
         <argument
             android:name="productId"
-            app:argType="integer"
-            android:defaultValue="-1" />
+            app:argType="string"
+            android:defaultValue="" />
         <action
             android:id="@+id/action_product_form_to_addCategory"
             app:destination="@id/navigation_add_category" />
@@ -229,7 +230,11 @@
 
         <action
             android:id="@+id/action_clients_to_addClient"
-            app:destination="@id/navigation_add_client" />
+            app:destination="@id/navigation_add_client"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 
     <fragment
@@ -246,7 +251,11 @@
 
         <action
             android:id="@+id/action_categories_to_addCategory"
-            app:destination="@id/navigation_add_category" />
+            app:destination="@id/navigation_add_category"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 
     <fragment
@@ -262,7 +271,11 @@
         tools:layout="@layout/fragment_manage_warehouses">
         <action
             android:id="@+id/action_warehouses_to_addWarehouse"
-            app:destination="@id/navigation_add_warehouse" />
+            app:destination="@id/navigation_add_warehouse"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 
     <fragment
@@ -308,7 +321,11 @@
         tools:layout="@layout/fragment_manage_suppliers">
         <action
             android:id="@+id/action_suppliers_to_addSupplier"
-            app:destination="@id/navigation_add_supplier" />
+            app:destination="@id/navigation_add_supplier"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 
     <fragment

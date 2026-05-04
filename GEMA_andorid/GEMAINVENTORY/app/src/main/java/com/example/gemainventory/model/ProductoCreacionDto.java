@@ -29,9 +29,12 @@ public class ProductoCreacionDto implements Serializable {
     @SerializedName("modelo3dUrl")
     private String modelo3dUrl;
 
+    @SerializedName(value = "id_almacen", alternate = {"idAlmacen", "almacen_id", "almacenId"})
+    private Integer idAlmacen;
+
     public ProductoCreacionDto(String nombre, String sku, Integer cantidad, String categoria,
                                Double precioCompra, Double precioVenta, String descripcion,
-                               Integer stockMinimo, String idUsuario) {
+                               Integer stockMinimo, String idUsuario, Integer idAlmacen) {
         this.nombre = nombre;
         this.sku = sku;
         this.cantidad = cantidad;
@@ -41,6 +44,7 @@ public class ProductoCreacionDto implements Serializable {
         this.descripcion = descripcion;
         this.stockMinimo = stockMinimo;
         this.idUsuario = idUsuario;
+        this.idAlmacen = idAlmacen;
     }
 
     public void setImagenUrl(String imagenUrl) { this.imagenUrl = imagenUrl; }

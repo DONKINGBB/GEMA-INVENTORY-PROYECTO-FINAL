@@ -17,52 +17,43 @@ import com.example.gemainventory.model.Usuario;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import androidx.compose.ui.platform.ComposeView;
+import com.example.gemainventory.ui.auth.RegisterComposeHelper;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    EditText etNombre, etCorreo, etContrasena, etDireccion, etTelefono;
-    Button goToLoginButton, registerConfirmButton;
+    private RegisterComposeHelper composeHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
 
-        goToLoginButton = findViewById(R.id.go_to_login_button);
-        registerConfirmButton = findViewById(R.id.register_button_confirm);
+        ComposeView composeView = new ComposeView(this);
+        setContentView(composeView);
 
-        etNombre = findViewById(R.id.et_register_name);
-        etCorreo = findViewById(R.id.et_register_email);
-        etContrasena = findViewById(R.id.et_register_password);
-        etDireccion = findViewById(R.id.et_register_direccion);
-        etTelefono = findViewById(R.id.et_register_telefono);
-
-        goToLoginButton.setOnClickListener(v -> {
-            finish();
-        });
-
-        registerConfirmButton.setOnClickListener(v -> {
-            String nombre = etNombre.getText().toString().trim();
-            String correo = etCorreo.getText().toString().trim();
-            String contrasena = etContrasena.getText().toString().trim();
-            String direccion = etDireccion.getText().toString().trim();
-            String telefono = etTelefono.getText().toString().trim();
-
+        composeHelper = new RegisterComposeHelper(composeView);
+        
+        composeHelper.setOnRegisterListener((nombre, correo, contrasena, direccion, telefono) -> {
             if (nombre.isEmpty() || correo.isEmpty() || contrasena.isEmpty()) {
                 Toast.makeText(this, "Nombre, correo y contraseña son requeridos", Toast.LENGTH_SHORT).show();
-                return;
+            } else {
+                registrarUsuario(nombre, correo, contrasena, direccion, telefono);
             }
+        });
 
-            registrarUsuario(nombre, correo, contrasena, direccion, telefono);
+        composeHelper.setOnBackToLogin(() -> {
+            finish();
         });
     }
 
     private void registrarUsuario(String nombre, String correo, String contrasena, String direccion, String telefono) {
+        composeHelper.setLoading(true);
         Call<LoginResponse> call = RetrofitClient.INSTANCE.getInstance().registrarUsuario(nombre, correo, contrasena, direccion, telefono);
 
         call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                composeHelper.setLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse loginResponse = response.body();
                     
@@ -90,6 +81,7 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
+                composeHelper.setLoading(false);
                 Log.e("API_FAILURE", "Fallo en el registro: " + t.getMessage());
                 Toast.makeText(RegisterActivity.this, "Fallo de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
@@ -114,4 +106,4 @@ public class RegisterActivity extends AppCompatActivity {
 
         editor.apply();
     }
-}
+}

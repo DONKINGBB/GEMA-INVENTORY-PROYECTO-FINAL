@@ -7,13 +7,13 @@ import com.example.gemainventory.data.local.entity.SyncState
 @Dao
 interface ProductoDao {
     @Query("SELECT * FROM productos WHERE syncState != :deletedState ORDER BY nombre ASC")
-    fun getActiveProductos(deletedState: SyncState = SyncState.PENDING_DELETE): List<ProductoEntity>
+    fun getActiveProductos(deletedState: SyncState): List<ProductoEntity>
 
     @Query("SELECT * FROM productos WHERE idProducto = :id")
     fun getProductoById(id: String): ProductoEntity?
 
     @Query("SELECT * FROM productos WHERE syncState != :syncedState")
-    fun getPendingSyncProductos(syncedState: SyncState = SyncState.SYNCED): List<ProductoEntity>
+    fun getPendingSyncProductos(syncedState: SyncState): List<ProductoEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertProducto(producto: ProductoEntity)
@@ -22,11 +22,11 @@ interface ProductoDao {
     fun updateProducto(producto: ProductoEntity)
 
     @Query("UPDATE productos SET syncState = :state WHERE idProducto = :id")
-    fun markAsDeleted(id: String, state: SyncState = SyncState.PENDING_DELETE)
+    fun markAsDeleted(id: String, state: SyncState)
 
     // For when sync completes successfully
     @Query("UPDATE productos SET syncState = :state WHERE idProducto IN (:ids)")
-    fun markAsSynced(ids: List<String>, state: SyncState = SyncState.SYNCED)
+    fun markAsSynced(ids: List<String>, state: SyncState)
     
     // Hard delete after sync confirms deletion on server
     @Query("DELETE FROM productos WHERE idProducto IN (:ids)")

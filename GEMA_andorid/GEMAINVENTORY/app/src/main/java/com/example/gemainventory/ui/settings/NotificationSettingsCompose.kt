@@ -133,6 +133,7 @@ fun NotificationSettingsScreen(
                         Text("GUARDAR PREFERENCIAS", fontWeight = FontWeight.Bold, letterSpacing = 1.2.sp)
                     }
                 }
+                Spacer(modifier = Modifier.height(120.dp))
             }
         }
     }
@@ -161,16 +162,14 @@ fun PremiumSettingSwitch(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
-                modifier = Modifier
-                    .size(52.dp)
-                    .background(accentColor.copy(alpha = 0.1f), CircleShape),
+                modifier = Modifier.size(52.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     painter = painterResource(id = iconRes),
                     contentDescription = null,
                     tint = accentColor,
-                    modifier = Modifier.size(26.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             }
             

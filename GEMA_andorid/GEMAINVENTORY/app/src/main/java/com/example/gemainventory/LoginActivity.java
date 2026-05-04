@@ -37,70 +37,60 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.compose.ui.platform.ComposeView;
+import com.example.gemainventory.ui.auth.LoginComposeHelper;
+import com.example.gemainventory.ui.auth.OnLoginListener;
+import com.example.gemainventory.ui.auth.OnActionClickListener;
+
 public class LoginActivity extends AppCompatActivity {
 
-    EditText etCorreo, etContrasena;
-    Button btnLogin, btnGoToRegister; // Asumiendo los IDs
     private GoogleSignInClient mGoogleSignInClient;
-    private static final int RC_SIGN_IN = 9001; // Un código cualquiera
+    private static final int RC_SIGN_IN = 9001; 
+    private LoginComposeHelper composeHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        
+        ComposeView composeView = new ComposeView(this);
+        setContentView(composeView);
 
-        // --- BÚSQUEDA CORREGIDA ---
-        // ¡Ahora buscamos los IDs de los TextInputEditText!
-        etCorreo = findViewById(R.id.et_login_email);
-        etContrasena = findViewById(R.id.et_login_password);
+        composeHelper = new LoginComposeHelper(composeView);
 
-        // (El código de findViewById para los botones ya estaba bien)
-        btnLogin = findViewById(R.id.login_button);
-        btnGoToRegister = findViewById(R.id.register_button);
-        Button btnForgotPassword = findViewById(R.id.forgot_password_button);
-
-        btnGoToRegister.setOnClickListener(v -> {
-            Intent i = new Intent(LoginActivity.this, RegisterActivity.class);
-            startActivity(i);
+        composeHelper.setOnLoginListener((correo, contrasena) -> {
+            iniciarSesion(correo, contrasena);
         });
- 
-        btnForgotPassword.setOnClickListener(v -> {
+
+        composeHelper.setOnGoogleLoginListener(() -> {
+            signInWithGoogle();
+        });
+
+        composeHelper.setOnForgotPasswordListener(() -> {
             Intent i = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
             startActivity(i);
         });
 
+        composeHelper.setOnRegisterListener(() -> {
+            Intent i = new Intent(LoginActivity.this, RegisterActivity.class);
+            startActivity(i);
+        });
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail() // Pedimos el email
-                .requestProfile() // Pedimos el nombre
+                .requestEmail()
+                .requestProfile()
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        // 2. Listener del Botón Google
-        findViewById(R.id.google_login_button).setOnClickListener(v -> {
-            signInWithGoogle();
-        });
-
-        // --- LÓGICA DE LOGIN ---
-        btnLogin.setOnClickListener(v -> {
-            String correo = etCorreo.getText().toString().trim();
-            String contrasena = etContrasena.getText().toString().trim();
-            
-            if (correo.isEmpty() || contrasena.isEmpty()) {
-                Toast.makeText(this, "Llena todos los campos", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            iniciarSesion(correo, contrasena);
-        });
     }
 
     private void iniciarSesion(String correo, String contrasena) {
+        composeHelper.setLoading(true);
         Call<LoginResponse> call = RetrofitClient.INSTANCE.getInstance().loginUsuario(correo, contrasena);
 
         call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                composeHelper.setLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse loginResponse = response.body();
 
@@ -143,6 +133,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
+                composeHelper.setLoading(false);
                 Toast.makeText(LoginActivity.this, "Fallo de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -168,6 +159,7 @@ public class LoginActivity extends AppCompatActivity {
         } else {
             editor.remove("id_negocio"); // Limpiar por si acaso
         }
+        editor.putString("user_foto_url", usuario.getImagenUrl());
         editor.putBoolean("is_logged_in", true);
 
         editor.apply();
@@ -207,6 +199,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginConGoogleEnBackend(String id, String email, String nombre) {
+        composeHelper.setLoading(true);
         GoogleLoginDto dto = new GoogleLoginDto(id, email, nombre);
 
         Call<LoginResponse> call = RetrofitClient.INSTANCE.getInstance().loginGoogle(dto);
@@ -214,6 +207,7 @@ public class LoginActivity extends AppCompatActivity {
         call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                composeHelper.setLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse loginResponse = response.body();
 
@@ -240,6 +234,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
+                composeHelper.setLoading(false);
                 Toast.makeText(LoginActivity.this, "Error backend", Toast.LENGTH_SHORT).show();
             }
         });

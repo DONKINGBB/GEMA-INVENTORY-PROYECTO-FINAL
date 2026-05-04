@@ -7,7 +7,8 @@ data class InventarioDto(
     @SerializedName("idProducto") val idProducto: String,
     @SerializedName("nombreProducto") val nombreProducto: String,
     @SerializedName("cantidadActual") val cantidadActual: Int,
-    @SerializedName("idAlmacen") val idAlmacen: Int?,
+    @SerializedName(value = "idAlmacen", alternate = ["id_almacen", "almacen_id"])
+    val idAlmacen: Int?,
     @SerializedName("sku") val sku: String?,
     @SerializedName("descripcion") val descripcion: String?,
     @SerializedName("precioCompra") val precioCompra: Double?,
@@ -15,5 +16,7 @@ data class InventarioDto(
     @SerializedName("stockMinimo") val stockMinimo: Int?,
     @SerializedName("categoria") val categoria: String?,
     @SerializedName("imagenUrl") val imagenUrl: String?,
-    @SerializedName("fechaCreacion") val fechaCreacion: String?
+    @SerializedName("fechaCreacion") val fechaCreacion: String?,
+    @SerializedName("nombreAlmacen") val nombreAlmacen: String?,
+    @SerializedName("fechaActualizacion") val fechaActualizacion: String?
 )

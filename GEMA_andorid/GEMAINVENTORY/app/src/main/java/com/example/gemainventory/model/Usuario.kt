@@ -1,14 +1,18 @@
 package com.example.gemainventory.model
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 
-class Usuario @JvmOverloads constructor(
+@Keep
+data class Usuario @JvmOverloads constructor(
     @SerializedName("id")
     var idUsuario: String? = null,
     @SerializedName("nombre")
     var nombre: String? = null,
-    @SerializedName("correo")
+    @SerializedName("correo", alternate = ["usuario_correo", "correo_electronico", "correoElectronico", "mail", "Email", "Correo"])
     var correo: String? = null,
+    @SerializedName("email", alternate = ["user_email", "email_address", "emailAddress"])
+    var email: String? = null,
     @SerializedName("direccion")
     var direccion: String? = null,
     @SerializedName("telefono")

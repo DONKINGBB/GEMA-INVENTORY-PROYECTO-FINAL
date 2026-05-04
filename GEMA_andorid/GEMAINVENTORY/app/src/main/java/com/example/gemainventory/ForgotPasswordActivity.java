@@ -1,51 +1,53 @@
 package com.example.gemainventory;
- 
+
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.Toast;
- 
+
 import androidx.appcompat.app.AppCompatActivity;
- 
+
 import com.example.gemainventory.api.RetrofitClient;
-import com.example.gemainventory.databinding.ActivityForgotPasswordBinding;
- 
+import com.example.gemainventory.ui.auth.ForgotPasswordComposeHelper;
+import com.example.gemainventory.ui.auth.OnEmailSubmitListener;
+import com.example.gemainventory.ui.auth.OnActionClickListener;
+
 import java.util.Map;
- 
+
+import androidx.compose.ui.platform.ComposeView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
- 
+
 public class ForgotPasswordActivity extends AppCompatActivity {
- 
-    private ActivityForgotPasswordBinding binding;
- 
+
+    private ForgotPasswordComposeHelper composeHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityForgotPasswordBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
- 
-        binding.btnBack.setOnClickListener(v -> finish());
- 
-        binding.btnSendCode.setOnClickListener(v -> {
-            String email = binding.etForgotEmail.getText().toString().trim();
+        
+        ComposeView composeView = new ComposeView(this);
+        setContentView(composeView);
+
+        composeHelper = new ForgotPasswordComposeHelper(composeView);
+
+        composeHelper.setOnBackListener(() -> finish());
+
+        composeHelper.setOnSubmitListener(email -> {
             if (email.isEmpty()) {
-                binding.emailLayout.setError("Ingresa tu correo");
+                Toast.makeText(this, "Ingresa tu correo", Toast.LENGTH_SHORT).show();
                 return;
             }
-            binding.emailLayout.setError(null);
             solicitarCodigo(email);
         });
     }
- 
+
     private void solicitarCodigo(String email) {
-        setLoading(true);
+        composeHelper.setLoading(true);
         RetrofitClient.INSTANCE.getInstance().forgotPassword(email).enqueue(new Callback<Map<String, String>>() {
             @Override
             public void onResponse(Call<Map<String, String>> call, Response<Map<String, String>> response) {
-                setLoading(false);
+                composeHelper.setLoading(false);
                 if (response.isSuccessful()) {
                     Toast.makeText(ForgotPasswordActivity.this, "Código enviado", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(ForgotPasswordActivity.this, ResetPasswordActivity.class);
@@ -55,17 +57,12 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     Toast.makeText(ForgotPasswordActivity.this, "Error: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
             }
- 
+
             @Override
             public void onFailure(Call<Map<String, String>> call, Throwable t) {
-                setLoading(false);
+                composeHelper.setLoading(false);
                 Toast.makeText(ForgotPasswordActivity.this, "Fallo de conexión", Toast.LENGTH_SHORT).show();
             }
         });
-    }
- 
-    private void setLoading(boolean loading) {
-        binding.progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
-        binding.btnSendCode.setEnabled(!loading);
     }
 }

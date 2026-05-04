@@ -32,6 +32,9 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.gemainventory.R
+import com.example.gemainventory.ui.components.GemaPhoneTextField
+import com.example.gemainventory.ui.components.CountryData
+import com.example.gemainventory.ui.components.countries
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -167,12 +170,12 @@ fun EditProfileScreen(
                     ) {
                         drawArc(
                             brush = Brush.sweepGradient(
-                                colors = listOf(accentBlue, Color.White, accentBlue, Color.Transparent, accentBlue),
+                                colors = listOf(accentBlue.copy(alpha = 0.3f), Color.Transparent, accentBlue.copy(alpha = 0.3f)),
                             ),
                             startAngle = 0f,
                             sweepAngle = 360f,
                             useCenter = false,
-                            style = Stroke(width = 4.dp.toPx())
+                            style = Stroke(width = 2.dp.toPx())
                         )
                     }
 
@@ -180,7 +183,6 @@ fun EditProfileScreen(
                         modifier = Modifier
                             .size(130.dp)
                             .clip(CircleShape)
-                            .border(2.dp, Color.White.copy(alpha = 0.3f), CircleShape)
                             .clickable { onPhotoClick() }
                     ) {
                         AsyncImage(
@@ -194,12 +196,6 @@ fun EditProfileScreen(
                             error = painterResource(R.drawable.ic_avatar_placeholder),
                             placeholder = painterResource(R.drawable.ic_avatar_placeholder)
                         )
-                        
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Black.copy(alpha = 0.2f))
-                        )
                     }
 
                     // Floating Camera Icon
@@ -209,8 +205,7 @@ fun EditProfileScreen(
                             .size(36.dp)
                             .offset(x = (-4).dp, y = (-4).dp),
                         color = accentBlue,
-                        shape = CircleShape,
-                        shadowElevation = 4.dp
+                        shape = CircleShape
                     ) {
                         IconButton(onClick = onPhotoClick) {
                             Icon(
@@ -234,9 +229,9 @@ fun EditProfileScreen(
                     modifier = Modifier.align(Alignment.Start).padding(bottom = 12.dp)
                 )
 
-                ElevatedCard(
+                Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.elevatedCardColors(containerColor = cardColor),
+                    colors = CardDefaults.cardColors(containerColor = cardColor),
                     shape = RoundedCornerShape(24.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
@@ -269,7 +264,7 @@ fun EditProfileScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        GemaPhoneInputField(
+                        GemaPhoneTextField(
                             value = displayPhone,
                             onValueChange = { newNumber -> 
                                 onPhoneChange(selectedCountry.code + newNumber)
@@ -280,7 +275,7 @@ fun EditProfileScreen(
                                 onPhoneChange(newCountry.code + displayPhone)
                             },
                             label = "Teléfono",
-                            darkTheme = darkTheme
+                            glassColor = if (darkTheme) Color(0xFF334155).copy(alpha = 0.3f) else Color(0xFFF1F5F9)
                         )
                     }
                 }
@@ -343,7 +338,7 @@ fun EditProfileScreen(
                     }
                 }
                 
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(120.dp))
             }
         }
     }
@@ -375,16 +370,14 @@ fun DeleteAccountDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(errorColor.copy(alpha = 0.1f), CircleShape),
+                    modifier = Modifier.size(64.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         if (step == 1) Icons.Default.Warning else Icons.Default.DeleteForever, 
                         contentDescription = null, 
                         tint = errorColor, 
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(48.dp)
                     )
                 }
 
@@ -501,12 +494,10 @@ fun ChangePasswordDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .background(accentBlue.copy(alpha = 0.1f), CircleShape),
+                    modifier = Modifier.size(56.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Lock, contentDescription = null, tint = accentBlue, modifier = Modifier.size(28.dp))
+                    Icon(Icons.Default.Lock, contentDescription = null, tint = accentBlue, modifier = Modifier.size(32.dp))
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -663,112 +654,6 @@ fun GemaInputField(
             ),
             singleLine = true,
             textStyle = LocalTextStyle.current.copy(color = textColor, fontWeight = FontWeight.Medium)
-        )
-    }
-}
-
-data class CountryData(val name: String, val code: String, val flag: String)
-
-val countries = listOf(
-    CountryData("México", "+52", "🇲🇽"),
-    CountryData("Estados Unidos", "+1", "🇺🇸"),
-    CountryData("España", "+34", "🇪🇸"),
-    CountryData("Colombia", "+57", "🇨🇴"),
-    CountryData("Argentina", "+54", "🇦🇷"),
-    CountryData("Chile", "+56", "🇨🇱"),
-    CountryData("Perú", "+51", "🇵🇪"),
-    CountryData("Ecuador", "+593", "🇪🇨"),
-    CountryData("Guatemala", "+502", "🇬🇹"),
-    CountryData("Costa Rica", "+506", "🇨🇷")
-)
-
-@Composable
-fun GemaPhoneInputField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    selectedCountry: CountryData,
-    onCountryChange: (CountryData) -> Unit,
-    label: String,
-    darkTheme: Boolean
-) {
-    val focusColor = Color(0xFF3B82F6)
-    val textColor = if (darkTheme) Color.White else Color.Black
-    val containerColor = if (darkTheme) Color(0xFF334155).copy(alpha = 0.3f) else Color(0xFFF1F5F9)
-    var expanded by remember { mutableStateOf(false) }
-
-    Column {
-        Text(label, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.Gray, modifier = Modifier.padding(start = 4.dp, bottom = 4.dp))
-        
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth(),
-            leadingIcon = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(start = 12.dp, end = 8.dp)
-                        .clickable { expanded = true }
-                ) {
-                    Text(selectedCountry.flag, fontSize = 20.sp)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        selectedCountry.code, 
-                        color = focusColor, 
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                    Icon(
-                        Icons.Default.ArrowDropDown, 
-                        contentDescription = null, 
-                        tint = Color.Gray,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        modifier = Modifier.background(if (darkTheme) Color(0xFF1E293B) else Color.White)
-                    ) {
-                        countries.forEach { country ->
-                            DropdownMenuItem(
-                                text = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(country.flag, modifier = Modifier.padding(end = 8.dp))
-                                        Text(country.name, color = textColor, modifier = Modifier.weight(1f))
-                                        Text(country.code, color = Color.Gray, fontSize = 12.sp)
-                                    }
-                                },
-                                onClick = {
-                                    onCountryChange(country)
-                                    expanded = false
-                                }
-                            )
-                        }
-                    }
-                    
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .width(1.dp)
-                            .height(24.dp)
-                            .background(Color.Gray.copy(alpha = 0.3f))
-                    )
-                }
-            },
-            shape = RoundedCornerShape(16.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = focusColor,
-                unfocusedBorderColor = Color.Transparent,
-                focusedContainerColor = containerColor,
-                unfocusedContainerColor = containerColor,
-                cursorColor = focusColor
-            ),
-            singleLine = true,
-            textStyle = LocalTextStyle.current.copy(color = textColor, fontWeight = FontWeight.Medium),
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                keyboardType = androidx.compose.ui.text.input.KeyboardType.Phone
-            )
         )
     }
 }

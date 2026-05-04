@@ -65,12 +65,13 @@ public class MainActivity extends AppCompatActivity {
         }
         // --- FIN PROTECCIÓN BIOMÉTRICA ---
 
-        // Encontrar los componentes de navegación
-        BottomNavigationView navView = findViewById(R.id.nav_view);
+        // --- BARRA DE NAVEGACIÓN FLOTANTE (COMPOSE) ---
+        androidx.compose.ui.platform.ComposeView composeNavView = findViewById(R.id.compose_nav_view);
+        com.example.gemainventory.ui.navigation.NavBarHelper navHelper = new com.example.gemainventory.ui.navigation.NavBarHelper(composeNavView);
 
         // --- PROTECCIÓN POR ROLES ---
-        int rolUsuario = sharedPreferences.getInt("user_rol", 1); // Por defecto asume 1 (Admin) si falla
-        aplicarRestriccionesDeRol(navView, rolUsuario);
+        int rolUsuario = sharedPreferences.getInt("user_rol", 1);
+        aplicarRestriccionesDeRolCompose(navHelper, rolUsuario);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment_activity_main);
@@ -78,49 +79,58 @@ public class MainActivity extends AppCompatActivity {
         if (navHostFragment != null) {
             NavController navController = navHostFragment.getNavController();
 
-            // Conectar el BottomNavigationView con el NavController
-            NavigationUI.setupWithNavController(navView, navController);
-
-            // PERSONALIZACIÓN: Reiniciar la pestaña al cambiar (No restaurar estado)
-            navView.setOnItemSelectedListener(item -> {
+            // Sincronizar selección de Compose con Navegación
+            navHelper.setOnItemClick(itemId -> {
                 androidx.navigation.NavOptions navOptions = new androidx.navigation.NavOptions.Builder()
                         .setLaunchSingleTop(true)
-                        .setRestoreState(false) // FALSE: Para que reinicie el fragmento
+                        .setRestoreState(false)
                         .setPopUpTo(navController.getGraph().getStartDestinationId(), false)
                         .build();
 
                 try {
-                    navController.navigate(item.getItemId(), null, navOptions);
-                    return true;
+                    navController.navigate(itemId, null, navOptions);
+                    return kotlin.Unit.INSTANCE;
                 } catch (IllegalArgumentException e) {
-                    return false;
+                    return kotlin.Unit.INSTANCE;
                 }
             });
 
-            // FIX: Limpiar la pila al volver a pulsar el mismo ítem (Reselección)
-            navView.setOnItemReselectedListener(item -> {
-                navController.popBackStack(item.getItemId(), false);
+            // Sincronizar cambios externos (ej. navegación programática)
+            navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+                int destId = destination.getId();
+                // Map sub-screens to their parent nav item
+                int selectedId;
+                if (destId == R.id.navigation_product_form || destId == R.id.navigation_add_product
+                        || destId == R.id.navigation_add_category || destId == R.id.navigation_add_warehouse
+                        || destId == R.id.navigation_product_detail) {
+                    selectedId = R.id.navigation_inventory;
+                } else if (destId == R.id.navigation_add_order) {
+                    selectedId = R.id.navigation_orders;
+                } else if (destId == R.id.navigation_edit_profile) {
+                    selectedId = R.id.navigation_settings;
+                } else {
+                    selectedId = destId;
+                }
+                navHelper.setSelectedId(selectedId);
             });
         }
     }
 
-    private void aplicarRestriccionesDeRol(BottomNavigationView navView, int idRol) {
-        android.view.Menu menu = navView.getMenu();
+    private void aplicarRestriccionesDeRolCompose(com.example.gemainventory.ui.navigation.NavBarHelper navHelper, int idRol) {
+        java.util.List<Integer> idsVisibles = new java.util.ArrayList<>();
+        idsVisibles.add(R.id.navigation_dashboard);
+        idsVisibles.add(R.id.navigation_inventory);
+        idsVisibles.add(R.id.navigation_orders);
 
-        if (idRol == 3) { // 3 = Operario
-            // El operario NO tiene acceso a la pestaña de "Finanzas" (Costos de compra,
-            // facturación)
-            menu.findItem(R.id.navigation_finances).setVisible(false);
-
-            // El operario NO tiene acceso a "Ajustes", que es donde se crean usuarios o
-            // catalogos base
-            menu.findItem(R.id.navigation_settings).setVisible(false);
-        } else if (idRol == 2) { // 2 = Supervisor
-            // El supervisor tiene acceso a casi todo, excepto la administración profunda de
-            // usuarios
-            // Podrías ocultar opciones específicas dentro del fragmento de Settings,
-            // pero le dejamos ver el tab principal (donde quizás cree categorías).
+        if (idRol == 3) { // Operario: NO ve Finanzas ni Ajustes
+            // Solo los base ya añadidos
+        } else if (idRol == 2) { // Supervisor: Ve Ajustes pero no Finanzas (según lógica previa)
+            idsVisibles.add(R.id.navigation_settings);
+        } else { // Admin: Ve todo
+            idsVisibles.add(R.id.navigation_finances);
+            idsVisibles.add(R.id.navigation_settings);
         }
-        // Rol 1 (Admin) = Ve todo por defecto.
+        
+        navHelper.setVisibleItems(idsVisibles);
     }
 }

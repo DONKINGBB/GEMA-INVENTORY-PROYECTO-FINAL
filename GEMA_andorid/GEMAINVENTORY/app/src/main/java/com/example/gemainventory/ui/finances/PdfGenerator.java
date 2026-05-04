@@ -1,10 +1,16 @@
 package com.example.gemainventory.ui.finances;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.Rect;
 import android.graphics.pdf.PdfDocument;
+import com.example.gemainventory.R;
 import android.os.Environment;
 import android.widget.Toast;
 
@@ -37,24 +43,52 @@ public class PdfGenerator {
         paint.setColor(colorPrimary);
         canvas.drawRect(0, 0, pageInfo.getPageWidth(), 100, paint);
 
-        titlePaint.setColor(Color.WHITE);
-        titlePaint.setTextSize(22);
-        titlePaint.setFakeBoldText(true);
-        canvas.drawText("GEMA INVENTORY", 40, 45, titlePaint);
+        // Logo y Branding
+        try {
+            Bitmap logo = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_logo_cuadrado_bb);
+            if (logo != null) {
+                int logoSize = 50;
+                Rect src = new Rect(0, 0, logo.getWidth(), logo.getHeight());
+                Rect dst = new Rect(40, 25, 40 + logoSize, 25 + logoSize);
+                
+                Paint logoPaint = new Paint();
+                logoPaint.setColorFilter(new PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN));
+                canvas.drawBitmap(logo, src, dst, logoPaint);
+                
+                titlePaint.setColor(Color.WHITE);
+                titlePaint.setTextSize(18);
+                titlePaint.setFakeBoldText(true);
+                titlePaint.setTextAlign(Paint.Align.LEFT);
+                canvas.drawText("GEMA INVENTORY", 40 + logoSize + 10, 45, titlePaint);
+                
+                paint.setColor(Color.WHITE);
+                paint.setTextSize(9);
+                paint.setFakeBoldText(false);
+                paint.setTextAlign(Paint.Align.LEFT);
+                canvas.drawText("Gestión de Inventarios y Finanzas", 40 + logoSize + 10, 65, paint);
+            } else {
+                titlePaint.setColor(Color.WHITE);
+                titlePaint.setTextSize(18);
+                titlePaint.setFakeBoldText(true);
+                titlePaint.setTextAlign(Paint.Align.LEFT);
+                canvas.drawText("GEMA INVENTORY", 40, 55, titlePaint);
+            }
+        } catch (Exception e) {
+            titlePaint.setColor(Color.WHITE);
+            titlePaint.setTextSize(18);
+            titlePaint.setFakeBoldText(true);
+            titlePaint.setTextAlign(Paint.Align.LEFT);
+            canvas.drawText("GEMA INVENTORY", 40, 55, titlePaint);
+        }
 
-        paint.setColor(Color.WHITE);
-        paint.setTextSize(12);
-        paint.setFakeBoldText(false);
-        canvas.drawText("Sistema de Gestión de Inventarios y Finanzas", 40, 65, paint);
-
-        // Subtítulo del Reporte
-        titlePaint.setTextSize(16);
+        // Título del Reporte y Fecha (Derecha)
+        titlePaint.setTextSize(12);
         titlePaint.setTextAlign(Paint.Align.RIGHT);
-        canvas.drawText(reportTitle.toUpperCase(), pageInfo.getPageWidth() - 40, 55, titlePaint);
-        
+        canvas.drawText(reportTitle.toUpperCase(), pageInfo.getPageWidth() - 40, 45, titlePaint);
+
         paint.setTextAlign(Paint.Align.RIGHT);
-        paint.setTextSize(10);
-        canvas.drawText("Generado: " + java.text.DateFormat.getDateInstance().format(new java.util.Date()), pageInfo.getPageWidth() - 40, 75, paint);
+        paint.setTextSize(9);
+        canvas.drawText("Generado: " + java.text.DateFormat.getDateInstance().format(new java.util.Date()), pageInfo.getPageWidth() - 40, 65, paint);
 
         // 2. Definir Tabla
         int startX = 40;

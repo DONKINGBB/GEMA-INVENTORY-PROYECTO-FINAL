@@ -1,71 +1,72 @@
 package com.example.gemainventory;
- 
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
- 
+
 import androidx.appcompat.app.AppCompatActivity;
- 
+
 import com.example.gemainventory.api.RetrofitClient;
-import com.example.gemainventory.databinding.ActivityResetPasswordBinding;
- 
+import com.example.gemainventory.ui.auth.ResetPasswordComposeHelper;
+import com.example.gemainventory.ui.auth.OnResetSubmitListener;
+import com.example.gemainventory.ui.auth.OnActionClickListener;
+
 import java.util.Map;
- 
+
+import androidx.compose.ui.platform.ComposeView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
- 
+
 public class ResetPasswordActivity extends AppCompatActivity {
- 
-    private ActivityResetPasswordBinding binding;
+
+    private ResetPasswordComposeHelper composeHelper;
     private String email;
- 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityResetPasswordBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
- 
+        
         email = getIntent().getStringExtra("email");
- 
-        binding.btnBack.setOnClickListener(v -> finish());
- 
-        binding.btnReset.setOnClickListener(v -> {
-            String code = binding.etCode.getText().toString().trim();
-            String newPassword = binding.etNewPassword.getText().toString().trim();
- 
+        
+        ComposeView composeView = new ComposeView(this);
+        setContentView(composeView);
+
+        composeHelper = new ResetPasswordComposeHelper(composeView, email != null ? email : "");
+
+        composeHelper.setOnBackListener(() -> finish());
+
+        composeHelper.setOnSubmitListener((code, newPassword) -> {
             if (code.length() < 6) {
-                binding.codeLayout.setError("Código incompleto");
+                Toast.makeText(this, "Código incompleto", Toast.LENGTH_SHORT).show();
                 return;
             }
             if (newPassword.isEmpty()) {
-                binding.passwordLayout.setError("Ingresa la nueva contraseña");
+                Toast.makeText(this, "Ingresa la nueva contraseña", Toast.LENGTH_SHORT).show();
                 return;
             }
- 
-            binding.codeLayout.setError(null);
-            binding.passwordLayout.setError(null);
             restablecerContrasena(code, newPassword);
         });
     }
- 
+
     private void restablecerContrasena(String code, String newPassword) {
-        binding.btnReset.setEnabled(false);
+        composeHelper.setLoading(true);
         RetrofitClient.INSTANCE.getInstance().resetPassword(email, code, newPassword).enqueue(new Callback<Map<String, String>>() {
             @Override
             public void onResponse(Call<Map<String, String>> call, Response<Map<String, String>> response) {
-                binding.btnReset.setEnabled(true);
+                composeHelper.setLoading(false);
                 if (response.isSuccessful()) {
                     Toast.makeText(ResetPasswordActivity.this, "Contraseña actualizada", Toast.LENGTH_LONG).show();
-                    finishAffinity(); // Cierra todo y vuelve al login si está en el stack o redirige
-                    startActivity(new android.content.Intent(ResetPasswordActivity.this, LoginActivity.class));
+                    finishAffinity();
+                    startActivity(new Intent(ResetPasswordActivity.this, LoginActivity.class));
                 } else {
                     Toast.makeText(ResetPasswordActivity.this, "Código incorrecto o expirado", Toast.LENGTH_SHORT).show();
                 }
             }
- 
+
             @Override
             public void onFailure(Call<Map<String, String>> call, Throwable t) {
-                binding.btnReset.setEnabled(true);
+                composeHelper.setLoading(false);
                 Toast.makeText(ResetPasswordActivity.this, "Error de red", Toast.LENGTH_SHORT).show();
             }
         });

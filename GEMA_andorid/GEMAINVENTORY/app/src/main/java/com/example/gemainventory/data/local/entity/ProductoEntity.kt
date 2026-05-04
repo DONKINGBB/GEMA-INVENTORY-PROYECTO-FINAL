@@ -18,6 +18,6 @@ data class ProductoEntity(
     val idAlmacen: Int?,
     
     // Offline Sync Fields
-    val syncState: SyncState = SyncState.SYNCED,
-    val updatedAt: Long = System.currentTimeMillis()
+    val syncState: SyncState,
+    val updatedAt: Long
 )

@@ -6,6 +6,7 @@ import com.example.gemainventory.GemaApplication
 import com.example.gemainventory.LoginActivity
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -56,9 +57,14 @@ object RetrofitClient {
         response
     }
 
+    private val loggingInterceptor = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
+    }
+
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
         .addInterceptor(errorInterceptor)
+        .addInterceptor(loggingInterceptor)
         .build()
 
     val instance: ApiService by lazy {
@@ -78,6 +84,6 @@ object RetrofitClient {
         }
         
         val cleanPath = if (imagePath.startsWith("/")) imagePath.substring(1) else imagePath
-        return BASE_URL + cleanPath
+        return BASE_URL + "/" + cleanPath
     }
 }
