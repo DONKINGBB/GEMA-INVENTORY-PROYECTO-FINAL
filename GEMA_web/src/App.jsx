@@ -2,6 +2,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Login from './pages/Login';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import LandingPage from './pages/LandingPage';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Inventory from './pages/Inventory';
@@ -14,10 +17,15 @@ import Finances from './pages/Finances';
 import Notifications from './pages/Notifications';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { Toaster } from 'react-hot-toast';
 import ProfileSettings from './pages/ProfileSettings';
 import SecuritySettings from './pages/SecuritySettings';
 import NotificationSettings from './pages/NotificationSettings';
 import AppearanceSettings from './pages/AppearanceSettings';
+import SupplierSettings from './pages/SupplierSettings';
+import BusinessSettings from './pages/BusinessSettings';
+import SwitchBusiness from './pages/SwitchBusiness';
+import ManageTeam from './pages/ManageTeam';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -36,12 +44,16 @@ function App() {
     <Router>
       <AuthProvider>
         <ThemeProvider>
+          <Toaster position="top-right" />
           <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
             {/* Main Layout containing nested routes */}
             <Route
-              path="/"
+              path="/app"
               element={
                 <ProtectedRoute>
                   <Layout />
@@ -57,10 +69,14 @@ function App() {
               <Route path="settings" element={<Settings />} />
               <Route path="settings/categories" element={<CategorySettings />} />
               <Route path="settings/warehouses" element={<WarehouseSettings />} />
+              <Route path="settings/suppliers" element={<SupplierSettings />} />
               <Route path="settings/profile" element={<ProfileSettings />} />
               <Route path="settings/security" element={<SecuritySettings />} />
               <Route path="settings/notifications" element={<NotificationSettings />} />
               <Route path="settings/appearance" element={<AppearanceSettings />} />
+              <Route path="settings/business" element={<BusinessSettings />} />
+              <Route path="settings/switch-business" element={<SwitchBusiness />} />
+              <Route path="settings/team" element={<ManageTeam />} />
             </Route>
 
             {/* Catch-all redirect to home */}

@@ -100,3 +100,43 @@ export const warehouseService = {
         }
     }
 };
+
+export const supplierService = {
+    getAll: async (userId) => {
+        try {
+            const endpoint = userId ? `/catalogos/proveedores?userId=${userId}` : '/catalogos/proveedores';
+            const response = await api.get(endpoint);
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching suppliers", error);
+            throw error;
+        }
+    },
+    create: async (data, userId) => {
+        try {
+            const endpoint = userId ? `/catalogos/proveedores?userId=${userId}` : '/catalogos/proveedores';
+            const response = await api.post(endpoint, data);
+            return response.data;
+        } catch (error) {
+            console.error("Error creating supplier", error);
+            throw error;
+        }
+    },
+    update: async (id, data) => {
+        try {
+            const response = await api.put(`/catalogos/proveedores/${id}`, data);
+            return response.data;
+        } catch (error) {
+            console.error("Error updating supplier", error);
+            throw error;
+        }
+    },
+    delete: async (id) => {
+        try {
+            await api.delete(`/catalogos/proveedores/${id}`);
+        } catch (error) {
+            console.error("Error deleting supplier", error);
+            throw error;
+        }
+    }
+};

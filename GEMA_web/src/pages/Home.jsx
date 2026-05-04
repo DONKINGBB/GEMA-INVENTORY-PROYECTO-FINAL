@@ -108,7 +108,7 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
 
                 {/* Valor Inventario */}
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-between h-40 transition-colors">
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-between h-40 transition-colors animate-fade-in-up" style={{ animationDelay: '0ms' }}>
                     <div>
                         <p className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-1">Valor Inventario</p>
                         <h3 className="text-3xl font-bold text-gray-900 dark:text-white">${stats.inventoryValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
@@ -116,7 +116,7 @@ export default function Home() {
                 </div>
 
                 {/* Pedidos Pendientes */}
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-between h-40 transition-colors">
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-between h-40 transition-colors animate-fade-in-up" style={{ animationDelay: '100ms' }}>
                     <div>
                         <p className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-1">Pedidos Pendientes</p>
                         <h3 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -126,7 +126,7 @@ export default function Home() {
                 </div>
 
                 {/* Productos Bajo Stock */}
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-between h-40 transition-colors">
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-between h-40 transition-colors animate-fade-in-up" style={{ animationDelay: '200ms' }}>
                     <div>
                         <p className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-1">Productos Bajo Stock</p>
                         <h3 className="text-3xl font-bold text-gray-900 dark:text-white">{stats.lowStock}</h3>
@@ -134,7 +134,7 @@ export default function Home() {
                 </div>
 
                 {/* Beneficio (Mes) */}
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-between h-40 transition-colors">
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-between h-40 transition-colors animate-fade-in-up" style={{ animationDelay: '300ms' }}>
                     <div>
                         <p className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-1">Beneficio (Mes)</p>
                         <h3 className="text-3xl font-bold text-green-600 dark:text-green-400">${stats.monthlyProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
@@ -144,7 +144,7 @@ export default function Home() {
 
             {/* Inventory Alert Section matching App */}
             {alerts.length > 0 && (
-                <div className="bg-white dark:bg-slate-800 border border-yellow-500/50 rounded-2xl p-6 shadow-sm dark:shadow-xl mt-8 transition-colors">
+                <div className="bg-white dark:bg-slate-800 border border-yellow-500/50 rounded-2xl p-6 shadow-sm dark:shadow-xl mt-8 transition-colors animate-fade-in-up" style={{ animationDelay: '400ms' }}>
                     <div className="flex items-center gap-3 mb-4">
                         <AlertTriangle className="text-yellow-500" size={28} />
                         <h3 className="text-xl font-bold text-yellow-600 dark:text-yellow-500">Alerta de Stock</h3>
@@ -186,7 +186,7 @@ export default function Home() {
             )}
 
             {/* Recent Activity */}
-            <div className="bg-gradient-to-r from-primary to-accent rounded-3xl p-8 text-white relative overflow-hidden shadow-xl mt-8">
+            <div className="bg-gradient-to-r from-primary to-accent rounded-3xl p-8 text-white relative overflow-hidden shadow-xl mt-8 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
                 <div className="relative z-10 max-w-xl">
                     <h2 className="text-2xl font-bold mb-4">Actividad Reciente</h2>
                     <p className="mb-6 text-blue-100">Resumen de tus últimas operaciones registradas.</p>

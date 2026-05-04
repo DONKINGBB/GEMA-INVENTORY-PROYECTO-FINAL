@@ -9,4 +9,35 @@
   .dark body {
     @apply bg-[#0f172a] text-gray-100;
   }
+
+  /* Animaciones Minimalistas */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-in {
+    animation-duration: 0.3s;
+    animation-fill-mode: both;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .fade-in { animation-name: fadeIn; }
+  .zoom-in-95 { animation-name: zoomIn; }
+  .slide-up { animation-name: slideUp; }
+
+  /* Glassmorphism */
+  .glass {
+    @apply bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border border-white/20 dark:border-slate-700/30;
+  }
 }

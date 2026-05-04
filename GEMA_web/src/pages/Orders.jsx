@@ -443,44 +443,44 @@ export default function Orders() {
             {/* Modal - Detalles del Pedido */}
             {selectedOrderDetails && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden">
-                        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-primary text-white">
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-transparent dark:border-slate-700">
+                        <div className="p-6 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center bg-primary dark:bg-slate-900 text-white">
                             <h2 className="text-xl font-bold">Detalles del Pedido</h2>
-                            <button onClick={() => setSelectedOrderDetails(null)} className="p-1 hover:bg-white/10 rounded-full">
+                            <button onClick={() => setSelectedOrderDetails(null)} className="p-1 hover:bg-white/10 dark:hover:bg-slate-800 rounded-full">
                                 <X size={24} />
                             </button>
                         </div>
                         <div className="p-6 space-y-4">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-sm text-gray-500">ID Pedido</p>
-                                    <p className="font-mono text-xs">{selectedOrderDetails.id}</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">ID Pedido</p>
+                                    <p className="font-mono text-xs dark:text-gray-300">{selectedOrderDetails.id}</p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-sm text-gray-500">Fecha</p>
-                                    <p className="font-medium">{new Date(selectedOrderDetails.fechaPedido).toLocaleString()}</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Fecha</p>
+                                    <p className="font-medium dark:text-gray-200">{new Date(selectedOrderDetails.fechaPedido).toLocaleString()}</p>
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <h4 className="font-bold text-gray-900 border-b pb-1">Productos</h4>
+                                <h4 className="font-bold text-gray-900 dark:text-white border-b dark:border-slate-700 pb-1">Productos</h4>
                                 <div className="max-h-40 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
                                     {selectedOrderDetails.detalles?.map((d, i) => (
-                                        <div key={i} className="flex justify-between text-sm">
+                                        <div key={i} className="flex justify-between text-sm dark:text-gray-300">
                                             <span>{d.nombreProducto || d.idProducto} x{d.cantidad}</span>
-                                            <span className="font-medium">${(d.cantidad * d.precioUnitario).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                                            <span className="font-medium dark:text-gray-200">${(d.cantidad * d.precioUnitario).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                                         </div>
                                     ))}
                                 </div>
                             </div>
-                            <div className="pt-4 border-t flex justify-between items-center">
-                                <span className="font-bold text-gray-900 text-lg">TOTAL</span>
-                                <span className="font-bold text-primary text-2xl">
+                            <div className="pt-4 border-t dark:border-slate-700 flex justify-between items-center">
+                                <span className="font-bold text-gray-900 dark:text-white text-lg">TOTAL</span>
+                                <span className="font-bold text-primary dark:text-blue-400 text-2xl">
                                     ${parseFloat(selectedOrderDetails.total || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                 </span>
                             </div>
                         </div>
-                        <div className="p-6 bg-gray-50 flex gap-2">
-                            <button onClick={() => setSelectedOrderDetails(null)} className="w-full py-3 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition">
+                        <div className="p-6 bg-gray-50 dark:bg-slate-900 flex gap-2">
+                            <button onClick={() => setSelectedOrderDetails(null)} className="w-full py-3 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-300 dark:hover:bg-slate-600 transition">
                                 Cerrar
                             </button>
                         </div>
@@ -491,22 +491,22 @@ export default function Orders() {
             {/* Modal - Confirmar Eliminación */}
             {isConfirmDeleteOpen && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl scale-in">
-                        <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <div className="bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl animate-scale-in">
+                        <div className="w-20 h-20 bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Trash2 size={40} />
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2">¿Eliminar Pedido?</h3>
-                        <p className="text-gray-500 mb-8">Esta acción no se puede deshacer y el stock no se restaurará automáticamente.</p>
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">¿Eliminar Pedido?</h3>
+                        <p className="text-gray-500 dark:text-gray-400 mb-8">Esta acción no se puede deshacer y el stock no se restaurará automáticamente.</p>
                         <div className="flex gap-3">
                             <button 
                                 onClick={() => setIsConfirmDeleteOpen(false)}
-                                className="flex-1 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition"
+                                className="flex-1 py-3 bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-300 font-bold hover:bg-gray-200 dark:hover:bg-slate-600 rounded-xl transition"
                             >
                                 Cancelar
                             </button>
                             <button 
                                 onClick={confirmDelete}
-                                className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition shadow-lg shadow-red-200"
+                                className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition shadow-lg shadow-red-200 dark:shadow-none"
                             >
                                 Eliminar
                             </button>

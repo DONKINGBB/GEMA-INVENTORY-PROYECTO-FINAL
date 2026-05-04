@@ -1,5 +1,5 @@
 
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { LogOut, Package, ShoppingCart, Users, Home, Settings, Menu, X, TrendingUp, Bell, Sun, Moon } from 'lucide-react';
@@ -9,18 +9,19 @@ export default function Layout() {
     const { user, logout } = useAuth();
     const { isDarkMode, toggleDarkMode } = useTheme();
     const navigate = useNavigate();
+    const location = useLocation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
     const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
     const navItems = [
-        { name: 'Inicio', path: '/', icon: Home },
-        { name: 'Inventario', path: '/inventory', icon: Package },
-        { name: 'Pedidos', path: '/orders', icon: ShoppingCart },
-        { name: 'Clientes', path: '/clients', icon: Users },
-        { name: 'Finanzas', path: '/finances', icon: TrendingUp },
-        { name: 'Notificaciones', path: '/notifications', icon: Bell },
+        { name: 'Inicio', path: '/app', icon: Home },
+        { name: 'Inventario', path: '/app/inventory', icon: Package },
+        { name: 'Pedidos', path: '/app/orders', icon: ShoppingCart },
+        { name: 'Clientes', path: '/app/clients', icon: Users },
+        { name: 'Finanzas', path: '/app/finances', icon: TrendingUp },
+        { name: 'Notificaciones', path: '/app/notifications', icon: Bell },
     ];
 
     return (
@@ -36,6 +37,7 @@ export default function Layout() {
                         <NavLink
                             key={item.path}
                             to={item.path}
+                            end={item.path === '/app'}
                             className={({ isActive }) =>
                                 `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
                                     ? 'bg-accent dark:bg-blue-600 text-white shadow-lg translate-x-2'
@@ -58,7 +60,7 @@ export default function Layout() {
                         <span className="font-medium">{isDarkMode ? 'Modo Claro' : 'Modo Oscuro'}</span>
                     </button>
                     <NavLink
-                        to="/settings"
+                        to="/app/settings"
                         className={({ isActive }) =>
                             `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 mb-2 ${isActive ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'
                             }`
@@ -104,6 +106,7 @@ export default function Layout() {
                             <NavLink
                                 key={item.path}
                                 to={item.path}
+                                end={item.path === '/app'}
                                 onClick={closeMobileMenu}
                                 className={({ isActive }) =>
                                     `flex items-center gap-4 px-4 py-4 rounded-xl text-lg ${isActive ? 'bg-accent dark:bg-blue-600 text-white' : 'text-gray-300'
@@ -116,7 +119,7 @@ export default function Layout() {
                         ))}
                         <div className="h-px bg-white/10 my-4"></div>
                         <NavLink
-                            to="/settings"
+                            to="/app/settings"
                             onClick={closeMobileMenu}
                             className={({ isActive }) =>
                                 `flex items-center gap-4 px-4 py-4 rounded-xl text-lg ${isActive ? 'bg-white/10 text-white' : 'text-gray-400'
@@ -153,10 +156,25 @@ export default function Layout() {
                     <div className="flex items-center gap-4">
                         <div className="text-right">
                             <p className="text-sm font-bold text-gray-900 dark:text-white font-sans">{user?.nombre || "Usuario"}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email || "Admin"}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{user?.correo || "Admin"}</p>
                         </div>
-                        <div className="w-10 h-10 bg-primary dark:bg-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-inner">
-                            {user?.nombre?.charAt(0)?.toUpperCase() || "U"}
+                        <div className="relative group cursor-pointer">
+                            {/* Aro de luz giratorio */}
+                            <div className="absolute -inset-1 bg-gradient-to-r from-primary via-blue-400 to-primary dark:from-blue-400 dark:via-purple-500 dark:to-blue-400 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-spin-slow"></div>
+                            
+                            {/* Contenedor de la foto - hidden when on profile page to allow view transition */}
+                            <div 
+                                style={{ 
+                                    viewTransitionName: 'profile-photo',
+                                    visibility: location.pathname === '/app/settings/profile' ? 'hidden' : 'visible'
+                                }}
+                                className="relative w-11 h-11 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center text-primary dark:text-white font-bold shadow-inner overflow-hidden border-2 border-white dark:border-slate-800 z-10">
+                                {user?.imagen_url || user?.imagenUrl ? (
+                                    <img src={user?.imagen_url || user?.imagenUrl} alt="Profile" className="w-full h-full object-cover" />
+                                ) : (
+                                    <span>{user?.nombre?.charAt(0)?.toUpperCase() || "U"}</span>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </header>

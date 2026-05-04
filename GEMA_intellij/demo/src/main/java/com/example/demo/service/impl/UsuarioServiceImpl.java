@@ -57,8 +57,18 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public Usuario save(Usuario usuario) {
-        // Asegúrate de asignar el idRol
-        // (Probablemente quieras recibirlo desde el DTO)
+        // Obtenemos el usuario autenticado para asignar el negocio automáticamente
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            String username = auth.getName();
+            usuarioRepository.findByCorreoAndActivoTrue(username).ifPresent(modificador -> {
+                if (modificador.getIdNegocio() != null) {
+                    usuario.setIdNegocio(modificador.getIdNegocio());
+                }
+            });
+        }
+        
+        // El estado 'activo' es true por defecto (definido en el @Builder.Default del modelo)
         return usuarioRepository.save(usuario);
     }
 
@@ -216,13 +226,19 @@ public class UsuarioServiceImpl implements UsuarioService {
                     "Acceso denegado: Tu rol no tiene permisos para gestionar el equipo.");
         }
 
-        // 4. Actualizar campos
-        objetivo.setCorreo(usuario.getCorreo());
-        objetivo.setNombre(usuario.getNombre());
+        // 4. Actualizar campos (Solo si vienen informados para permitir actualizaciones parciales)
+        if (usuario.getCorreo() != null && !usuario.getCorreo().isEmpty()) {
+            objetivo.setCorreo(usuario.getCorreo());
+        }
+        if (usuario.getNombre() != null && !usuario.getNombre().isEmpty()) {
+            objetivo.setNombre(usuario.getNombre());
+        }
         if (usuario.getPasswordHash() != null && !usuario.getPasswordHash().isEmpty()) {
             objetivo.setPasswordHash(usuario.getPasswordHash());
         }
-        objetivo.setIdRol(usuario.getIdRol());
+        if (usuario.getIdRol() != null) {
+            objetivo.setIdRol(usuario.getIdRol());
+        }
 
         return usuarioRepository.save(objetivo);
     }

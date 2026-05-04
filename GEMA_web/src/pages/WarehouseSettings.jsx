@@ -86,7 +86,7 @@ export default function WarehouseSettings() {
         <div className="max-w-4xl mx-auto space-y-6">
             <div className="flex items-center gap-4 mb-6">
                 <button 
-                    onClick={() => navigate('/settings')}
+                    onClick={() => navigate('/app/settings')}
                     className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition"
                 >
                     <ArrowLeft size={24} className="text-gray-600 dark:text-gray-400" />

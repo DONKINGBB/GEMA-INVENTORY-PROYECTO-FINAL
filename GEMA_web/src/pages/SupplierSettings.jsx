@@ -1,26 +1,26 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Edit, Trash2, Loader } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Trash2, Loader, Truck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { categoryService } from '../services/inventoryService';
+import { supplierService } from '../services/inventoryService';
 import { useAuth } from '../context/AuthContext';
 
-export default function CategorySettings() {
+export default function SupplierSettings() {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [categories, setCategories] = useState([]);
+    const [suppliers, setSuppliers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingCategory, setEditingCategory] = useState(null);
-    const [formData, setFormData] = useState({ nombre: '', descripcion: '' });
+    const [editingSupplier, setEditingSupplier] = useState(null);
+    const [formData, setFormData] = useState({ nombre: '', contacto: '', direccion: '' });
     const [saving, setSaving] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
 
-    const fetchCategories = async () => {
+    const fetchSuppliers = async () => {
         if (!user?.id) return;
         try {
             setLoading(true);
-            const data = await categoryService.getAll(user.id);
-            setCategories(data || []);
+            const data = await supplierService.getAll(user.id);
+            setSuppliers(data || []);
         } catch (err) {
             console.error(err);
         } finally {
@@ -29,34 +29,38 @@ export default function CategorySettings() {
     };
 
     useEffect(() => {
-        fetchCategories();
+        fetchSuppliers();
     }, []);
 
     const handleCreate = () => {
-        setEditingCategory(null);
-        setFormData({ nombre: '' });
+        setEditingSupplier(null);
+        setFormData({ nombre: '', contacto: '', direccion: '' });
         setIsModalOpen(true);
     };
 
-    const handleEdit = (category) => {
-        setEditingCategory(category);
-        setFormData({ nombre: category.nombre });
+    const handleEdit = (supplier) => {
+        setEditingSupplier(supplier);
+        setFormData({ 
+            nombre: supplier.nombre || '', 
+            contacto: supplier.contacto || '', 
+            direccion: supplier.direccion || '' 
+        });
         setIsModalOpen(true);
     };
 
-    const confirmDelete = (cat) => {
-        setItemToDelete(cat);
+    const confirmDelete = (sup) => {
+        setItemToDelete(sup);
     };
 
     const handleDelete = async () => {
         if (!itemToDelete) return;
         try {
-            await categoryService.delete(itemToDelete.idCategoria || itemToDelete.id);
+            await supplierService.delete(itemToDelete.idProveedor || itemToDelete.id);
             setItemToDelete(null);
-            await fetchCategories();
+            await fetchSuppliers();
         } catch (error) {
-            console.error("Error al eliminar categoría", error);
-            alert("No se pudo eliminar la categoría.");
+            console.error("Error al eliminar proveedor", error);
+            alert("No se pudo eliminar el proveedor.");
         }
     };
 
@@ -64,13 +68,13 @@ export default function CategorySettings() {
         e.preventDefault();
         setSaving(true);
         try {
-            if (editingCategory) {
-                await categoryService.update(editingCategory.idCategoria || editingCategory.id, formData);
+            if (editingSupplier) {
+                await supplierService.update(editingSupplier.idProveedor || editingSupplier.id, formData);
             } else {
-                await categoryService.create({ ...formData, idUsuario: user.id }, user.id);
+                await supplierService.create({ ...formData, idUsuario: user.id }, user.id);
             }
             setIsModalOpen(false);
-            await fetchCategories();
+            await fetchSuppliers();
         } catch (err) {
             alert("Error al guardar");
         } finally {
@@ -88,8 +92,11 @@ export default function CategorySettings() {
                     <ArrowLeft size={24} className="text-gray-600 dark:text-gray-400" />
                 </button>
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Categorías</h1>
-                    <p className="text-gray-500 dark:text-gray-400">Gestiona las categorías de tus productos</p>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <Truck className="text-primary dark:text-blue-400" size={32} />
+                        Proveedores
+                    </h1>
+                    <p className="text-gray-500 dark:text-gray-400">Gestiona tus proveedores externos</p>
                 </div>
             </div>
 
@@ -99,7 +106,7 @@ export default function CategorySettings() {
                     className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-xl transition shadow flex items-center gap-2 font-medium"
                 >
                     <Plus size={20} />
-                    <span>Nueva Categoría</span>
+                    <span>Nuevo Proveedor</span>
                 </button>
             </div>
 
@@ -112,32 +119,36 @@ export default function CategorySettings() {
                     <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300">
                         <thead className="bg-gray-50 dark:bg-slate-900/50 text-gray-700 dark:text-gray-300 uppercase tracking-wider text-xs font-semibold border-b border-gray-100 dark:border-slate-700">
                             <tr>
-                                <th className="p-5">Nombre de Categoría</th>
+                                <th className="p-5">Nombre</th>
+                                <th className="p-5">Contacto</th>
+                                <th className="p-5">Dirección</th>
                                 <th className="p-5 text-right">Acciones</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
-                            {categories.map((c) => (
-                                <tr key={c.idCategoria || c.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
-                                    <td className="p-5 font-medium text-gray-900 dark:text-white">{c.nombre}</td>
+                            {suppliers.map((p) => (
+                                <tr key={p.idProveedor || p.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
+                                    <td className="p-5 font-medium text-gray-900 dark:text-white">{p.nombre}</td>
+                                    <td className="p-5">{p.contacto || '-'}</td>
+                                    <td className="p-5">{p.direccion || '-'}</td>
                                     <td className="p-5 text-right">
                                         <div className="flex justify-end gap-2">
                                             <button
-                                                onClick={() => handleEdit(c)}
+                                                onClick={() => handleEdit(p)}
                                                 className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition"
                                             >
                                                 <Edit size={18} />
                                             </button>
-                                            <button onClick={() => confirmDelete(c)} className="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20" title="Eliminar">
+                                            <button onClick={() => confirmDelete(p)} className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition">
                                                 <Trash2 size={18} />
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
                             ))}
-                            {categories.length === 0 && (
+                            {suppliers.length === 0 && (
                                 <tr>
-                                    <td colSpan="2" className="p-10 text-center text-gray-500 dark:text-gray-400">No hay categorías registradas</td>
+                                    <td colSpan="4" className="p-10 text-center text-gray-500 dark:text-gray-400">No hay proveedores registrados</td>
                                 </tr>
                             )}
                         </tbody>
@@ -149,7 +160,7 @@ export default function CategorySettings() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
                     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md">
                         <div className="p-6 border-b border-gray-100 dark:border-slate-700">
-                            <h2 className="text-xl font-bold dark:text-white">{editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}</h2>
+                            <h2 className="text-xl font-bold dark:text-white">{editingSupplier ? 'Editar Proveedor' : 'Nuevo Proveedor'}</h2>
                         </div>
                         <form onSubmit={handleSave} className="p-6 space-y-4">
                             <div>
@@ -158,7 +169,25 @@ export default function CategorySettings() {
                                     type="text"
                                     required
                                     value={formData.nombre}
-                                    onChange={(e) => setFormData({ nombre: e.target.value })}
+                                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                                    className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary outline-none transition dark:text-white"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contacto / Teléfono</label>
+                                <input
+                                    type="text"
+                                    value={formData.contacto}
+                                    onChange={(e) => setFormData({ ...formData, contacto: e.target.value })}
+                                    className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary outline-none transition dark:text-white"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dirección</label>
+                                <input
+                                    type="text"
+                                    value={formData.direccion}
+                                    onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
                                     className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary outline-none transition dark:text-white"
                                 />
                             </div>
@@ -191,7 +220,7 @@ export default function CategorySettings() {
                         <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/30 mb-6">
                             <Trash2 className="h-8 w-8 text-red-600 dark:text-red-400" />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">¿Eliminar Categoría?</h3>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">¿Eliminar Proveedor?</h3>
                         <p className="text-gray-500 dark:text-gray-400 mb-8">
                             Estás a punto de eliminar <span className="font-bold text-gray-700 dark:text-gray-200">{itemToDelete.nombre}</span>. Esta acción no se puede deshacer.
                         </p>

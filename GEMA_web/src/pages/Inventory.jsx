@@ -177,8 +177,12 @@ export default function Inventory() {
                                     <tr key={product.idProducto || product.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 rounded-lg flex items-center justify-center font-bold text-xs">
-                                                    {product.sku?.substring(0, 3) || 'SKU'}
+                                                <div className="w-10 h-10 bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 rounded-lg flex items-center justify-center font-bold text-xs overflow-hidden">
+                                                    {product.imagenUrl || product.imagen_url ? (
+                                                        <img src={product.imagenUrl || product.imagen_url} alt={product.nombre} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        product.sku?.substring(0, 3) || 'SKU'
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-gray-900 dark:text-white uppercase truncate max-w-[200px]">{product.nombre}</p>
@@ -227,11 +231,15 @@ export default function Inventory() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredProducts.map((product) => (
                         <div key={product.idProducto || product.id} className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-4 flex items-center gap-4 hover:shadow-md transition-all group overflow-hidden relative">
-                            {/* SKU BOX (Mobile Style) */}
-                            <div className="w-16 h-16 bg-[#FCE7F3] dark:bg-pink-900/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                                <span className="text-[#DB2777] dark:text-pink-400 font-bold text-xs uppercase text-center px-1 leading-tight">
-                                    {product.sku?.includes('-') ? product.sku.split('-')[0] : (product.sku?.substring(0, 3) || 'SKU')}
-                                </span>
+                            {/* Image OR SKU BOX */}
+                            <div className="w-16 h-16 bg-[#FCE7F3] dark:bg-pink-900/20 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                {product.imagenUrl || product.imagen_url ? (
+                                    <img src={product.imagenUrl || product.imagen_url} alt={product.nombre} className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="text-[#DB2777] dark:text-pink-400 font-bold text-xs uppercase text-center px-1 leading-tight">
+                                        {product.sku?.includes('-') ? product.sku.split('-')[0] : (product.sku?.substring(0, 3) || 'SKU')}
+                                    </span>
+                                )}
                             </div>
 
                             <div className="flex-1 min-w-0">

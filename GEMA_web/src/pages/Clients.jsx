@@ -143,13 +143,13 @@ export default function Clients() {
                         </div>
                     ))}
                     {clients.length === 0 && (
-                        <div className="col-span-full bg-white rounded-2xl p-16 border border-gray-200 border-dashed flex flex-col items-center justify-center text-center">
-                            <div className="bg-blue-50 p-4 rounded-full mb-4">
-                                <Users size={32} className="text-primary" />
+                        <div className="col-span-full bg-white dark:bg-slate-800 rounded-2xl p-16 border border-gray-200 dark:border-slate-700 border-dashed flex flex-col items-center justify-center text-center transition-colors">
+                            <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-full mb-4">
+                                <Users size={32} className="text-primary dark:text-blue-400" />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">No hay clientes</h3>
-                            <p className="text-gray-500 max-w-sm">Aún no has registrado ningún cliente. Agrega uno nuevo para empezar a gestionar tus contactos.</p>
-                            <button onClick={() => handleOpenModal()} className="mt-6 bg-white border-2 border-primary text-primary hover:bg-primary hover:text-white px-6 py-2 rounded-lg font-bold transition-colors">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No hay clientes</h3>
+                            <p className="text-gray-500 dark:text-gray-400 max-w-sm">Aún no has registrado ningún cliente. Agrega uno nuevo para empezar a gestionar tus contactos.</p>
+                            <button onClick={() => handleOpenModal()} className="mt-6 bg-white dark:bg-slate-800 border-2 border-primary dark:border-blue-500 text-primary dark:text-blue-400 hover:bg-primary dark:hover:bg-blue-500 hover:text-white dark:hover:text-white px-6 py-2 rounded-lg font-bold transition-colors">
                                 Crear mi primer cliente
                             </button>
                         </div>

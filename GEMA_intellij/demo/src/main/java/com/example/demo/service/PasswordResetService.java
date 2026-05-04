@@ -63,7 +63,7 @@ public class PasswordResetService {
                 "</style></head><body>" +
                 "<div class='container'>" +
                 "  <div class='header'>" +
-                "    <img src='https://i.ibb.co/TxCNQD2b/GEMA-INVENTORY-CUADRADO-BB-2.png' alt='GEMA Logo' style='height: 80px; margin-bottom: 10px; border-radius: 12px;'>" +
+                "    <img src='https://i.ibb.co/SDkJgY8p/GEMA-INVENTORY-CUADRADO-BB-3.png' alt='GEMA Logo' style='height: 80px; margin-bottom: 10px; border-radius: 12px;'>" +
                 "    <div style='letter-spacing: 4px; color: #ffffff; font-weight: 900; font-size: 22px;'>GEMA INVENTORY</div>" +
                 "  </div>" +
                 "  <div class='content'>" +

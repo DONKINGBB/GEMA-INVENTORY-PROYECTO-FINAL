@@ -41,5 +41,45 @@ export const userService = {
             console.error("Error changing password", error);
             throw error;
         }
+    },
+
+    getTeam: async () => {
+        try {
+            const response = await api.get('/usuarios/usuario');
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching team", error);
+            throw error;
+        }
+    },
+
+    addUser: async (userData) => {
+        try {
+            const response = await api.post('/usuarios/usuario', userData);
+            return response.data;
+        } catch (error) {
+            console.error("Error adding team member", error);
+            throw error;
+        }
+    },
+
+    updateUser: async (id, userData) => {
+        try {
+            const response = await api.put(`/usuarios/usuario/${id}`, userData);
+            return response.data;
+        } catch (error) {
+            console.error("Error updating team member", error);
+            throw error;
+        }
+    },
+
+    deleteUser: async (id) => {
+        try {
+            await api.delete(`/usuarios/${id}`);
+            return true;
+        } catch (error) {
+            console.error("Error deleting team member", error);
+            throw error;
+        }
     }
 };

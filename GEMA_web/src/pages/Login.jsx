@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogIn, ShoppingBag, User } from 'lucide-react';
 import api from '../services/api';
@@ -34,7 +34,7 @@ export default function Login() {
                     token: data.token
                 };
                 login(userDataToStore);
-                navigate('/');
+                navigate('/app');
             } else {
                 setError(data.message || 'Credenciales inválidas');
             }
@@ -105,6 +105,18 @@ export default function Login() {
                         Ingresar
                     </button>
                 </form>
+
+                <div className="mt-6 text-center space-y-2">
+                    <Link to="/forgot-password" className="text-sm font-medium text-primary dark:text-blue-400 hover:text-accent transition-colors block">
+                        ¿Olvidaste tu contraseña?
+                    </Link>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                        ¿No tienes cuenta?{' '}
+                        <Link to="/register" className="font-bold text-primary dark:text-blue-400 hover:text-accent transition-colors">
+                            Regístrate
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     );
