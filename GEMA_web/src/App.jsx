@@ -26,6 +26,8 @@ import SupplierSettings from './pages/SupplierSettings';
 import BusinessSettings from './pages/BusinessSettings';
 import SwitchBusiness from './pages/SwitchBusiness';
 import ManageTeam from './pages/ManageTeam';
+import PremiumUpgrade from './pages/PremiumUpgrade';
+
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -70,6 +72,7 @@ function App() {
               <Route path="settings/categories" element={<CategorySettings />} />
               <Route path="settings/warehouses" element={<WarehouseSettings />} />
               <Route path="settings/suppliers" element={<SupplierSettings />} />
+              <Route path="settings/clients" element={<Clients />} />
               <Route path="settings/profile" element={<ProfileSettings />} />
               <Route path="settings/security" element={<SecuritySettings />} />
               <Route path="settings/notifications" element={<NotificationSettings />} />
@@ -77,6 +80,8 @@ function App() {
               <Route path="settings/business" element={<BusinessSettings />} />
               <Route path="settings/switch-business" element={<SwitchBusiness />} />
               <Route path="settings/team" element={<ManageTeam />} />
+              <Route path="premium" element={<PremiumUpgrade />} />
+
             </Route>
 
             {/* Catch-all redirect to home */}

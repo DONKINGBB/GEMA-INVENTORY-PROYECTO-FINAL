@@ -41,7 +41,8 @@ fun DashboardView(
     onNotificationsClick: () -> Unit,
     onInventoryClick: () -> Unit,
     onActivityItemClick: (NotificationItem) -> Unit,
-    userName: String = ""
+    userName: String = "",
+    userRol: Int = 1
 ) {
     val backgroundColor = Color(0xFF0F172A)
     val accentColor = Color(0xFF3B82F6)
@@ -76,59 +77,89 @@ fun DashboardView(
                     Column {
                         DashboardSectionHeader("Resumen Rápido", accentColor)
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            SummaryCard(
-                                title = "Valor Inventario",
-                                value = formatCurrency(inventoryValue),
-                                icon = Icons.Default.AccountBalanceWallet,
-                                modifier = Modifier.weight(1f),
-                                accentColor = Color(0xFF10B981),
-                                glassColor = glassColor,
-                                index = 0
-                            )
-                            SummaryCard(
-                                title = "Pedidos",
-                                value = pendingOrders.toString(),
-                                icon = Icons.Default.ShoppingCart,
-                                modifier = Modifier.weight(1f),
-                                accentColor = Color(0xFF3B82F6),
-                                glassColor = glassColor,
-                                index = 1
-                            )
-                        }
+                        // --- Lógica de visibilidad de tarjetas por rol ---
+                        val showInventoryValue = userRol in listOf(1, 2, 3, 6)
+                        val showOrders = userRol in listOf(1, 2, 3, 4, 5)
+                        val showLowStock = userRol in listOf(1, 2, 3, 4, 6) // Todos menos repartidor suelen ver stock
+                        val showProfit = userRol in listOf(1, 2)
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            // Fila 1
+                            if (showInventoryValue || showOrders) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    if (showInventoryValue) {
+                                        SummaryCard(
+                                            title = "Valor Inventario",
+                                            value = formatCurrency(inventoryValue),
+                                            icon = Icons.Default.AccountBalanceWallet,
+                                            modifier = Modifier.weight(1f),
+                                            accentColor = Color(0xFF10B981),
+                                            glassColor = glassColor,
+                                            index = 0
+                                        )
+                                    } else if (showOrders && !showLowStock) { // Solo si no hay fila 2
+                                         Spacer(modifier = Modifier.weight(1f))
+                                    }
+                                    
+                                    if (showOrders) {
+                                        SummaryCard(
+                                            title = "Pedidos",
+                                            value = pendingOrders.toString(),
+                                            icon = Icons.Default.ShoppingCart,
+                                            modifier = Modifier.weight(1f),
+                                            accentColor = Color(0xFF3B82F6),
+                                            glassColor = glassColor,
+                                            index = 1
+                                        )
+                                    } else if (showInventoryValue) {
+                                        Spacer(modifier = Modifier.weight(1f))
+                                    }
+                                }
+                            }
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            SummaryCard(
-                                title = "Bajo Stock",
-                                value = lowStockCount.toString(),
-                                icon = Icons.Default.Warning,
-                                modifier = Modifier.weight(1f),
-                                accentColor = Color(0xFFF59E0B),
-                                glassColor = glassColor,
-                                index = 2
-                            )
-                            SummaryCard(
-                                title = "Beneficio (Mes)",
-                                value = formatCurrency(monthProfit),
-                                icon = Icons.Default.TrendingUp,
-                                modifier = Modifier.weight(1f),
-                                accentColor = if (monthProfit >= 0) Color(0xFF10B981) else Color(0xFFEF4444),
-                                valueColor = when {
-                                    monthProfit > 0 -> Color(0xFF10B981)
-                                    monthProfit < 0 -> Color(0xFFEF4444)
-                                    else -> Color.White
-                                },
-                                glassColor = glassColor,
-                                index = 3
-                            )
+                            // Fila 2
+                            if (showLowStock || showProfit) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    if (showLowStock) {
+                                        SummaryCard(
+                                            title = "Bajo Stock",
+                                            value = lowStockCount.toString(),
+                                            icon = Icons.Default.Warning,
+                                            modifier = Modifier.weight(1f),
+                                            accentColor = Color(0xFFF59E0B),
+                                            glassColor = glassColor,
+                                            index = 2
+                                        )
+                                    } else if (showProfit) {
+                                        Spacer(modifier = Modifier.weight(1f))
+                                    }
+
+                                    if (showProfit) {
+                                        SummaryCard(
+                                            title = "Beneficio (Mes)",
+                                            value = formatCurrency(monthProfit),
+                                            icon = Icons.Default.TrendingUp,
+                                            modifier = Modifier.weight(1f),
+                                            accentColor = if (monthProfit >= 0) Color(0xFF10B981) else Color(0xFFEF4444),
+                                            valueColor = when {
+                                                monthProfit > 0 -> Color(0xFF10B981)
+                                                monthProfit < 0 -> Color(0xFFEF4444)
+                                                else -> Color.White
+                                            },
+                                            glassColor = glassColor,
+                                            index = 3
+                                        )
+                                    } else if (showLowStock) {
+                                        Spacer(modifier = Modifier.weight(1f))
+                                    }
+                                }
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(32.dp))

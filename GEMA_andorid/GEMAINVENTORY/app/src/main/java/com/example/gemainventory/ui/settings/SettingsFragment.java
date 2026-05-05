@@ -75,7 +75,11 @@ public class SettingsFragment extends Fragment {
         boolean isDarkMode = sharedPreferences.getBoolean(DARK_MODE_KEY, false);
         boolean useBiometric = sharedPreferences.getBoolean("use_biometric", false);
         int userRol = sharedPreferences.getInt("user_rol", -1);
-        boolean showManageUsers = (userRol == 1);
+        
+        // Lógica de visibilidad (1: PROPIETARIO, 2: ADMIN, 3: SUPERVISOR, 4: VENDEDOR, 5: REPARTIDOR, 6: ALMACENISTA)
+        boolean showCatalog = (userRol == 1 || userRol == 2 || userRol == 3);
+        boolean showBusinessInfo = (userRol == 1 || userRol == 2);
+        boolean showManageUsers = (userRol == 1 || userRol == 2);
 
         SettingsComposeHelper.setSettingsContent(
             composeView,
@@ -84,6 +88,8 @@ public class SettingsFragment extends Fragment {
             correo,
             photoUrl,
             useBiometric,
+            showCatalog,
+            showBusinessInfo,
             showManageUsers,
             () -> { navigateTo(R.id.action_navigation_edit_profile_self); return kotlin.Unit.INSTANCE; },
             isChecked -> { toggleDarkMode(isChecked); return kotlin.Unit.INSTANCE; },
@@ -317,8 +323,8 @@ public class SettingsFragment extends Fragment {
         java.util.Map<String, String> body = new java.util.HashMap<>();
         body.put("codigoInvitacion", code);
         
-        long userIdLocal = sharedPreferences.getLong("user_id", -1);
-        body.put("userId", String.valueOf(userIdLocal));
+        String userIdLocal = sharedPreferences.getString("user_id", "");
+        body.put("userId", userIdLocal);
 
         // Mostrar un pequeño brindis de carga si no hay dialog (porque venimos de Compose/QR)
         if (dialog == null) {

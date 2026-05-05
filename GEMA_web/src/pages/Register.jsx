@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, Mail, MapPin, Phone, Lock, Loader2, ArrowRight, Sparkles } from 'lucide-react';
+import { User, Mail, MapPin, Phone, Lock, ArrowRight, Sparkles, Eye, EyeOff } from 'lucide-react';
 import api from '../services/api';
 import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';
+import logo from '../assets/ic_logo_cuadrado_bb.png';
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -12,8 +14,10 @@ export default function Register() {
         correo: '',
         contrasena: '',
         direccion: '',
-        telefono: ''
+        telefono: '',
+        lada: '+52'
     });
+    const [showPassword, setShowPassword] = useState(false);
     const { login } = useAuth();
     const { isDarkMode } = useTheme();
     const navigate = useNavigate();
@@ -34,7 +38,7 @@ export default function Register() {
             params.append('correo', formData.correo);
             params.append('contrasena', formData.contrasena);
             params.append('direccion', formData.direccion);
-            params.append('telefono', formData.telefono);
+            params.append('telefono', `${formData.lada}${formData.telefono}`);
 
             const response = await api.post('/auth/register', params, {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
@@ -47,7 +51,7 @@ export default function Register() {
                     token: data.token
                 };
                 login(userDataToStore);
-                toast.success('¡Bienvenido a GEMA!');
+                toast.success('¡Bienvenido a GEMA INVENTORY!');
                 navigate('/app');
             } else {
                 toast.error(data.message || 'Error al registrarse');
@@ -61,144 +65,186 @@ export default function Register() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] dark:bg-[#0f172a] p-4 transition-colors duration-500 overflow-hidden relative">
-            {/* Background elements */}
-            <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse" />
-            <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[120px] animate-pulse delay-700" />
+        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+            {/* Background Mesh */}
+            <div className="bg-mesh" />
 
-            <div className="glass dark:bg-slate-800/40 p-8 md:p-10 rounded-[2.5rem] shadow-2xl w-full max-w-xl border border-white/20 dark:border-slate-700/50 relative z-10 animate-in fade-in zoom-in-95 duration-500 my-8">
-                <div className="text-center mb-8">
-                    <div className="flex justify-center mb-6">
-                        <div className="p-4 bg-white/50 dark:bg-slate-900/50 rounded-3xl shadow-lg backdrop-blur-md border border-white/20">
-                            <img 
-                                src={isDarkMode ? "/gema_white.svg" : "/src/assets/ic_logo_cuadrado_bb.png"} 
-                                alt="GEMA Logo" 
-                                className="w-12 h-12 object-contain" 
-                            />
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="w-full max-w-[600px] my-10"
+            >
+                <div className="glass-card rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden group">
+                    {/* Decorative Elements */}
+                    <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all duration-700" />
+                    <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-all duration-700" />
+
+                    <div className="relative z-10">
+                        <div className="text-center mb-10">
+                            <motion.div 
+                                whileHover={{ scale: 1.05, rotate: -5 }}
+                                className="w-20 h-20 mb-6 relative mx-auto"
+                            >
+                                <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-3xl" />
+                                <img 
+                                    src={logo} 
+                                    alt="GEMA Inventory Logo" 
+                                    className="w-full h-full object-contain relative z-10 brightness-200 contrast-125 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" 
+                                />
+                            </motion.div>
+                            <h1 className="text-4xl font-black text-slate-800 dark:text-white tracking-tight flex items-center justify-center gap-3 uppercase">
+                                Únete a GEMA INVENTORY <Sparkles className="text-blue-500" size={32} />
+                            </h1>
+                            <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Moderniza la gestión de tu inventario hoy</p>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-1.5 md:col-span-2">
+                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Nombre Completo</label>
+                                    <div className="relative group">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-500">
+                                            <User size={18} className="text-slate-400" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            name="nombre"
+                                            required
+                                            className="glass-input w-full pl-12 pr-4 py-4 rounded-2xl text-slate-900 dark:text-white placeholder:text-slate-400/70"
+                                            placeholder="ej. Juan Pérez"
+                                            value={formData.nombre}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Email Profesional</label>
+                                    <div className="relative group">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-500">
+                                            <Mail size={18} className="text-slate-400" />
+                                        </div>
+                                        <input
+                                            type="email"
+                                            name="correo"
+                                            required
+                                            className="glass-input w-full pl-12 pr-4 py-4 rounded-2xl text-slate-900 dark:text-white placeholder:text-slate-400/70"
+                                            placeholder="tu@negocio.com"
+                                            value={formData.correo}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Contraseña</label>
+                                    <div className="relative group">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-500">
+                                            <Lock size={18} className="text-slate-400" />
+                                        </div>
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            name="contrasena"
+                                            required
+                                            minLength="6"
+                                            className="glass-input w-full pl-12 pr-12 py-4 rounded-2xl text-slate-900 dark:text-white placeholder:text-slate-400/70"
+                                            placeholder="••••••••"
+                                            value={formData.contrasena}
+                                            onChange={handleChange}
+                                        />
+                                        <button 
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-blue-500 transition-colors"
+                                        >
+                                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Teléfono</label>
+                                    <div className="flex gap-2">
+                                        <select 
+                                            name="lada"
+                                            value={formData.lada}
+                                            onChange={handleChange}
+                                            className="glass-input w-24 px-2 py-4 rounded-2xl text-slate-900 dark:text-white font-bold"
+                                        >
+                                            <option value="+52">🇲🇽 +52</option>
+                                            <option value="+1">🇺🇸 +1</option>
+                                            <option value="+57">🇨🇴 +57</option>
+                                            <option value="+34">🇪🇸 +34</option>
+                                            <option value="+54">🇦🇷 +54</option>
+                                        </select>
+                                        <div className="relative group flex-1">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-500">
+                                                <Phone size={18} className="text-slate-400" />
+                                            </div>
+                                            <input
+                                                type="tel"
+                                                name="telefono"
+                                                required
+                                                className="glass-input w-full pl-12 pr-4 py-4 rounded-2xl text-slate-900 dark:text-white placeholder:text-slate-400/70"
+                                                placeholder="1234567890"
+                                                value={formData.telefono}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Dirección</label>
+                                    <div className="relative group">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-500">
+                                            <MapPin size={18} className="text-slate-400" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            name="direccion"
+                                            required
+                                            className="glass-input w-full pl-12 pr-4 py-4 rounded-2xl text-slate-900 dark:text-white placeholder:text-slate-400/70"
+                                            placeholder="Calle, Ciudad, País"
+                                            value={formData.direccion}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <motion.button
+                                whileHover={{ scale: 1.01 }}
+                                whileTap={{ scale: 0.99 }}
+                                type="submit"
+                                disabled={loading}
+                                className="w-full py-4 bg-blue-600 dark:bg-blue-500 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/25 transition-all disabled:opacity-70 flex items-center justify-center gap-3 mt-4"
+                            >
+                                {loading ? (
+                                    <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                                ) : (
+                                    <>Comenzar con GEMA INVENTORY <ArrowRight size={20} /></>
+                                )}
+                            </motion.button>
+                        </form>
+
+                        <div className="mt-10 text-center">
+                            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                                ¿Ya tienes una cuenta?{' '}
+                                <Link to="/login" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">
+                                    Inicia Sesión
+                                </Link>
+                            </p>
                         </div>
                     </div>
-                    <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight flex items-center justify-center gap-2">
-                        Únete a GEMA <Sparkles className="text-yellow-400" size={24} />
-                    </h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">Control inteligente para tu negocio</p>
                 </div>
-
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-in slide-up">
-                    <div className="space-y-2 md:col-span-2">
-                        <label className="text-xs font-black text-gray-700 dark:text-gray-300 ml-1 uppercase tracking-wider">Nombre Completo</label>
-                        <div className="relative group">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-primary">
-                                <User size={18} className="text-gray-400" />
-                            </div>
-                            <input
-                                type="text"
-                                name="nombre"
-                                required
-                                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50/50 dark:bg-slate-900/50 border border-gray-100 dark:border-slate-700 focus:ring-2 focus:ring-primary outline-none transition-all dark:text-white font-medium"
-                                placeholder="Tu nombre"
-                                value={formData.nombre}
-                                onChange={handleChange}
-                            />
-                        </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                        <label className="text-xs font-black text-gray-700 dark:text-gray-300 ml-1 uppercase tracking-wider">Correo Electrónico</label>
-                        <div className="relative group">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-primary">
-                                <Mail size={18} className="text-gray-400" />
-                            </div>
-                            <input
-                                type="email"
-                                name="correo"
-                                required
-                                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50/50 dark:bg-slate-900/50 border border-gray-100 dark:border-slate-700 focus:ring-2 focus:ring-primary outline-none transition-all dark:text-white font-medium"
-                                placeholder="tu@correo.com"
-                                value={formData.correo}
-                                onChange={handleChange}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-xs font-black text-gray-700 dark:text-gray-300 ml-1 uppercase tracking-wider">Contraseña</label>
-                        <div className="relative group">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-primary">
-                                <Lock size={18} className="text-gray-400" />
-                            </div>
-                            <input
-                                type="password"
-                                name="contrasena"
-                                required
-                                minLength="6"
-                                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50/50 dark:bg-slate-900/50 border border-gray-100 dark:border-slate-700 focus:ring-2 focus:ring-primary outline-none transition-all dark:text-white font-medium"
-                                placeholder="••••••••"
-                                value={formData.contrasena}
-                                onChange={handleChange}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-xs font-black text-gray-700 dark:text-gray-300 ml-1 uppercase tracking-wider">Teléfono</label>
-                        <div className="relative group">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-primary">
-                                <Phone size={18} className="text-gray-400" />
-                            </div>
-                            <input
-                                type="tel"
-                                name="telefono"
-                                required
-                                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50/50 dark:bg-slate-900/50 border border-gray-100 dark:border-slate-700 focus:ring-2 focus:ring-primary outline-none transition-all dark:text-white font-medium"
-                                placeholder="Tu teléfono"
-                                value={formData.telefono}
-                                onChange={handleChange}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-xs font-black text-gray-700 dark:text-gray-300 ml-1 uppercase tracking-wider">Dirección</label>
-                        <div className="relative group">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-primary">
-                                <MapPin size={18} className="text-gray-400" />
-                            </div>
-                            <input
-                                type="text"
-                                name="direccion"
-                                required
-                                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50/50 dark:bg-slate-900/50 border border-gray-100 dark:border-slate-700 focus:ring-2 focus:ring-primary outline-none transition-all dark:text-white font-medium"
-                                placeholder="Tu dirección"
-                                value={formData.direccion}
-                                onChange={handleChange}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="md:col-span-2 pt-4">
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full py-4 bg-primary hover:bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-primary/30 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 disabled:opacity-50"
-                        >
-                            {loading ? (
-                                <Loader2 className="animate-spin" size={24} />
-                            ) : (
-                                <>COMENZAR AHORA <ArrowRight size={20} /></>
-                            )}
-                        </button>
-                    </div>
-                </form>
-
-                <div className="mt-8 text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                        ¿Ya tienes una cuenta?{' '}
-                        <Link to="/login" className="text-primary dark:text-blue-400 font-black hover:underline underline-offset-4 decoration-2">
-                            Inicia Sesión
-                        </Link>
-                    </p>
-                </div>
-            </div>
+                
+                <p className="text-center mt-8 text-slate-400 dark:text-slate-500 text-xs font-medium uppercase tracking-widest">
+                    JEDD AI © 2026
+                </p>
+            </motion.div>
         </div>
     );
 }
+

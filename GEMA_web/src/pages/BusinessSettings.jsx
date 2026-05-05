@@ -1,14 +1,15 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Copy, Edit2, QrCode, ArrowLeft, Check, AlertCircle } from 'lucide-react';
+import { Building2, Copy, Edit2, QrCode, ArrowLeft, Check, AlertCircle, Share2, Sparkles, Loader2 } from 'lucide-react';
 import { businessService } from '../services/businessService';
 import { useAuth } from '../context/AuthContext';
+import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
 export default function BusinessSettings() {
     const navigate = useNavigate();
-    const { user, updateUserData } = useAuth();
+    const { user } = useAuth();
     const [business, setBusiness] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
@@ -47,7 +48,6 @@ export default function BusinessSettings() {
             setBusiness(updated);
             setIsEditing(false);
             toast.success('Nombre actualizado');
-            // Opcional: Actualizar datos de usuario en contexto si es necesario
         } catch (error) {
             toast.error('Error al actualizar el nombre');
         } finally {
@@ -57,8 +57,9 @@ export default function BusinessSettings() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+                <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                <p className="text-slate-500 font-bold tracking-widest text-xs uppercase animate-pulse">Cargando negocio...</p>
             </div>
         );
     }
@@ -67,103 +68,160 @@ export default function BusinessSettings() {
     const isAdmin = user?.idRol === 1;
 
     return (
-        <div className="max-w-2xl mx-auto py-8 px-4">
-            <button 
-                onClick={() => navigate('/app/settings')}
-                className="flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 mb-6 transition"
-            >
-                <ArrowLeft size={20} />
-                Volver a Ajustes
-            </button>
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl mx-auto space-y-6 pb-20 sm:pb-0"
+        >
+            {/* Header */}
+            <div className="flex items-center gap-4 mb-2">
+                <button 
+                    onClick={() => navigate('/app/settings')}
+                    className="p-3 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-2xl transition-all text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none active:scale-95"
+                >
+                    <ArrowLeft size={24} />
+                </button>
+                <div>
+                    <h1 className="text-3xl font-black text-slate-900 dark:text-white">
+                        Mi Negocio
+                    </h1>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">Información de identidad y códigos de acceso</p>
+                </div>
+            </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-slate-700">
-                {/* Header Banner */}
-                <div className="h-32 bg-gradient-to-r from-blue-600 to-indigo-700 relative">
-                    <div className="absolute -bottom-12 left-8 p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-4 border-white dark:border-slate-800">
-                        <Building2 size={48} className="text-blue-600 dark:text-blue-400" />
+            <div className="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-[2.5rem] overflow-hidden shadow-sm dark:shadow-none">
+                {/* Visual Banner */}
+                <div className="h-40 bg-gradient-to-br from-indigo-600/30 via-primary/20 to-blue-600/30 relative">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.1),transparent)]" />
+                    <div className="absolute -bottom-10 left-10 p-5 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border-4 border-white dark:border-slate-900 z-10">
+                        <div className="w-16 h-16 bg-primary/10 rounded-[1.5rem] flex items-center justify-center text-primary">
+                            <Building2 size={40} />
+                        </div>
                     </div>
                 </div>
 
-                <div className="pt-16 pb-8 px-8">
-                    <div className="flex justify-between items-start mb-8">
-                        <div className="flex-1">
-                            {isEditing ? (
-                                <div className="flex gap-2">
-                                    <input 
-                                        type="text"
-                                        value={newName}
-                                        onChange={(e) => setNewName(e.target.value)}
-                                        className="text-2xl font-bold bg-gray-50 dark:bg-slate-900 border-none rounded-lg px-2 py-1 w-full focus:ring-2 focus:ring-primary outline-none text-gray-900 dark:text-white"
-                                        autoFocus
-                                    />
-                                    <button 
-                                        onClick={handleUpdateName}
-                                        disabled={saving}
-                                        className="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition"
-                                    >
-                                        <Check size={20} />
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="flex items-center gap-3">
-                                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                                        {business?.nombre}
-                                    </h1>
-                                    {isAdmin && (
-                                        <button 
-                                            onClick={() => setIsEditing(true)}
-                                            className="p-2 text-gray-400 hover:text-primary transition"
+                <div className="pt-16 pb-12 px-10">
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-8">
+                        <div className="flex-1 w-full space-y-4">
+                            <div className="flex items-center gap-4">
+                                <AnimatePresence mode="wait">
+                                    {isEditing ? (
+                                        <motion.div 
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -10 }}
+                                            className="flex gap-2 w-full max-w-md"
                                         >
-                                            <Edit2 size={18} />
-                                        </button>
+                                            <input 
+                                                type="text"
+                                                value={newName}
+                                                onChange={(e) => setNewName(e.target.value)}
+                                                className="text-2xl font-black bg-slate-50 dark:bg-white/5 border border-primary/30 rounded-2xl px-4 py-2 w-full focus:ring-4 focus:ring-primary/10 outline-none text-slate-900 dark:text-white"
+                                                autoFocus
+                                            />
+                                            <button 
+                                                onClick={handleUpdateName}
+                                                disabled={saving}
+                                                className="p-3 bg-primary text-white rounded-2xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+                                            >
+                                                {saving ? <Loader2 size={24} className="animate-spin" /> : <Check size={24} />}
+                                            </button>
+                                        </motion.div>
+                                    ) : (
+                                        <motion.div 
+                                            initial={{ opacity: 0, x: 10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: 10 }}
+                                            className="flex items-center gap-3"
+                                        >
+                                            <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+                                                {business?.nombre}
+                                            </h1>
+                                            {isAdmin && (
+                                                <button 
+                                                    onClick={() => setIsEditing(true)}
+                                                    className="p-2.5 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 hover:text-primary rounded-xl transition-all"
+                                                >
+                                                    <Edit2 size={18} />
+                                                </button>
+                                            )}
+                                        </motion.div>
                                     )}
-                                </div>
-                            )}
-                            <p className="text-gray-500 dark:text-gray-400 mt-1">
-                                {isAdmin ? 'Propietario / Administrador' : 'Colaborador'}
-                            </p>
+                                </AnimatePresence>
+                            </div>
+                            
+                            <div className="flex flex-wrap gap-3">
+                                <span className="flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full border border-primary/20">
+                                    <Sparkles size={12} />
+                                    Plan Premium
+                                </span>
+                                <span className="px-4 py-1.5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-slate-200 dark:border-white/5">
+                                    ID: #{business?.idNegocio}
+                                </span>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-12">
                         {/* Invitation Code Section */}
-                        <div className="space-y-4">
-                            <h3 className="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                <QrCode size={18} />
-                                Código de Invitación
-                            </h3>
-                            <div className="bg-gray-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-dashed border-gray-200 dark:border-slate-700 text-center group">
-                                <span className="text-4xl font-black tracking-widest text-primary dark:text-blue-400 block mb-4">
-                                    {business?.codigoInvitacion}
-                                </span>
-                                <button 
-                                    onClick={handleCopyCode}
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 rounded-xl shadow-sm hover:shadow-md transition border border-gray-100 dark:border-slate-700"
-                                >
-                                    <Copy size={16} />
-                                    Copiar Código
-                                </button>
+                        <div className="space-y-6">
+                            <div className="space-y-1">
+                                <h3 className="text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <Share2 size={16} className="text-primary" />
+                                    Código de Invitación
+                                </h3>
+                                <p className="text-xs text-slate-500 dark:text-slate-600 font-medium">Comparte este código para añadir nuevos colaboradores</p>
                             </div>
-                            <div className="flex items-start gap-2 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-700 dark:text-blue-300 text-sm">
-                                <AlertCircle size={16} className="mt-0.5 shrink-0" />
-                                <p>Comparte este código con tu equipo para que puedan unirse a tu inventario.</p>
+
+                            <div className="relative group">
+                                <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-indigo-600/30 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition duration-1000"></div>
+                                <div className="relative bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-white/5 text-center flex flex-col items-center justify-center space-y-6 shadow-sm dark:shadow-inner">
+                                    <span className="text-5xl font-black tracking-[0.3em] text-slate-900 dark:text-white">
+                                        {business?.codigoInvitacion}
+                                    </span>
+                                    
+                                    <button 
+                                        onClick={handleCopyCode}
+                                        className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                                    >
+                                        <Copy size={18} />
+                                        COPIAR CÓDIGO
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex items-start gap-3 p-5 bg-blue-500/5 rounded-3xl border border-blue-500/10 text-blue-400 text-xs font-medium leading-relaxed">
+                                <AlertCircle size={20} className="shrink-0 text-primary opacity-70" />
+                                <p>Cualquier persona con este código podrá solicitar unirse a tu negocio. Asegúrate de compartirlo solo con personas de confianza.</p>
                             </div>
                         </div>
 
                         {/* QR Code Section */}
-                        <div className="flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-slate-900/50 rounded-2xl border border-gray-100 dark:border-slate-700">
-                            <img 
-                                src={qrUrl} 
-                                alt="QR Code" 
-                                className="w-48 h-48 rounded-xl shadow-lg mb-4 bg-white p-2"
-                            />
-                            <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-                                Escanea para unirte instantáneamente
-                            </p>
+                        <div className="space-y-6">
+                            <div className="space-y-1">
+                                <h3 className="text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <QrCode size={16} className="text-primary" />
+                                    Acceso Rápido QR
+                                </h3>
+                                <p className="text-xs text-slate-500 dark:text-slate-600 font-medium">Escaneo directo para registro de colaboradores</p>
+                            </div>
+
+                            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 dark:border-transparent flex flex-col items-center justify-center shadow-2xl relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <img 
+                                    src={qrUrl} 
+                                    alt="QR Code" 
+                                    className="w-48 h-48 rounded-2xl relative z-10 transition-transform duration-700 group-hover:scale-110"
+                                />
+                                <div className="mt-6 flex items-center gap-2 text-slate-900 font-black text-xs tracking-widest relative z-10">
+                                    <Sparkles size={14} className="text-primary" />
+                                    GEMA SMART ACCESS
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 }

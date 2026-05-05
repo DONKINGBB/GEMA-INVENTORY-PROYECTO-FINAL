@@ -14,6 +14,7 @@ class DashboardComposeHelper(private val composeView: ComposeView) {
     private val lowStockCount = mutableStateOf(0)
     private val monthProfit = mutableStateOf(0.0)
     private val userName = mutableStateOf("")
+    private val userRol = mutableStateOf(1) // Por defecto Propietario
     
     private val stockAlerts = mutableStateListOf<StockAlert>()
     private val recentActivity = mutableStateListOf<NotificationItem>()
@@ -37,11 +38,16 @@ class DashboardComposeHelper(private val composeView: ComposeView) {
                         onNotificationsClick = { onNotificationsClick?.invoke() },
                         onInventoryClick = { onInventoryClick?.invoke() },
                         onActivityItemClick = { item -> onActivityItemClick?.invoke(item) },
-                        userName = userName.value
+                        userName = userName.value,
+                        userRol = userRol.value
                     )
                 }
             }
         }
+    }
+
+    fun setUserRol(rol: Int) {
+        userRol.value = rol
     }
 
     fun updateSummary(value: Double, pending: Int, lowStock: Int, profit: Double) {

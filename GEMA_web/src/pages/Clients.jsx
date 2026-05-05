@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { clientService } from '../services/dataService';
-import { Users, Phone, MapPin, Mail, Search, PlusCircle, Loader, X, Edit, Trash2 } from 'lucide-react';
+import { Users, Phone, MapPin, Mail, Search, PlusCircle, Loader2, X, Edit, Trash2, UserPlus, ArrowUpRight, MessageSquare, History } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Clients() {
     const { user } = useAuth();
     const [clients, setClients] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
 
     // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,7 +64,6 @@ export default function Clients() {
             await fetchClients();
         } catch (err) {
             console.error("Error saving client", err);
-            alert("Error al guardar cliente");
         } finally {
             setIsSubmitting(false);
         }
@@ -80,181 +81,319 @@ export default function Clients() {
             await fetchClients();
         } catch (err) {
             console.error("Error deleting client", err);
-            alert("Error al eliminar cliente");
         }
     };
 
+    const filteredClients = clients.filter(c => 
+        c.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.contacto?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.1 }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: { y: 0, opacity: 1 }
+    };
+
     return (
-        <div className="space-y-6 transition-colors">
-            <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 transition-colors">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Clientes</h1>
-                    <p className="text-gray-500 dark:text-gray-400">Directorio de clientes y contactos</p>
+        <motion.div 
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+            className="max-w-7xl mx-auto space-y-8 pb-20 sm:pb-0"
+        >
+            {/* Ultra-Premium Header */}
+            <motion.div variants={itemVariants} className="relative overflow-hidden bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 p-8 sm:p-12 rounded-[2.5rem] shadow-sm dark:shadow-none">
+                <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                    <div className="space-y-4">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest">
+                            <Users size={12} />
+                            <span>Relaciones Comerciales</span>
+                        </div>
+                        <h1 className="text-5xl sm:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
+                            Cartera de <span className="text-primary">Clientes</span>
+                        </h1>
+                        <p className="text-slate-500 dark:text-slate-400 text-lg max-w-xl">
+                            Gestiona tu base de datos de clientes, historiales de compra y canales de contacto directo.
+                        </p>
+                    </div>
+                    <button 
+                        onClick={() => handleOpenModal()} 
+                        className="group bg-primary hover:bg-primary/90 text-white px-8 py-5 rounded-[2rem] flex items-center gap-3 transition-all shadow-2xl shadow-primary/40 font-black text-lg active:scale-95"
+                    >
+                        <UserPlus size={24} className="group-hover:rotate-12 transition-transform" />
+                        <span>Nuevo Registro</span>
+                    </button>
                 </div>
-                <button 
-                    onClick={() => handleOpenModal()} 
-                    className="bg-primary text-white px-5 py-2.5 rounded-lg flex items-center gap-2 transition shadow-md hover:shadow-lg font-medium hover:bg-primary-dark"
-                >
-                    <PlusCircle size={20} />
-                    <span>Nuevo Cliente</span>
-                </button>
-            </div>
+                
+                {/* Background Decoration */}
+                <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
+                <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
+            </motion.div>
+
+            {/* Search and Filter */}
+            <motion.div variants={itemVariants} className="relative group">
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 group-focus-within:text-primary transition-colors" size={24} />
+                <input 
+                    type="text" 
+                    placeholder="Buscar clientes por nombre, teléfono o correo..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-16 pr-8 py-6 rounded-[2.5rem] bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 focus:border-primary focus:ring-8 focus:ring-primary/5 outline-none transition-all text-slate-900 dark:text-white text-lg placeholder:text-slate-400 dark:placeholder:text-slate-600 shadow-sm dark:shadow-none"
+                />
+            </motion.div>
 
             {loading ? (
-                <div className="flex justify-center p-12"><Loader className="animate-spin text-primary w-10 h-10" /></div>
+                <div className="py-24 flex flex-col items-center justify-center space-y-6">
+                    <Loader2 className="animate-spin text-primary w-16 h-16" />
+                    <p className="text-slate-500 font-bold tracking-widest text-sm uppercase animate-pulse">Sincronizando directorio...</p>
+                </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {clients.map(client => (
-                        <div key={client.idCliente || client.id} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-md transition group flex flex-col h-full transition-colors">
-                            <div className="flex items-start justify-between mb-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent/20 to-primary/10 dark:from-blue-900/40 dark:to-slate-900/30 flex items-center justify-center text-primary dark:text-blue-400 font-bold text-xl shadow-inner border border-primary/20 dark:border-blue-500/20">
-                                        {client.nombre?.charAt(0)?.toUpperCase() || "C"}
+                <motion.div 
+                    variants={containerVariants}
+                    className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8"
+                >
+                    <AnimatePresence>
+                        {filteredClients.map((client, idx) => (
+                            <motion.div 
+                                key={client.idCliente || client.id}
+                                variants={itemVariants}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                className="group bg-white dark:bg-slate-900/40 backdrop-blur-xl p-8 border border-slate-200 dark:border-white/5 hover:border-primary/20 transition-all duration-500 relative flex flex-col h-full rounded-[2.5rem] shadow-xl shadow-black/5 dark:shadow-none"
+                            >
+                                <div className="flex items-start justify-between mb-8">
+                                    <div className="flex items-center gap-5">
+                                        <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-primary to-indigo-600 flex items-center justify-center text-white font-black text-3xl shadow-2xl group-hover:scale-110 transition-transform duration-500 ring-4 ring-white/5">
+                                            {client.nombre?.charAt(0)?.toUpperCase() || "C"}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-black text-2xl text-slate-900 dark:text-white group-hover:text-primary transition-colors leading-tight">
+                                                {client.nombre}
+                                            </h3>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Activo</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="font-bold text-lg text-gray-900 dark:text-white group-hover:text-primary dark:group-hover:text-blue-400 transition-colors">{client.nombre}</h3>
-                                        <span className="text-[10px] px-2.5 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full font-semibold tracking-wide uppercase mt-1 inline-block">Cliente</span>
+                                    <div className="flex gap-2">
+                                        <button 
+                                            onClick={() => handleOpenModal(client)}
+                                            className="p-3 bg-slate-100 dark:bg-white/5 hover:bg-primary/10 text-slate-500 hover:text-primary rounded-2xl transition-all border border-slate-200 dark:border-white/5"
+                                        >
+                                            <Edit size={18} />
+                                        </button>
+                                        <button 
+                                            onClick={() => confirmDelete(client)} 
+                                            className="p-3 bg-slate-100 dark:bg-white/5 hover:bg-rose-500/10 text-slate-500 hover:text-rose-500 rounded-2xl transition-all border border-slate-200 dark:border-white/5"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
                                     </div>
                                 </div>
-                                <button onClick={() => confirmDelete(client)} className="text-gray-300 dark:text-slate-600 hover:text-red-500 transition-colors p-1" title="Eliminar Cliente">
-                                    <Trash2 size={18} />
-                                </button>
-                            </div>
 
-                            <div className="space-y-2.5 text-sm text-gray-600 dark:text-gray-300 flex-1 my-4">
-                                <div className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors border border-transparent hover:border-gray-100 dark:hover:border-slate-600">
-                                    <div className="bg-blue-50 dark:bg-blue-900/30 p-1.5 rounded-md"><Phone size={16} className="text-primary dark:text-blue-400" /></div>
-                                    <span className="font-medium text-gray-800 dark:text-gray-200">{client.contacto || "Sin contacto"}</span>
+                                <div className="space-y-6 flex-1 mb-8">
+                                    <div className="bg-slate-50 dark:bg-white/5 p-4 space-y-4 border border-slate-100 dark:border-white/5 rounded-2xl">
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-2.5 bg-primary/10 text-primary rounded-xl">
+                                                <Phone size={18} />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Contacto Directo</span>
+                                                <span className="text-slate-900 dark:text-white font-bold">{client.contacto || "No registrado"}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-4">
+                                            <div className="p-2.5 bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 rounded-xl">
+                                                <MapPin size={18} />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Ubicación / Fiscal</span>
+                                                <span className="text-slate-500 dark:text-slate-300 text-sm leading-relaxed line-clamp-2">
+                                                    {client.direccion || "Sin dirección física"}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors border border-transparent hover:border-gray-100 dark:hover:border-slate-600">
-                                    <div className="bg-blue-50 dark:bg-blue-900/30 p-1.5 rounded-md"><MapPin size={16} className="text-primary dark:text-blue-400" /></div>
-                                    <span className="line-clamp-2 text-gray-700 dark:text-gray-300 leading-relaxed text-sm">{client.direccion || "Sin dirección"}</span>
-                                </div>
-                            </div>
 
-                            <div className="mt-auto pt-4 border-t border-gray-100 dark:border-slate-700 flex gap-3">
-                                <button className="flex-1 py-2.5 text-primary dark:text-blue-400 font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition text-xs uppercase tracking-wider border border-blue-100 dark:border-blue-900/50">
-                                    Ver Historial
-                                </button>
-                                <button onClick={() => handleOpenModal(client)} className="flex-1 py-2.5 text-gray-600 dark:text-gray-300 font-semibold hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition text-xs uppercase tracking-wider border border-gray-200 dark:border-slate-600">
-                                    <span className="flex items-center justify-center gap-1.5"><Edit size={14}/> Editar</span>
-                                </button>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <button className="flex items-center justify-center gap-2 py-4 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-900 dark:text-white rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest border border-slate-200 dark:border-white/5">
+                                        <History size={14} className="text-primary" />
+                                        Historial
+                                    </button>
+                                    <button className="flex items-center justify-center gap-2 py-4 bg-primary/10 hover:bg-primary/20 text-primary rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest border border-primary/20">
+                                        <MessageSquare size={14} />
+                                        Mensaje
+                                    </button>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+
+                    {/* Empty State */}
+                    {!loading && filteredClients.length === 0 && (
+                        <div className="col-span-full bg-white dark:bg-slate-900/40 backdrop-blur-xl p-24 text-center border-2 border-dashed border-slate-200 dark:border-white/10 rounded-[3rem]">
+                            <div className="w-24 h-24 bg-primary/10 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 text-primary shadow-2xl shadow-primary/20">
+                                <Users size={48} />
                             </div>
-                        </div>
-                    ))}
-                    {clients.length === 0 && (
-                        <div className="col-span-full bg-white dark:bg-slate-800 rounded-2xl p-16 border border-gray-200 dark:border-slate-700 border-dashed flex flex-col items-center justify-center text-center transition-colors">
-                            <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-full mb-4">
-                                <Users size={32} className="text-primary dark:text-blue-400" />
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No hay clientes</h3>
-                            <p className="text-gray-500 dark:text-gray-400 max-w-sm">Aún no has registrado ningún cliente. Agrega uno nuevo para empezar a gestionar tus contactos.</p>
-                            <button onClick={() => handleOpenModal()} className="mt-6 bg-white dark:bg-slate-800 border-2 border-primary dark:border-blue-500 text-primary dark:text-blue-400 hover:bg-primary dark:hover:bg-blue-500 hover:text-white dark:hover:text-white px-6 py-2 rounded-lg font-bold transition-colors">
-                                Crear mi primer cliente
+                            <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Sin resultados</h3>
+                            <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto text-lg mb-8">
+                                No encontramos clientes que coincidan con tu búsqueda. ¿Deseas registrar un nuevo cliente ahora?
+                            </p>
+                            <button 
+                                onClick={() => handleOpenModal()} 
+                                className="bg-primary text-white px-8 py-4 rounded-2xl font-black transition-all hover:scale-105 active:scale-95 shadow-xl shadow-primary/25"
+                            >
+                                Registrar mi primer cliente
                             </button>
                         </div>
                     )}
-                </div>
+                </motion.div>
             )}
 
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleCloseModal}></div>
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md relative z-10 overflow-hidden flex flex-col max-h-[90vh] border border-gray-100 dark:border-slate-700 transition-colors">
-                        <div className="p-6 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center bg-gray-50/50 dark:bg-slate-900/50">
-                            <h2 className="text-xl font-bold text-gray-800 dark:text-white">
-                                {editingClient ? 'Editar Cliente' : 'Nuevo Cliente'}
-                            </h2>
-                            <button onClick={handleCloseModal} className="text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 p-2 rounded-lg transition-colors">
-                                <X size={20} />
-                            </button>
-                        </div>
-                        <div className="p-6 overflow-y-auto">
-                            <form id="clientForm" onSubmit={handleSave} className="space-y-4">
+            {/* Modal de Registro/Edición */}
+            <AnimatePresence>
+                {isModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={handleCloseModal}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                        />
+                        <motion.div 
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="bg-white dark:bg-slate-900/90 backdrop-blur-2xl w-full max-w-lg overflow-hidden relative z-10 border border-slate-200 dark:border-white/10 shadow-2xl rounded-[2.5rem]"
+                        >
+                            <div className="px-10 py-8 border-b border-slate-100 dark:border-white/5 flex justify-between items-center bg-slate-50 dark:bg-white/5">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Nombre Completo *</label>
-                                    <input 
-                                        type="text" 
-                                        required 
-                                        value={formData.nombre}
-                                        onChange={e => setFormData({...formData, nombre: e.target.value})}
-                                        className="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary dark:focus:border-blue-500 text-gray-900 dark:text-white transition-all outline-none"
-                                        placeholder="Ej. Juan Pérez"
-                                    />
+                                    <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
+                                        {editingClient ? 'Editar Perfil' : 'Nuevo Cliente'}
+                                    </h2>
+                                    <p className="text-slate-500 font-medium">Información comercial y de contacto</p>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Contacto (Tel o Email)</label>
-                                    <input 
-                                        type="text" 
-                                        value={formData.contacto}
-                                        onChange={e => setFormData({...formData, contacto: e.target.value})}
-                                        className="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary dark:focus:border-blue-500 text-gray-900 dark:text-white transition-all outline-none"
-                                        placeholder="Ej. 555-0192 o juan@correo.com"
-                                    />
+                                <button onClick={handleCloseModal} className="p-3 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 rounded-2xl transition-all text-slate-400">
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleSave} className="p-10 space-y-8">
+                                <div className="space-y-6">
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Nombre Completo *</label>
+                                        <div className="relative group">
+                                            <Users className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
+                                            <input 
+                                                type="text" 
+                                                required 
+                                                value={formData.nombre}
+                                                onChange={e => setFormData({...formData, nombre: e.target.value})}
+                                                className="w-full pl-14 pr-6 py-5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 font-bold"
+                                                placeholder="Ej. Corporativo GEMA"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Contacto Directo</label>
+                                        <div className="relative group">
+                                            <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
+                                            <input 
+                                                type="text" 
+                                                value={formData.contacto}
+                                                onChange={e => setFormData({...formData, contacto: e.target.value})}
+                                                className="w-full pl-14 pr-6 py-5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 font-bold"
+                                                placeholder="Teléfono o Correo electrónico"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Dirección / Ubicación</label>
+                                        <div className="relative group">
+                                            <MapPin className="absolute left-5 top-6 text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
+                                            <textarea 
+                                                rows="3"
+                                                value={formData.direccion}
+                                                onChange={e => setFormData({...formData, direccion: e.target.value})}
+                                                className="w-full pl-14 pr-6 py-5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 resize-none font-bold"
+                                                placeholder="Dirección fiscal o de entrega..."
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Dirección</label>
-                                    <textarea 
-                                        rows="3"
-                                        value={formData.direccion}
-                                        onChange={e => setFormData({...formData, direccion: e.target.value})}
-                                        className="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary dark:focus:border-blue-500 text-gray-900 dark:text-white transition-all resize-none outline-none"
-                                        placeholder="Ej. Calle Principal #123"
-                                    />
-                                </div>
+
+                                <button 
+                                    type="submit" 
+                                    disabled={isSubmitting}
+                                    className="w-full py-6 bg-primary hover:bg-primary/90 text-white font-black rounded-[2rem] shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50 text-lg"
+                                >
+                                    {isSubmitting ? <Loader2 className="animate-spin" size={28} /> : (
+                                        <>
+                                            <PlusCircle size={28} />
+                                            {editingClient ? 'GUARDAR CAMBIOS' : 'REGISTRAR CLIENTE'}
+                                        </>
+                                    )}
+                                </button>
                             </form>
-                        </div>
-                        <div className="p-6 border-t border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50 flex gap-3">
-                            <button 
-                                type="button" 
-                                onClick={handleCloseModal}
-                                className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 transition shadow-sm"
-                            >
-                                Cancelar
-                            </button>
-                            <button 
-                                type="submit" 
-                                form="clientForm"
-                                disabled={isSubmitting}
-                                className="flex-1 px-4 py-2.5 bg-primary dark:bg-blue-600 text-white font-bold rounded-xl hover:bg-primary-dark dark:hover:bg-blue-700 transition shadow-md disabled:opacity-50"
-                            >
-                                {isSubmitting ? 'Guardando...' : 'Guardar Cliente'}
-                            </button>
-                        </div>
+                        </motion.div>
                     </div>
-                </div>
-            )}
+                )}
+            </AnimatePresence>
 
-            {clientToDelete && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setClientToDelete(null)}></div>
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm relative z-10 overflow-hidden transform transition-all scale-100 p-6 text-center border border-gray-100 dark:border-slate-700">
-                        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/30 mb-6">
-                            <Trash2 className="h-8 w-8 text-red-600 dark:text-red-400" />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">¿Eliminar Cliente?</h3>
-                        <p className="text-gray-500 dark:text-gray-400 mb-8">
-                            Estás a punto de eliminar a <span className="font-bold text-gray-700 dark:text-gray-300">{clientToDelete.nombre}</span>. Esta acción no se puede deshacer.
-                        </p>
-                        <div className="flex gap-3">
-                            <button
-                                type="button"
-                                onClick={() => setClientToDelete(null)}
-                                className="flex-1 py-2.5 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-slate-600 transition"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleDelete}
-                                className="flex-1 py-2.5 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition shadow-md"
-                            >
-                                Sí, eliminar
-                            </button>
-                        </div>
+            {/* Modal de Confirmación de Eliminación */}
+            <AnimatePresence>
+                {clientToDelete && (
+                    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setClientToDelete(null)}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+                        />
+                        <motion.div 
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-white dark:bg-slate-900 relative z-10 p-10 text-center border border-slate-200 dark:border-rose-500/20 shadow-2xl rounded-[3rem]"
+                        >
+                            <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-[2.5rem] bg-rose-500/10 mb-8 border border-rose-500/20">
+                                <Trash2 className="h-10 w-10 text-rose-500" />
+                            </div>
+                            <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter">¿Eliminar Cliente?</h3>
+                            <p className="text-slate-500 dark:text-slate-400 mb-10 text-lg leading-relaxed">
+                                Estás a punto de eliminar a <span className="font-bold text-slate-900 dark:text-white underline decoration-rose-500/50">{clientToDelete.nombre}</span>. Esta acción es irreversible.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <button
+                                    onClick={() => setClientToDelete(null)}
+                                    className="flex-1 py-5 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-900 dark:text-white font-black rounded-2xl transition-all border border-slate-200 dark:border-white/5"
+                                >
+                                    CANCELAR
+                                </button>
+                                <button
+                                    onClick={handleDelete}
+                                    className="flex-1 py-5 bg-rose-600 hover:bg-rose-700 text-white font-black rounded-2xl transition-all shadow-xl shadow-rose-600/25"
+                                >
+                                    SÍ, ELIMINAR
+                                </button>
+                            </div>
+                        </motion.div>
                     </div>
-                </div>
-            )}
-        </div>
+                )}
+            </AnimatePresence>
+        </motion.div>
     );
 }

@@ -75,15 +75,19 @@ export default function SwitchBusiness() {
 
     return (
         <div className="max-w-2xl mx-auto py-8 px-4">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4 mb-8">
                 <button 
                     onClick={() => navigate('/app/settings')}
-                    className="flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition"
+                    className="p-3 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-2xl transition-all text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none active:scale-95"
                 >
-                    <ArrowLeft size={20} />
-                    Volver
+                    <ArrowLeft size={24} />
                 </button>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Mis Negocios</h1>
+                <div>
+                    <h1 className="text-3xl font-black text-slate-900 dark:text-white">
+                        Mis Negocios
+                    </h1>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">Gestiona tus diferentes organizaciones</p>
+                </div>
             </div>
 
             <div className="grid gap-4">
@@ -97,35 +101,35 @@ export default function SwitchBusiness() {
                             key={biz.id}
                             onClick={() => handleSwitch(biz.id)}
                             disabled={isSwitching || isActive}
-                            className={`
-                                relative flex items-center gap-4 p-6 rounded-2xl text-left transition-all
+                        className={`
+                                relative flex items-center gap-4 p-6 rounded-[2rem] text-left transition-all
                                 ${isActive 
-                                    ? 'bg-blue-50 dark:bg-blue-900/20 border-2 border-primary ring-4 ring-blue-50 dark:ring-blue-900/10' 
-                                    : 'bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 hover:border-primary/50 hover:shadow-lg'
+                                    ? 'bg-primary/5 dark:bg-primary/10 border-2 border-primary ring-4 ring-primary/5 dark:ring-primary/5' 
+                                    : 'bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-200 dark:border-white/5 hover:border-primary/50 hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-none'
                                 }
                                 ${isSwitching ? 'opacity-70 cursor-wait' : ''}
                                 ${!isActive && !isSwitching ? 'active:scale-95' : ''}
                             `}
                         >
                             <div className={`
-                                p-3 rounded-xl transition-colors
-                                ${isActive ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400'}
+                                p-3 rounded-2xl transition-colors
+                                ${isActive ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400'}
                             `}>
                                 <Building2 size={24} />
                             </div>
 
                             <div className="flex-1">
-                                <h3 className="font-bold text-lg text-gray-900 dark:text-white">
+                                <h3 className="font-black text-lg text-slate-900 dark:text-white leading-tight">
                                     {biz.nombre}
                                 </h3>
-                                <div className="flex items-center gap-3 mt-1">
-                                    <span className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-slate-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-slate-700">
+                                <div className="flex items-center gap-3 mt-1.5">
+                                    <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800">
                                         <Users size={12} />
                                         {getRoleName(biz.idRol)}
                                     </span>
                                     {isActive && (
-                                        <span className="text-xs font-bold text-primary dark:text-blue-400 flex items-center gap-1">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                                        <span className="text-[10px] font-black text-primary uppercase tracking-tighter flex items-center gap-1.5">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
                                             Negocio actual
                                         </span>
                                     )}
@@ -150,12 +154,12 @@ export default function SwitchBusiness() {
 
                 <button 
                     onClick={() => navigate('/app/settings', { state: { openBusinessModal: true } })}
-                    className="flex items-center justify-center gap-2 p-6 rounded-2xl border-2 border-dashed border-gray-200 dark:border-slate-700 text-gray-500 dark:text-gray-400 hover:border-primary hover:text-primary dark:hover:text-blue-400 transition group"
+                    className="flex items-center justify-center gap-3 p-6 rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all group"
                 >
-                    <div className="p-2 bg-gray-50 dark:bg-slate-900 rounded-full group-hover:bg-primary/10 transition">
+                    <div className="p-2 bg-slate-50 dark:bg-slate-900 rounded-full group-hover:bg-primary/10 transition-colors">
                         <Plus size={20} />
                     </div>
-                    <span className="font-semibold">Unirse o crear nuevo negocio</span>
+                    <span className="font-black uppercase tracking-widest text-sm">Añadir nuevo negocio</span>
                 </button>
             </div>
         </div>

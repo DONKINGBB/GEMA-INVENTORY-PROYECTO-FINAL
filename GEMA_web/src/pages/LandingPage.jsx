@@ -1,152 +1,372 @@
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import { Package, TrendingUp, Users, Download, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
+import { Package, TrendingUp, Users, Download, ArrowRight, ShieldCheck, Zap, ChevronRight, CheckCircle2, Globe, Sparkles, Star } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+
+const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+};
+
+const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.2
+        }
+    }
+};
+
+const FloatingElement = ({ children, delay = 0, duration = 4 }) => (
+    <motion.div
+        animate={{ y: [0, -15, 0] }}
+        transition={{ duration, repeat: Infinity, delay, ease: "easeInOut" }}
+    >
+        {children}
+    </motion.div>
+);
 
 export default function LandingPage() {
     const { isDarkMode } = useTheme();
+    const { scrollY } = useScroll();
+    const y1 = useTransform(scrollY, [0, 500], [0, 200]);
+    const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
     return (
-        <div className={`min-h-screen font-sans ${isDarkMode ? 'dark bg-[#0f172a] text-white' : 'bg-gray-50 text-gray-900'} transition-colors duration-300`}>
+        <div className={`min-h-screen font-sans selection:bg-primary/30 ${isDarkMode ? 'dark bg-[#030712] text-white' : 'bg-slate-50 text-slate-900'} transition-colors duration-500 overflow-x-hidden`}>
+            {/* Ambient Premium Background */}
+            <div className="fixed inset-0 z-0 pointer-events-none">
+                <motion.div 
+                    animate={{ 
+                        scale: [1, 1.2, 1],
+                        opacity: [0.3, 0.5, 0.3],
+                        rotate: [0, 90, 0]
+                    }}
+                    transition={{ duration: 15, repeat: Infinity }}
+                    className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-primary/30 rounded-full blur-[150px]" 
+                />
+                <motion.div 
+                    animate={{ 
+                        scale: [1, 1.3, 1],
+                        opacity: [0.2, 0.4, 0.2],
+                        rotate: [0, -90, 0]
+                    }}
+                    transition={{ duration: 20, repeat: Infinity }}
+                    className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[150px]" 
+                />
+                <div className="absolute top-[40%] left-[30%] w-[30%] h-[30%] bg-indigo-500/10 rounded-full blur-[120px]" />
+                <div className="absolute top-[10%] right-[10%] w-[25%] h-[25%] bg-purple-500/10 rounded-full blur-[100px] animate-pulse" />
+            </div>
+
             {/* Navbar */}
-            <nav className="fixed w-full z-50 top-0 px-6 py-4 backdrop-blur-md bg-white/70 dark:bg-slate-900/70 border-b border-gray-200 dark:border-slate-800">
+            <nav className="fixed w-full z-50 top-0 px-6 py-6 transition-all duration-300 backdrop-blur-2xl bg-white/40 dark:bg-slate-950/40 border-b border-white/5">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                        <img src={isDarkMode ? "/gema_white.svg" : "/src/assets/ic_logo_cuadrado_bb.png"} alt="GEMA" className="w-10 h-10 object-contain" />
-                        <span className="text-xl font-bold tracking-tight text-primary dark:text-white">GEMA Inventory</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <Link to="/login" className="text-sm font-semibold hover:text-accent dark:hover:text-blue-400 transition-colors">
-                            Iniciar Sesión
-                        </Link>
-                        <Link to="/app" className="bg-primary hover:bg-primary-dark dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-lg transition-transform hover:scale-105">
-                            Probar en Web
-                        </Link>
-                    </div>
+                    <motion.div 
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex items-center gap-3 group cursor-pointer"
+                    >
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-primary blur-lg opacity-40 group-hover:opacity-100 transition-opacity" />
+                            <img src="/gema_white.svg" alt="GEMA Logo" className="w-10 h-10 relative z-10 drop-shadow-2xl" />
+                        </div>
+                        <span className="text-2xl font-black tracking-tighter text-slate-900 dark:text-white uppercase flex items-center">
+                            GEMA <span className="text-primary italic ml-2">INVENTORY</span>
+                        </span>
+                    </motion.div>
+                    
+                    <motion.div 
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex items-center gap-10"
+                    >
+                        <div className="hidden md:flex items-center gap-8">
+                            <a href="#features" className="text-xs font-black uppercase tracking-widest text-slate-500 hover:text-primary transition-colors">Funciones</a>
+                            <a href="#app" className="text-xs font-black uppercase tracking-widest text-slate-500 hover:text-primary transition-colors">Móvil</a>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <Link to="/login" className="px-5 py-2.5 text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
+                                Entrar
+                            </Link>
+                            <Link to="/app" className="relative group">
+                                <div className="absolute inset-0 bg-primary blur-md opacity-40 group-hover:opacity-80 transition-opacity" />
+                                <div className="relative bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl transition-all hover:-translate-y-1 active:scale-95">
+                                    ABRIR APP
+                                </div>
+                            </Link>
+                        </div>
+                    </motion.div>
                 </div>
             </nav>
 
             {/* Hero Section */}
-            <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-                <div className="absolute inset-0 z-0">
-                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent/20 dark:bg-blue-500/20 rounded-full blur-3xl opacity-50 animate-pulse"></div>
-                    <div className="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-primary/10 dark:bg-indigo-500/10 rounded-full blur-3xl opacity-50"></div>
-                </div>
-                
+            <section className="relative pt-48 pb-20 lg:pt-64 lg:pb-32">
                 <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
-                        Tu inventario, <br className="hidden md:block" />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent dark:from-blue-400 dark:to-indigo-400">
-                            inteligente y en tiempo real
-                        </span>
-                    </h1>
-                    <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-                        GEMA Inventory es la solución completa para gestionar tus productos, ventas y clientes desde cualquier lugar. Disponible en la palma de tu mano o desde tu navegador.
-                    </p>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 text-white text-[10px] font-black tracking-[0.2em] uppercase mb-10 shadow-2xl"
+                    >
+                        <Sparkles size={14} className="animate-pulse" /> Revolución en Inventarios
+                    </motion.div>
                     
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
-                        <Link to="/app" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary dark:bg-blue-600 hover:bg-primary-dark dark:hover:bg-blue-700 text-white px-8 py-4 rounded-full text-lg font-bold shadow-xl shadow-primary/20 dark:shadow-blue-900/20 transition-all hover:-translate-y-1">
-                            Probar en Web <ArrowRight size={20} />
+                    <motion.h1 
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                        className="text-7xl md:text-[10rem] font-black tracking-tighter mb-10 leading-[0.85] text-slate-900 dark:text-white"
+                    >
+                        Gestiona <br className="hidden md:block" />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-500 drop-shadow-[0_0_30px_rgba(59,130,246,0.3)] saturate-150">
+                            sin límites.
+                        </span>
+                    </motion.h1>
+                    
+                    <motion.p 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4, duration: 1 }}
+                        className="text-lg md:text-2xl text-slate-500 dark:text-slate-400 mb-16 max-w-3xl mx-auto font-medium leading-relaxed px-4"
+                    >
+                        GEMA Inventory es el cerebro digital para tu negocio. 
+                        Sincronización en tiempo real, inteligencia operativa y diseño premium.
+                    </motion.p>
+                    
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6, duration: 1 }}
+                        className="flex flex-col sm:flex-row items-center justify-center gap-6"
+                    >
+                        <Link to="/app" className="group relative w-full sm:w-auto">
+                            <div className="absolute inset-0 bg-white dark:bg-white blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
+                            <div className="relative flex items-center justify-center gap-4 bg-slate-950 dark:bg-white text-white dark:text-slate-950 px-12 py-6 rounded-[2rem] text-sm font-black uppercase tracking-widest shadow-2xl transition-all hover:-translate-y-1.5 hover:shadow-primary/40">
+                                EMPEZAR AHORA <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                            </div>
                         </Link>
-                        <a href="#descarga" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600 text-gray-900 dark:text-white px-8 py-4 rounded-full text-lg font-bold shadow-md transition-all hover:-translate-y-1">
-                            Descargar App <Download size={20} />
+                        <a href="#app" className="group w-full sm:w-auto flex items-center justify-center gap-4 bg-white/5 dark:bg-slate-800/20 backdrop-blur-3xl border border-white/10 text-slate-800 dark:text-white px-12 py-6 rounded-[2rem] text-sm font-black uppercase tracking-widest transition-all hover:bg-white/10 dark:hover:bg-slate-800/40 hover:-translate-y-1">
+                            <Download size={20} /> APP MÓVIL
                         </a>
-                    </div>
+                    </motion.div>
+
+                    {/* Preview Dashboard */}
+                    <motion.div 
+                        style={{ y: y1 }}
+                        initial={{ opacity: 0, y: 100 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8, duration: 1.2 }}
+                        className="mt-32 relative group"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent z-10 pointer-events-none" />
+                        <div className="absolute -inset-4 bg-primary/20 blur-3xl rounded-[3rem] opacity-0 group-hover:opacity-40 transition-opacity duration-1000" />
+                        <div className="relative glass-card p-2 rounded-[2.5rem] border-white/10 shadow-2xl overflow-hidden backdrop-blur-3xl">
+                            <img 
+                                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop" 
+                                alt="Dashboard GEMA" 
+                                className="w-full h-auto rounded-[2.3rem] shadow-2xl grayscale-[20%] group-hover:grayscale-0 transition-all duration-1000"
+                            />
+                        </div>
+                    </motion.div>
                 </div>
             </section>
 
             {/* Features Section */}
-            <section className="py-20 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border-y border-gray-100 dark:border-slate-800">
+            <section id="features" className="py-40 relative overflow-hidden bg-slate-950/20">
                 <div className="max-w-7xl mx-auto px-6">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-bold mb-4">Todo lo que necesitas para crecer</h2>
-                        <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">Diseñado para pequeñas y medianas empresas que buscan eficiencia y control absoluto.</p>
+                    <div className="text-center mb-24">
+                        <h2 className="text-4xl md:text-5xl font-black mb-6">Potencia tu Negocio</h2>
+                        <p className="text-slate-500 max-w-xl mx-auto font-medium">Herramientas diseñadas para escalar tu operación sin complicaciones técnicas.</p>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-8">
-                        {/* Feature 1 */}
-                        <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-xl transition-shadow">
-                            <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/50 rounded-2xl flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400">
-                                <Package size={28} />
-                            </div>
-                            <h3 className="text-xl font-bold mb-3">Control de Stock</h3>
-                            <p className="text-gray-600 dark:text-gray-400">Mantén tu inventario actualizado al instante. Recibe alertas de stock bajo y gestiona múltiples almacenes.</p>
-                        </div>
-                        {/* Feature 2 */}
-                        <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-xl transition-shadow">
-                            <div className="w-14 h-14 bg-green-100 dark:bg-green-900/50 rounded-2xl flex items-center justify-center mb-6 text-green-600 dark:text-green-400">
-                                <TrendingUp size={28} />
-                            </div>
-                            <h3 className="text-xl font-bold mb-3">Finanzas Claras</h3>
-                            <p className="text-gray-600 dark:text-gray-400">Visualiza tus ingresos, gastos y márgenes de ganancia con gráficos detallados en tiempo real.</p>
-                        </div>
-                        {/* Feature 3 */}
-                        <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-xl transition-shadow">
-                            <div className="w-14 h-14 bg-purple-100 dark:bg-purple-900/50 rounded-2xl flex items-center justify-center mb-6 text-purple-600 dark:text-purple-400">
-                                <Users size={28} />
-                            </div>
-                            <h3 className="text-xl font-bold mb-3">Gestión de Clientes</h3>
-                            <p className="text-gray-600 dark:text-gray-400">Registra tus clientes, historial de compras y preferencias para ofrecer un servicio personalizado.</p>
+                    <motion.div 
+                        variants={staggerContainer}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        className="grid md:grid-cols-3 gap-10"
+                    >
+                        {[
+                            { icon: Package, title: "Stock Inteligente", desc: "Predicciones de inventario basadas en patrones de venta.", color: "primary" },
+                            { icon: TrendingUp, title: "Métricas Reales", desc: "Análisis financiero profundo en tiempo real.", color: "emerald-500" },
+                            { icon: Users, title: "Equipo Conectado", desc: "Roles granulares y colaboración instantánea.", color: "indigo-500" }
+                        ].map((item, i) => (
+                            <motion.div 
+                                key={i}
+                                variants={fadeInUp} 
+                                className="glass-card p-12 group hover:bg-white/5 transition-all duration-500 relative overflow-hidden"
+                            >
+                                <div className={`absolute top-0 right-0 w-32 h-32 bg-${item.color}/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700`} />
+                                <div className={`w-16 h-16 bg-${item.color}/10 rounded-3xl flex items-center justify-center mb-8 text-${item.color} group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
+                                    <item.icon size={32} />
+                                </div>
+                                <h3 className="text-2xl font-black mb-4">{item.title}</h3>
+                                <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                    {item.desc}
+                                </p>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* App Promotion Section */}
+            <section id="app" className="py-40 relative">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="relative bg-gradient-to-br from-indigo-900 to-blue-900 rounded-[4rem] overflow-hidden shadow-[0_0_100px_rgba(59,130,246,0.2)]">
+                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-primary/40 to-transparent" />
+                        
+                        <div className="relative z-10 grid lg:grid-cols-2 gap-20 p-16 md:p-32 items-center">
+                            <motion.div 
+                                initial={{ opacity: 0, x: -50 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                            >
+                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white text-[10px] font-black tracking-widest uppercase mb-8">
+                                    <Star size={12} className="fill-yellow-400 text-yellow-400" /> App Exclusiva
+                                </div>
+                                <h2 className="text-6xl md:text-8xl font-black text-white mb-10 leading-[0.85] tracking-tighter">
+                                    Tu negocio, <br/> en tu bolsillo.
+                                </h2>
+                                <p className="text-white/70 text-xl md:text-2xl mb-14 leading-relaxed font-medium">
+                                    Nuestra App para Android redefine la movilidad. Escaneo láser, ventas offline y notificaciones críticas al instante.
+                                </p>
+                                
+                                <div className="flex flex-col sm:flex-row gap-6">
+                                    <button className="group flex items-center justify-center gap-4 bg-white text-primary px-10 py-6 rounded-[2rem] font-black shadow-2xl hover:bg-slate-50 transition-all hover:-translate-y-1 active:scale-95">
+                                        <Download size={24} /> DESCARGAR APK
+                                    </button>
+                                    <div className="flex flex-col justify-center">
+                                        <div className="flex items-center gap-2 text-white/40 mb-1">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                            <span className="text-xs font-black uppercase tracking-widest">Android 8.0+ Compatible</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                            
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                className="relative flex justify-center"
+                            >
+                                <FloatingElement duration={5}>
+                                    <div className="w-[320px] h-[640px] bg-slate-950 rounded-[4rem] border-[12px] border-slate-900 shadow-[0_50px_100px_rgba(0,0,0,0.5)] overflow-hidden relative">
+                                        <div className="absolute top-0 w-full h-10 bg-slate-900 flex justify-center items-center">
+                                            <div className="w-20 h-2 bg-slate-800 rounded-full" />
+                                        </div>
+                                        <div className="p-8 pt-16 h-full bg-slate-950 flex flex-col items-center justify-center text-center">
+                                            <div className="relative mb-10">
+                                                <div className="absolute inset-0 bg-primary blur-2xl opacity-40 animate-pulse" />
+                                                <div className="w-24 h-24 bg-primary/10 rounded-[2.5rem] flex items-center justify-center text-primary relative z-10">
+                                                    <img src="/gema_white.svg" alt="Logo" className="w-12 h-12" />
+                                                </div>
+                                            </div>
+                                            <h4 className="text-white font-black text-2xl mb-4 tracking-tight uppercase">GEMA Mobile</h4>
+                                            <p className="text-white/30 text-sm px-4 leading-relaxed">Sincronización híbrida de última generación.</p>
+                                        </div>
+                                    </div>
+                                </FloatingElement>
+
+                                {/* Floating Badges */}
+                                <motion.div 
+                                    animate={{ y: [0, -20, 0] }}
+                                    transition={{ duration: 4, repeat: Infinity }}
+                                    className="absolute -right-12 top-32 glass-card p-6 bg-emerald-500/20 border-emerald-500/30 text-emerald-400 flex items-center gap-4 shadow-2xl backdrop-blur-2xl"
+                                >
+                                    <Zap size={24} />
+                                    <span className="font-black text-sm uppercase tracking-widest">Sync en tiempo real</span>
+                                </motion.div>
+                                <motion.div 
+                                    animate={{ y: [0, 20, 0] }}
+                                    transition={{ duration: 6, repeat: Infinity, delay: 1 }}
+                                    className="absolute -left-16 bottom-32 glass-card p-6 bg-blue-500/20 border-blue-500/30 text-blue-400 flex items-center gap-4 shadow-2xl backdrop-blur-2xl"
+                                >
+                                    <ShieldCheck size={24} />
+                                    <span className="font-black text-sm uppercase tracking-widest">Seguridad de Élite</span>
+                                </motion.div>
+                            </motion.div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Platform Choice Section */}
-            <section id="descarga" className="py-24 relative">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="bg-primary dark:bg-slate-800 rounded-[3rem] overflow-hidden shadow-2xl relative">
-                        <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-white/5 rounded-full blur-3xl -mr-48 -mt-48"></div>
-                        
-                        <div className="relative z-10 grid lg:grid-cols-2 gap-12 p-12 md:p-20 items-center">
-                            <div className="text-white">
-                                <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">Lleva tu negocio <br/> a todas partes</h2>
-                                <p className="text-primary-100 dark:text-gray-300 text-lg mb-8 leading-relaxed">
-                                    Disfruta de la experiencia nativa en tu dispositivo Android o accede desde cualquier computadora con nuestra aplicación web responsiva. Todos tus datos sincronizados al instante.
-                                </p>
-                                
-                                <div className="flex flex-col sm:flex-row gap-4">
-                                    <button className="flex items-center justify-center gap-3 bg-white text-primary dark:bg-blue-600 dark:text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-gray-50 transition-colors">
-                                        <Download size={24} />
-                                        Descargar APK
-                                    </button>
-                                </div>
-                                <p className="text-white/60 text-sm mt-4">* Requiere Android 8.0 o superior</p>
-                            </div>
-                            
-                            <div className="relative">
-                                {/* Decoraciones */}
-                                <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent rounded-3xl transform rotate-3"></div>
-                                <div className="relative bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-3xl shadow-2xl">
-                                    <div className="flex items-center gap-4 mb-6">
-                                        <ShieldCheck className="text-green-400" size={32} />
-                                        <div>
-                                            <h4 className="text-white font-bold text-lg">Seguridad Total</h4>
-                                            <p className="text-white/70 text-sm">Tus datos en la nube</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-4 mb-6">
-                                        <Zap className="text-yellow-400" size={32} />
-                                        <div>
-                                            <h4 className="text-white font-bold text-lg">Sincronización Rápida</h4>
-                                            <p className="text-white/70 text-sm">Actualizaciones en vivo</p>
-                                        </div>
-                                    </div>
-                                    <div className="mt-8 pt-8 border-t border-white/10">
-                                        <Link to="/app" className="flex items-center justify-center gap-2 w-full bg-accent dark:bg-indigo-600 hover:bg-accent-light dark:hover:bg-indigo-500 text-white px-6 py-4 rounded-xl font-bold transition-colors">
-                                            Abrir Web App <ArrowRight size={20} />
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            {/* Social Proof / Stats */}
+            <section className="py-32 border-y border-white/5 bg-slate-900/10">
+                <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-16 text-center">
+                    {[
+                        { val: "+150", label: "Negocios" },
+                        { val: "+10k", label: "Movimientos" },
+                        { val: "24/7", label: "Soporte" },
+                        { val: "Global", label: "Acceso" }
+                    ].map((stat, i) => (
+                        <motion.div 
+                            key={i}
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            transition={{ delay: i * 0.1 }}
+                        >
+                            <div className="text-5xl font-black text-primary mb-3 tracking-tighter">{stat.val}</div>
+                            <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">{stat.label}</div>
+                        </motion.div>
+                    ))}
+                </div>
+            </section>
+
+            {/* CTA Final */}
+            <section className="py-40 text-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-primary/5 blur-[120px] rounded-full scale-150 opacity-20" />
+                <div className="max-w-4xl mx-auto px-6 relative z-10">
+                    <h2 className="text-5xl md:text-7xl font-black mb-10 leading-[0.9] tracking-tighter">¿Listo para llevar tu <br/> negocio al <span className="text-primary italic">siguiente nivel?</span></h2>
+                    <Link to="/app" className="inline-flex items-center gap-4 bg-primary text-white px-16 py-8 rounded-[2.5rem] text-xl font-black uppercase tracking-widest shadow-2xl shadow-primary/40 hover:-translate-y-2 transition-all">
+                        EMPEZAR GRATIS <ArrowRight size={28} />
+                    </Link>
                 </div>
             </section>
 
             {/* Footer */}
-            <footer className="bg-white dark:bg-[#0b1121] py-8 border-t border-gray-200 dark:border-slate-800">
-                <div className="max-w-7xl mx-auto px-6 text-center">
-                    <p className="text-gray-500 dark:text-gray-400 font-medium">© 2026 GEMA Inventory. Todos los derechos reservados.</p>
+            <footer className="py-32 bg-[#030712] text-white border-t border-white/5">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="grid md:grid-cols-4 gap-20 mb-24">
+                        <div className="md:col-span-2">
+                             <div className="flex items-center gap-3 mb-10">
+                                <img src="/gema_white.svg" alt="Logo" className="w-10 h-10" />
+                                <span className="text-2xl font-black tracking-tighter uppercase">GEMA <span className="text-primary italic">INVENTORY</span></span>
+                            </div>
+                            <p className="text-slate-500 max-w-sm mb-10 font-medium leading-relaxed text-lg">
+                                La plataforma líder en gestión inteligente de inventarios. 
+                                Diseñada para la velocidad, construida para la escala.
+                            </p>
+                            <div className="flex gap-6">
+                                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary/20 hover:text-primary hover:border-primary/30 cursor-pointer transition-all duration-500">
+                                    <Globe size={20} />
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-8 text-white/30">Plataforma</h4>
+                            <ul className="space-y-5 text-sm font-bold text-slate-400">
+                                <li><Link to="/app" className="hover:text-primary transition-colors">Web Dashboard</Link></li>
+                                <li><a href="#app" className="hover:text-primary transition-colors">Android Application</a></li>
+                                <li><Link to="/login" className="hover:text-primary transition-colors">Acceso Usuarios</Link></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-8 text-white/30">Compañía</h4>
+                            <ul className="space-y-5 text-sm font-bold text-slate-400">
+                                <li><a href="#" className="hover:text-primary transition-colors">Políticas de Privacidad</a></li>
+                                <li><a href="#" className="hover:text-primary transition-colors">Términos de Servicio</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-10">
+                        <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest">© 2026 JEDD AI. Todos los derechos reservados.</p>
+                        <div className="flex items-center gap-3 text-[10px] font-black text-slate-600 uppercase tracking-widest">
+                            Built by experts for <span className="text-white">High Performance</span>
+                        </div>
+                    </div>
                 </div>
             </footer>
         </div>

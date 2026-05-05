@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { DollarSign, TrendingUp, TrendingDown, FileText, Loader } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, FileText, Loader2, Calendar, ArrowUpRight, ArrowDownRight, CreditCard, Activity, BarChart3, PieChart as PieIcon, Download } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useTheme } from '../context/ThemeContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Finances() {
     const { user } = useAuth();
@@ -48,10 +49,8 @@ export default function Finances() {
             const allItems = [];
 
             orders.forEach(o => {
-                // Estado 2 = Completado/Entregado en la lógica Android
                 if (o.idEstado === 2 && o.total) {
                      totalIngresos += o.total;
-                     const date = new Date(o.fechaPedido);
                      const month = safeGetMonth(o.fechaPedido);
                      if (month >= 1 && month <= 12) ingresosPorMes[month] += o.total;
                      
@@ -62,7 +61,7 @@ export default function Finances() {
                          fuente: `Venta - ${o.nombre || 'Pedido'}`,
                          referencia: o.id.toString().slice(-5),
                          monto: o.total,
-                         rawDate: date
+                         rawDate: new Date(o.fechaPedido)
                      });
                 }
             });
@@ -70,7 +69,6 @@ export default function Finances() {
             purchases.forEach(p => {
                 if (p.total) {
                      totalEgresos += p.total;
-                     const date = new Date(p.fechaCompra);
                      const month = safeGetMonth(p.fechaCompra);
                      if (month >= 1 && month <= 12) gastosPorMes[month] += p.total;
 
@@ -81,7 +79,7 @@ export default function Finances() {
                          fuente: `Compra - ${p.nombreProveedor || 'Stock'}`,
                          referencia: (p.id || '').toString().slice(-5),
                          monto: -p.total,
-                         rawDate: date
+                         rawDate: new Date(p.fechaCompra)
                      });
                 }
             });
@@ -98,7 +96,8 @@ export default function Finances() {
                 newChartData.push({
                     name: monthNames[i],
                     Ingresos: ingresosPorMes[i],
-                    Gastos: gastosPorMes[i]
+                    Gastos: gastosPorMes[i],
+                    Neto: ingresosPorMes[i] - gastosPorMes[i]
                 });
             }
             setChartData(newChartData);
@@ -119,163 +118,402 @@ export default function Finances() {
 
     const generarPDF = () => {
         const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.width;
         
-        doc.setFontSize(18);
-        doc.setTextColor(40, 40, 40);
-        doc.text('Reporte Financiero GEMA', 14, 22);
+        // --- Header Configuration ---
+        doc.setFillColor(59, 130, 246); // Primary Blue
+        doc.rect(0, 0, pageWidth, 40, 'F');
         
-        doc.setFontSize(11);
-        doc.setTextColor(100);
-        doc.text(`Generado el: ${new Date().toLocaleDateString()}`, 14, 30);
+        doc.setFontSize(24);
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.text('GEMA INVENTORY', 14, 25);
         
         doc.setFontSize(12);
-        doc.setTextColor(40);
-        doc.text(`Balance Neto: $${totals.neto.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, 14, 40);
-        doc.text(`Total Ingresos: $${totals.ingresos.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, 14, 46);
-        doc.text(`Total Gastos: $${totals.egresos.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, 14, 52);
+        doc.setFont('helvetica', 'normal');
+        doc.text('REPORTE FINANCIERO ESTRATÉGICO', 14, 33);
+        
+        // --- User and Date Info ---
+        doc.setTextColor(50, 50, 50);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('INFORMACIÓN DEL EMISOR', 14, 50);
+        
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Responsable: ${user?.nombre || user?.correo || 'Usuario GEMA'}`, 14, 56);
+        doc.text(`Email: ${user?.correo || 'N/A'}`, 14, 61);
+        doc.text(`Fecha de Emisión: ${new Date().toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' })}`, 14, 66);
 
-        const tableColumn = ["FECHA", "TIPO", "CONCEPTO", "REFERENCIA", "MONTO"];
-        const tableRows = [];
+        // --- Executive Summary Box ---
+        doc.setFillColor(248, 250, 252);
+        doc.roundedRect(140, 48, 56, 25, 3, 3, 'F');
+        
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text('BALANCE NETO ACTUAL', 145, 55);
+        
+        doc.setFontSize(14);
+        const balanceColor = totals.neto >= 0 ? [16, 185, 129] : [244, 63, 94];
+        doc.setTextColor(balanceColor[0], balanceColor[1], balanceColor[2]);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`$${totals.neto.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, 145, 65);
 
-        finances.forEach(f => {
-            const ticketData = [
-                new Date(f.fecha).toLocaleDateString(),
-                f.tipo,
-                f.fuente,
-                f.referencia || '-',
-                `$${Math.abs(f.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}`
-            ];
-            tableRows.push(ticketData);
-        });
+        // --- Financial Highlights ---
+        doc.setDrawColor(226, 232, 240);
+        doc.setLineWidth(0.5);
+        doc.line(14, 75, 196, 75);
+
+        doc.setFontSize(11);
+        doc.setTextColor(40, 40, 40);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Métricas de Rendimiento:', 14, 85);
+        
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Total Ingresos Operativos:`, 14, 93);
+        doc.setTextColor(16, 185, 129);
+        doc.text(`$${totals.ingresos.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, 70, 93);
+        
+        doc.setTextColor(40, 40, 40);
+        doc.text(`Total Gastos de Operación:`, 14, 100);
+        doc.setTextColor(244, 63, 94);
+        doc.text(`$${totals.egresos.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, 70, 100);
+
+        // --- Data Table ---
+        const tableColumn = ["FECHA", "TIPO", "CONCEPTO / ENTIDAD", "REFERENCIA", "MONTO"];
+        const tableRows = finances.map(f => [
+            new Date(f.fecha).toLocaleDateString('es-MX'),
+            f.tipo,
+            f.fuente,
+            f.referencia ? `REF-${f.referencia}` : '-',
+            { 
+                content: `$${Math.abs(f.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+                styles: { textColor: f.monto >= 0 ? [16, 185, 129] : [244, 63, 94], fontStyle: 'bold' }
+            }
+        ]);
 
         autoTable(doc, {
-            startY: 60,
+            startY: 110,
             head: [tableColumn],
             body: tableRows,
             theme: 'striped',
-            headStyles: { fillColor: [41, 128, 185] },
-            styles: { fontSize: 10 }
+            headStyles: { 
+                fillColor: [30, 41, 59], 
+                textColor: 255, 
+                fontSize: 10, 
+                fontStyle: 'bold',
+                halign: 'center',
+                cellPadding: 4
+            },
+            bodyStyles: { 
+                fontSize: 9, 
+                cellPadding: 4,
+                textColor: [50, 50, 50]
+            },
+            alternateRowStyles: { 
+                fillColor: [248, 250, 252] 
+            },
+            columnStyles: {
+                0: { halign: 'center' },
+                1: { halign: 'center' },
+                4: { halign: 'right' }
+            },
+            margin: { top: 20 },
+            didDrawPage: (data) => {
+                // Footer
+                const str = `Página ${doc.internal.getNumberOfPages()}`;
+                doc.setFontSize(8);
+                doc.setTextColor(150);
+                doc.text(str, pageWidth - 25, doc.internal.pageSize.height - 10);
+                doc.text('GEMA Inventory System - Reporte Confidencial', 14, doc.internal.pageSize.height - 10);
+            }
         });
 
-        doc.save('reporte_financiero_gema.pdf');
+        doc.save(`GEMA_Reporte_Financiero_${new Date().toISOString().split('T')[0]}.pdf`);
+    };
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.1 }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: { y: 0, opacity: 1 }
     };
 
     return (
-        <div className="max-w-6xl mx-auto space-y-6 transition-colors">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Finanzas</h1>
-                    <p className="text-gray-500 dark:text-gray-400">Resumen y reportes de ingresos y egresos</p>
+        <motion.div 
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+            className="max-w-7xl mx-auto space-y-8 pb-20 sm:pb-0"
+        >
+            {/* Ultra-Premium Header */}
+            <motion.div variants={itemVariants} className="relative overflow-hidden bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 p-8 sm:p-12 rounded-[2.5rem] shadow-sm dark:shadow-none">
+                <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                    <div className="space-y-4">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest">
+                            <Activity size={12} />
+                            <span>Análisis de Patrimonio</span>
+                        </div>
+                        <h1 className="text-5xl sm:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
+                            Dashboard <span className="text-primary">Financiero</span>
+                        </h1>
+                        <p className="text-slate-500 dark:text-slate-400 text-lg max-w-xl">
+                            Visualiza el rendimiento económico de tu negocio, flujo de caja y balances operativos en tiempo real.
+                        </p>
+                    </div>
+                    <button
+                        onClick={generarPDF}
+                        className="group bg-primary hover:bg-primary/90 text-white px-8 py-5 rounded-[2rem] flex items-center gap-3 transition-all shadow-2xl shadow-primary/40 font-black text-lg active:scale-95"
+                    >
+                        <Download size={24} className="group-hover:translate-y-1 transition-transform" />
+                        <span>Exportar Informe</span>
+                    </button>
                 </div>
-                <button
-                    onClick={generarPDF}
-                    className="bg-accent text-white px-6 py-3 rounded-xl hover:opacity-90 transition shadow-lg flex items-center gap-2 font-medium"
-                >
-                    <FileText size={20} />
-                    <span>Generar Reporte PDF</span>
-                </button>
+                
+                {/* Background Decoration */}
+                <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
+                <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
+            </motion.div>
+
+            {/* Premium Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <motion.div variants={itemVariants} className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-emerald-500/10 p-8 group relative overflow-hidden rounded-[2.5rem] shadow-sm dark:shadow-none">
+                    <div className="relative z-10 flex items-center justify-between mb-8">
+                        <div className="p-4 bg-emerald-500/10 text-emerald-500 rounded-[1.5rem] group-hover:scale-110 transition-transform duration-500">
+                            <TrendingUp size={32} />
+                        </div>
+                        <div className="text-right">
+                            <span className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full uppercase tracking-widest">Entradas</span>
+                        </div>
+                    </div>
+                    <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mb-2">Ingresos Operativos</p>
+                    <h3 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+                        <span className="text-emerald-500 text-2xl mr-1">$</span>
+                        {totals.ingresos.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </h3>
+                    <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-emerald-500/5 blur-[40px] rounded-full" />
+                </motion.div>
+
+                <motion.div variants={itemVariants} className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-rose-500/10 p-8 group relative overflow-hidden rounded-[2.5rem] shadow-sm dark:shadow-none">
+                    <div className="relative z-10 flex items-center justify-between mb-8">
+                        <div className="p-4 bg-rose-500/10 text-rose-500 rounded-[1.5rem] group-hover:scale-110 transition-transform duration-500">
+                            <TrendingDown size={32} />
+                        </div>
+                        <div className="text-right">
+                            <span className="text-[10px] font-black text-rose-500 bg-rose-500/10 px-3 py-1 rounded-full uppercase tracking-widest">Salidas</span>
+                        </div>
+                    </div>
+                    <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mb-2">Gastos de Operación</p>
+                    <h3 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+                        <span className="text-rose-500 text-2xl mr-1">$</span>
+                        {totals.egresos.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </h3>
+                    <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-rose-500/5 blur-[40px] rounded-full" />
+                </motion.div>
+
+                <motion.div variants={itemVariants} className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-primary/20 p-8 bg-gradient-to-br from-primary/5 dark:from-primary/20 to-transparent group relative overflow-hidden rounded-[2.5rem] shadow-sm dark:shadow-none">
+                    <div className="relative z-10 flex items-center justify-between mb-8">
+                        <div className="p-4 bg-primary/20 text-primary rounded-[1.5rem] group-hover:scale-110 transition-transform duration-500">
+                            <DollarSign size={32} />
+                        </div>
+                        <div className="text-right">
+                            <span className="text-[10px] font-black text-primary bg-primary/10 px-3 py-1 rounded-full uppercase tracking-widest">Patrimonio</span>
+                        </div>
+                    </div>
+                    <p className="text-slate-500 dark:text-slate-200 font-bold uppercase tracking-[0.2em] text-[10px] mb-2">Balance Neto</p>
+                    <h3 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+                        <span className="text-primary text-2xl mr-1">$</span>
+                        {totals.neto.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </h3>
+                    <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-primary/20 blur-[40px] rounded-full" />
+                </motion.div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex items-center gap-4 transition-colors">
-                    <div className="p-4 bg-green-50 dark:bg-green-900/30 text-green-500 dark:text-green-400 rounded-full">
-                        <TrendingUp size={32} />
-                    </div>
+            {/* Premium Chart Section */}
+            <motion.div variants={itemVariants} className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 p-10 space-y-10 relative overflow-hidden rounded-[2.5rem] shadow-sm dark:shadow-none">
+                 <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
                     <div>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Total Ingresos</p>
-                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white truncate">${totals.ingresos.toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
+                        <h3 className="font-black text-3xl text-slate-900 dark:text-white tracking-tighter flex items-center gap-3">
+                            <BarChart3 size={28} className="text-primary" />
+                            Rendimiento Anual
+                        </h3>
+                        <p className="text-slate-500 text-sm mt-1">Comparativa mensual de flujo de caja</p>
                     </div>
-                </div>
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex items-center gap-4 transition-colors">
-                    <div className="p-4 bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 rounded-full">
-                        <TrendingDown size={32} />
+                    <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50" /> Ingresos</div>
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-rose-500 shadow-lg shadow-rose-500/50" /> Gastos</div>
                     </div>
-                    <div>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Total Egresos</p>
-                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white truncate">${totals.egresos.toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
-                    </div>
-                </div>
-                <div className="bg-gradient-to-r from-primary to-accent dark:from-blue-700 dark:to-indigo-900 text-white p-6 rounded-2xl shadow-lg border border-transparent flex items-center gap-4">
-                    <div className="p-4 bg-white/20 rounded-full">
-                        <DollarSign size={32} />
-                    </div>
-                    <div>
-                        <p className="text-white/80 text-sm font-medium">Balance Neto</p>
-                        <h3 className="text-xl sm:text-2xl font-bold truncate">${totals.neto.toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
-                    </div>
-                </div>
-            </div>
-
-            {/* Chart Section */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm dark:shadow-lg p-6 border border-gray-100 dark:border-slate-700 transition-colors">
-                 <h3 className="font-bold text-lg mb-6 text-gray-900 dark:text-white">Balance Financiero</h3>
-                 <div className="h-[300px] w-full">
+                 </div>
+                 
+                 <div className="h-[400px] w-full relative z-10">
                      {loading ? (
-                          <div className="h-full flex items-center justify-center"><Loader className="animate-spin text-primary" size={32} /></div>
+                          <div className="h-full flex flex-col items-center justify-center space-y-6">
+                              <Loader2 className="animate-spin text-primary" size={64} />
+                              <p className="text-slate-500 font-black tracking-widest text-xs uppercase animate-pulse">Procesando Inteligencia Financiera...</p>
+                          </div>
                      ) : (
                            <ResponsiveContainer width="100%" height="100%">
-                               <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                                   <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "#334155" : "#e2e8f0"} vertical={false} />
-                                   <XAxis dataKey="name" stroke={isDarkMode ? "#94a3b8" : "#64748b"} fontSize={12} tickMargin={10} axisLine={false} tickLine={false} />
-                                   <YAxis stroke={isDarkMode ? "#94a3b8" : "#64748b"} fontSize={12} axisLine={false} tickLine={false} tickFormatter={(value) => `$${value}`} />
+                               <AreaChart data={chartData} margin={{ top: 20, right: 20, bottom: 0, left: 0 }}>
+                                   <defs>
+                                       <linearGradient id="colorIngresos" x1="0" y1="0" x2="0" y2="1">
+                                           <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
+                                           <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                       </linearGradient>
+                                       <linearGradient id="colorGastos" x1="0" y1="0" x2="0" y2="1">
+                                           <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.4}/>
+                                           <stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/>
+                                       </linearGradient>
+                                   </defs>
+                                   <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "#1e293b" : "#e2e8f0"} vertical={false} opacity={0.3} />
+                                   <XAxis 
+                                        dataKey="name" 
+                                        stroke="#475569" 
+                                        fontSize={10} 
+                                        tickMargin={15} 
+                                        axisLine={false} 
+                                        tickLine={false} 
+                                        fontFamily="Inter"
+                                        fontWeight="900"
+                                    />
+                                   <YAxis 
+                                        stroke="#475569" 
+                                        fontSize={10} 
+                                        axisLine={false} 
+                                        tickLine={false} 
+                                        tickFormatter={(value) => `$${value}`} 
+                                        fontFamily="Inter"
+                                        fontWeight="900"
+                                    />
                                    <Tooltip 
+                                       cursor={{ stroke: 'rgba(0,0,0,0.05)', strokeWidth: 2 }}
                                        contentStyle={{ 
-                                           backgroundColor: isDarkMode ? '#1e293b' : '#fff', 
-                                           borderColor: isDarkMode ? '#334155' : '#e2e8f0', 
-                                           borderRadius: '8px', 
-                                           color: isDarkMode ? '#f8fafc' : '#1e293b' 
+                                           backgroundColor: isDarkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)', 
+                                           borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+                                           borderRadius: '24px', 
+                                           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                                           backdropFilter: 'blur(16px)',
+                                           border: '1px solid rgba(255,255,255,0.1)',
+                                           padding: '20px'
                                        }}
-                                       itemStyle={{ color: isDarkMode ? '#f8fafc' : '#1e293b' }}
-                                       formatter={(value) => [`$${value}`, undefined]}
+                                       itemStyle={{ padding: '4px 0', fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: isDarkMode ? '#f8fafc' : '#0f172a' }}
+                                       labelStyle={{ color: '#64748b', marginBottom: '8px', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em' }}
+                                       formatter={(value) => [`$${value.toLocaleString()}`, undefined]}
                                    />
-                                   <Line type="monotone" dataKey="Ingresos" stroke="#22c55e" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
-                                   <Line type="monotone" dataKey="Gastos" name="Gastos (Est.)" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
-                               </LineChart>
+                                   <Area type="monotone" dataKey="Ingresos" stroke="#10b981" strokeWidth={4} fillOpacity={1} fill="url(#colorIngresos)" animationDuration={2000} />
+                                   <Area type="monotone" dataKey="Gastos" stroke="#f43f5e" strokeWidth={4} fillOpacity={1} fill="url(#colorGastos)" animationDuration={2000} />
+                               </AreaChart>
                            </ResponsiveContainer>
                      )}
                  </div>
-            </div>
+                 
+                 {/* Decorative background logo */}
+                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.02] pointer-events-none">
+                    <PieIcon size={400} />
+                 </div>
+            </motion.div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden transition-colors">
-                <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
-                    <h3 className="font-bold text-gray-800 dark:text-white">Historial de Movimientos Financieros</h3>
+            {/* Premium Transactions Table */}
+            <motion.div variants={itemVariants} className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 overflow-hidden rounded-[2.5rem] shadow-sm dark:shadow-none">
+                <div className="px-10 py-8 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-primary/10 text-primary rounded-2xl">
+                            <CreditCard size={24} />
+                        </div>
+                        <div>
+                            <h3 className="font-black text-2xl text-slate-900 dark:text-white tracking-tighter uppercase">Historial Maestro</h3>
+                            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-0.5">Últimos movimientos verificados</p>
+                        </div>
+                    </div>
+                    <div className="px-4 py-2 bg-black/5 dark:bg-slate-900 border border-black/5 dark:border-white/10 rounded-full text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                        Total {finances.length} Registros
+                    </div>
                 </div>
+                
                 {loading ? (
-                    <div className="p-12 flex justify-center text-primary">
-                        <Loader className="animate-spin" size={32} />
+                    <div className="p-32 flex flex-col items-center justify-center space-y-6">
+                        <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                        <p className="text-slate-600 font-black tracking-widest text-[10px] uppercase animate-pulse">Sincronizando Ledger...</p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto text-center md:text-left">
-                        <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300 min-w-[600px]">
-                            <thead className="bg-white dark:bg-slate-800 text-gray-400 dark:text-gray-500 uppercase tracking-wider text-xs font-semibold border-b border-gray-100 dark:border-slate-700">
-                            <tr>
-                                <th className="p-4">Fecha</th>
-                                <th className="p-4">Fuente / Descripción</th>
-                                <th className="p-4">Referencia</th>
-                                <th className="p-4 text-right">Monto</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
-                            {finances.map((f) => (
-                                <tr key={f.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
-                                    <td className="p-4 text-gray-500 dark:text-gray-400">{new Date(f.fecha).toLocaleDateString()}</td>
-                                    <td className="p-4 font-medium text-gray-900 dark:text-white">{f.fuente}</td>
-                                    <td className="p-4 font-mono text-xs text-gray-400 dark:text-gray-500">{f.referencia || '-'}</td>
-                                    <td className={`p-4 text-right font-bold ${f.monto >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
-                                        {f.monto >= 0 ? '+' : '-'} ${Math.abs(f.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                                    </td>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead>
+                                <tr className="text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-[10px] font-black border-b border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-slate-950/50">
+                                    <th className="px-10 py-6">Fecha Valor</th>
+                                    <th className="px-10 py-6">Concepto / Entidad</th>
+                                    <th className="px-10 py-6">Referencia</th>
+                                    <th className="px-10 py-6 text-right">Impacto Neto</th>
                                 </tr>
-                            ))}
-                            {finances.length === 0 && (
-                                <tr>
-                                    <td colSpan="4" className="p-12 text-center text-gray-500">No hay registros financieros</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                                <AnimatePresence>
+                                    {finances.map((f, idx) => (
+                                        <motion.tr 
+                                            key={f.id} 
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ delay: idx * 0.02 }}
+                                            className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-all group"
+                                        >
+                                            <td className="px-10 py-8">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 bg-black/5 dark:bg-slate-900 rounded-xl text-slate-400 dark:text-slate-600 group-hover:text-primary transition-colors">
+                                                        <Calendar size={16} />
+                                                    </div>
+                                                    <span className="text-slate-600 dark:text-slate-400 font-black text-xs tracking-widest">
+                                                        {new Date(f.fecha).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-10 py-8">
+                                                <div className="font-black text-slate-900 dark:text-white text-lg group-hover:text-primary transition-colors tracking-tight">
+                                                    {f.fuente}
+                                                </div>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className={`w-2 h-2 rounded-full ${f.tipo === 'INGRESO' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                                                    <span className="text-[9px] text-slate-500 uppercase font-black tracking-[0.1em]">
+                                                        {f.tipo === 'INGRESO' ? 'Entrada de Capital' : 'Egresos de Activos'}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-10 py-8">
+                                                <span className="px-4 py-1.5 bg-black/5 dark:bg-slate-900 border border-black/5 dark:border-white/5 rounded-full text-[10px] font-black font-mono text-slate-500 group-hover:text-primary transition-colors tracking-widest">
+                                                    REF-{f.referencia || 'N/A'}
+                                                </span>
+                                            </td>
+                                            <td className="px-10 py-8 text-right">
+                                                <div className={`text-2xl font-black flex items-center justify-end gap-2 tracking-tighter ${f.monto >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                    {f.monto >= 0 ? <ArrowUpRight size={20} /> : <ArrowDownRight size={20} />}
+                                                    ${Math.abs(f.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                                </div>
+                                            </td>
+                                        </motion.tr>
+                                    ))}
+                                </AnimatePresence>
+                                
+                                {finances.length === 0 && (
+                                    <tr>
+                                        <td colSpan="4" className="py-32 text-center">
+                                            <div className="flex flex-col items-center space-y-6 opacity-20 group">
+                                                <div className="w-24 h-24 bg-slate-100 dark:bg-white/5 rounded-[2.5rem] flex items-center justify-center border border-slate-200 dark:border-white/5 group-hover:scale-110 transition-transform duration-700">
+                                                    <CreditCard size={48} className="text-slate-900 dark:text-white" />
+                                                </div>
+                                                <p className="text-xl font-black uppercase tracking-[0.3em] text-slate-900 dark:text-white">Cero Actividad</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }

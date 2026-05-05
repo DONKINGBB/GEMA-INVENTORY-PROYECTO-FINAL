@@ -2,8 +2,10 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { userService } from '../services/userService';
-import { Shield, Lock, Save, Loader, ArrowLeft, AlertCircle } from 'lucide-react';
+import { Shield, Lock, Save, Loader2, ArrowLeft, AlertCircle, Fingerprint, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 export default function SecuritySettings() {
     const { user } = useAuth();
@@ -13,7 +15,6 @@ export default function SecuritySettings() {
         confirmPassword: ''
     });
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState({ type: '', text: '' });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -22,112 +23,144 @@ export default function SecuritySettings() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setMessage({ type: '', text: '' });
 
         if (formData.password !== formData.confirmPassword) {
-            setMessage({ type: 'error', text: 'Las contraseñas no coinciden' });
+            toast.error('Las contraseñas no coinciden');
             return;
         }
 
         setLoading(true);
         try {
-            // Update only fields relevant to Security based on Backend UsuarioDto
             const userData = {
-                user: user.user, // Required by backend update
-                nombre: user.nombre, // Required by backend update
+                user: user.user,
+                nombre: user.nombre,
                 password: formData.password,
-                idRol: user.idRol // Required by backend update
+                idRol: user.idRol
             };
             await userService.changePassword(user.id, userData);
-            setMessage({ type: 'success', text: 'Contraseña actualizada correctamente' });
+            toast.success('Contraseña actualizada correctamente');
             setFormData({ password: '', confirmPassword: '' });
         } catch (error) {
-            setMessage({ type: 'error', text: 'Error al actualizar la contraseña. Revisa tus permisos.' });
+            toast.error('Error al actualizar la contraseña');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="max-w-2xl mx-auto">
-            <button 
-                onClick={() => navigate('/settings')}
-                className="flex items-center gap-2 text-gray-500 hover:text-gray-700 mb-6 transition"
-            >
-                <ArrowLeft size={20} />
-                <span>Volver a Configuración</span>
-            </button>
-
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
-                <div className="p-6 border-b border-gray-100 dark:border-slate-700">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <Shield className="text-primary dark:text-blue-400" />
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl mx-auto space-y-6 pb-20 sm:pb-0"
+        >
+            {/* Header */}
+            <div className="flex items-center gap-4 mb-2">
+                <button 
+                    onClick={() => navigate('/app/settings')}
+                    className="p-3 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-2xl transition-all text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none active:scale-95"
+                >
+                    <ArrowLeft size={24} />
+                </button>
+                <div>
+                    <h1 className="text-3xl font-black text-slate-900 dark:text-white">
                         Seguridad
-                    </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Administra tu contraseña y accesos</p>
+                    </h1>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">Protección de cuenta y accesos</p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                {/* Left Column - Form */}
+                <div className="md:col-span-7">
+                    <div className="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-[2.5rem] overflow-hidden shadow-sm dark:shadow-none">
+                        <div className="p-8 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5">
+                            <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+                                <div className="p-2 bg-primary/10 rounded-xl text-primary">
+                                    <Lock size={20} />
+                                </div>
+                                Cambiar Contraseña
+                            </h2>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                            <div className="space-y-5">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Nueva Contraseña</label>
+                                    <div className="relative group">
+                                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
+                                        <input
+                                            type="password"
+                                            name="password"
+                                            value={formData.password}
+                                            onChange={handleChange}
+                                            className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary/30 outline-none transition-all text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 font-medium"
+                                            placeholder="Introduce tu nueva contraseña"
+                                            required
+                                            minLength={6}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Confirmar Contraseña</label>
+                                    <div className="relative group">
+                                        <Shield className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
+                                        <input
+                                            type="password"
+                                            name="confirmPassword"
+                                            value={formData.confirmPassword}
+                                            onChange={handleChange}
+                                            className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary/30 outline-none transition-all text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 font-medium"
+                                            placeholder="Repite la contraseña"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-primary hover:bg-primary/90 text-white font-black py-4 rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                            >
+                                {loading ? <Loader2 className="animate-spin" size={22} /> : <Save size={22} />}
+                                {loading ? 'ACTUALIZANDO...' : 'ACTUALIZAR CONTRASEÑA'}
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                    <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-xl flex gap-3 text-blue-700 dark:text-blue-300 text-sm">
-                        <AlertCircle className="shrink-0" size={20} />
-                        <p>Al cambiar tu contraseña, asegúrate de que sea segura y difícil de adivinar.</p>
-                    </div>
-
-                    {message.text && (
-                        <div className={`p-4 rounded-xl text-sm font-medium ${
-                            message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'
-                        }`}>
-                            {message.text}
+                {/* Right Column - Info */}
+                <div className="md:col-span-5 space-y-6">
+                    <div className="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm dark:shadow-none space-y-6">
+                        <div className="w-16 h-16 bg-blue-500/10 rounded-3xl flex items-center justify-center text-blue-500 dark:text-blue-400">
+                            <Fingerprint size={32} />
                         </div>
-                    )}
-
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nueva Contraseña</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                <input
-                                    type="password"
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition dark:text-white"
-                                    placeholder="••••••••"
-                                    required
-                                    minLength={6}
-                                />
-                            </div>
+                        <div className="space-y-2">
+                            <h3 className="text-lg font-black text-slate-900 dark:text-white">Recomendaciones</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                                Para una cuenta segura, utiliza al menos 8 caracteres, incluyendo mayúsculas, números y símbolos especiales.
+                            </p>
                         </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirmar Contraseña</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                <input
-                                    type="password"
-                                    name="confirmPassword"
-                                    value={formData.confirmPassword}
-                                    onChange={handleChange}
-                                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition dark:text-white"
-                                    placeholder="••••••••"
-                                    required
-                                />
+                        <div className="pt-4 border-t border-slate-100 dark:border-white/5">
+                            <div className="flex items-center gap-3 text-xs font-black text-primary dark:text-primary uppercase tracking-widest">
+                                <Sparkles size={14} />
+                                GEMA Security Suite
                             </div>
                         </div>
                     </div>
 
-                    <div className="pt-4">
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-50"
-                        >
-                            {loading ? <Loader className="animate-spin" size={20} /> : <Save size={20} />}
-                            {loading ? 'Actualizando...' : 'Cambiar Contraseña'}
-                        </button>
+                    <div className="bg-gradient-to-br from-primary/10 to-indigo-600/10 dark:from-primary/20 dark:to-indigo-600/20 p-8 rounded-[2.5rem] border border-primary/10 dark:border-primary/20 shadow-sm dark:shadow-none space-y-4">
+                        <div className="flex items-center gap-3 text-primary">
+                            <AlertCircle size={24} />
+                            <h4 className="font-black text-sm uppercase tracking-widest">Aviso Importante</h4>
+                        </div>
+                        <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                            Si cambias tu contraseña, se cerrarán todas las sesiones activas en otros dispositivos para garantizar la seguridad de tu inventario.
+                        </p>
                     </div>
-                </form>
+                </div>
             </div>
-        </div>
+        </motion.div>
     );
 }

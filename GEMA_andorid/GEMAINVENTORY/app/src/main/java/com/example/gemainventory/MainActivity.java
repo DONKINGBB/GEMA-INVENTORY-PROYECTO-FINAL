@@ -118,18 +118,29 @@ public class MainActivity extends AppCompatActivity {
 
     private void aplicarRestriccionesDeRolCompose(com.example.gemainventory.ui.navigation.NavBarHelper navHelper, int idRol) {
         java.util.List<Integer> idsVisibles = new java.util.ArrayList<>();
+        
+        // Todos ven Inicio y Ajustes
         idsVisibles.add(R.id.navigation_dashboard);
-        idsVisibles.add(R.id.navigation_inventory);
-        idsVisibles.add(R.id.navigation_orders);
-
-        if (idRol == 3) { // Operario: NO ve Finanzas ni Ajustes
-            // Solo los base ya añadidos
-        } else if (idRol == 2) { // Supervisor: Ve Ajustes pero no Finanzas (según lógica previa)
-            idsVisibles.add(R.id.navigation_settings);
-        } else { // Admin: Ve todo
-            idsVisibles.add(R.id.navigation_finances);
-            idsVisibles.add(R.id.navigation_settings);
+        
+        // Lógica de visibilidad por roles (1: PROPIETARIO, 2: ADMIN, 3: SUPERVISOR, 4: VENDEDOR, 5: REPARTIDOR, 6: ALMACENISTA)
+        
+        // Inventario: Propietario, Admin, Supervisor, Almacenista
+        if (idRol == 1 || idRol == 2 || idRol == 3 || idRol == 6) {
+            idsVisibles.add(R.id.navigation_inventory);
         }
+        
+        // Ventas/Pedidos: Propietario, Admin, Supervisor, Vendedor, Repartidor
+        if (idRol == 1 || idRol == 2 || idRol == 3 || idRol == 4 || idRol == 5) {
+            idsVisibles.add(R.id.navigation_orders);
+        }
+        
+        // Finanzas: Solo Propietario y Administrador
+        if (idRol == 1 || idRol == 2) {
+            idsVisibles.add(R.id.navigation_finances);
+        }
+
+        // Todos ven Ajustes
+        idsVisibles.add(R.id.navigation_settings);
         
         navHelper.setVisibleItems(idsVisibles);
     }

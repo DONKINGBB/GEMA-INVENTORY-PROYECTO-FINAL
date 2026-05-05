@@ -33,6 +33,8 @@ fun SettingsScreen(
     userEmail: String,
     userPhotoUrl: String?,
     isBiometricEnabled: Boolean,
+    showCatalog: Boolean,
+    showBusinessInfo: Boolean,
     showManageUsers: Boolean,
     onProfileClick: () -> Unit,
     onDarkModeToggle: (Boolean) -> Unit,
@@ -143,10 +145,16 @@ fun SettingsScreen(
                                 .fillMaxWidth()
                         ) {
                             Column {
-                                SettingsItem(R.drawable.ic_database, "Gestión de Catálogos", textColor, accentColor, onCatalogClick)
-                                HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp), color = Color.White.copy(alpha = 0.05f))
-                                SettingsItem(R.drawable.minegocio, "Mi Negocio / Invitar", textColor, accentColor, onBusinessClick)
-                                HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp), color = Color.White.copy(alpha = 0.05f))
+                                if (showCatalog) {
+                                    SettingsItem(R.drawable.ic_database, "Gestión de Catálogos", textColor, accentColor, onCatalogClick)
+                                    HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp), color = Color.White.copy(alpha = 0.05f))
+                                }
+                                
+                                if (showBusinessInfo) {
+                                    SettingsItem(R.drawable.minegocio, "Mi Negocio / Invitar", textColor, accentColor, onBusinessClick)
+                                    HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp), color = Color.White.copy(alpha = 0.05f))
+                                }
+
                                 SettingsItem(R.drawable.ic_plus, "Unirse o Crear Negocio", textColor, accentColor, onJoinCreateClick)
                                 HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp), color = Color.White.copy(alpha = 0.05f))
                                 SettingsItem(R.drawable.cambiardenegocio, "Cambiar de Negocio", textColor, accentColor, onSwitchBusinessClick)

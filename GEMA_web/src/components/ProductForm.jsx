@@ -1,6 +1,8 @@
 
 import { useState, useEffect } from 'react';
-import { X, Save, Loader } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { X, Save, Loader, Camera, Plus, Image as ImageIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { categoryService, warehouseService } from '../services/inventoryService';
 import { uploadService } from '../services/uploadService';
 import { useAuth } from '../context/AuthContext';
@@ -12,7 +14,7 @@ export default function ProductForm({ isOpen, onClose, onSubmit, initialData, ti
     const [formData, setFormData] = useState({
         nombre: '',
         sku: '',
-        categoria: '', // Use 'categoria' instead of 'idCategoria'
+        categoria: '',
         idAlmacen: '',
         cantidad: 0,
         precioCompra: 0,
@@ -50,11 +52,11 @@ export default function ProductForm({ isOpen, onClose, onSubmit, initialData, ti
     useEffect(() => {
         if (initialData) {
             setFormData({
-                nombre: initialData.nombre || '',
+                nombre: initialData.nombre || initialData.nombreProducto || '',
                 sku: initialData.sku || '',
-                categoria: initialData.categoria || '', // Use the string name
+                categoria: initialData.categoria || '',
                 idAlmacen: initialData.idAlmacen || '',
-                cantidad: initialData.cantidad || 0,
+                cantidad: initialData.cantidad ?? initialData.cantidadActual ?? 0,
                 precioCompra: initialData.precioCompra || 0,
                 precioVenta: initialData.precioVenta || 0,
                 stockMinimo: initialData.stockMinimo || 5,
@@ -110,7 +112,7 @@ export default function ProductForm({ isOpen, onClose, onSubmit, initialData, ti
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         setError('');
         setLoading(true);
         try {
@@ -123,21 +125,30 @@ export default function ProductForm({ isOpen, onClose, onSubmit, initialData, ti
             setLoading(false);
         }
     };
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 slide-in-from-bottom-8 duration-500 border border-white/20 dark:border-slate-700">
+
+    if (!isOpen) return null;
+
+    return createPortal(
+        <motion.div 
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 100 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed inset-0 top-0 left-0 right-0 bottom-0 z-[10000] bg-white dark:bg-[#020617] flex flex-col overflow-hidden"
+        >
+            <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full h-full relative overflow-hidden bg-white dark:bg-[#020617]">
                 
                 {/* Header with glass effect */}
-                <div className="flex justify-between items-center p-8 border-b border-gray-100 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md sticky top-0 z-10">
+                <div className="flex justify-between items-center p-8 border-b border-gray-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md sticky top-0 z-10">
                     <div>
                         <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
                             {initialData ? 'Editar Producto' : 'Nuevo Producto'}
                         </h2>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Completa los detalles del inventario</p>
+                        <p className="text-gray-500 dark:text-slate-400 text-sm font-medium">Completa los detalles del inventario</p>
                     </div>
                     <button 
                         onClick={onClose} 
-                        className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all p-3 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-2xl active:scale-90"
+                        className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all p-3 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-2xl active:scale-90"
                     >
                         <X size={24} />
                     </button>
@@ -153,15 +164,15 @@ export default function ProductForm({ isOpen, onClose, onSubmit, initialData, ti
 
                     <div className="space-y-8">
                         {/* Image Upload Section - Premium Style */}
-                        <div className="flex flex-col md:flex-row gap-8 items-center bg-gray-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-gray-100 dark:border-slate-700">
+                        <div className="flex flex-col md:flex-row gap-10 items-start bg-slate-50 dark:bg-slate-900/40 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800/50">
                             <div className="relative group flex-shrink-0">
-                                <div className="w-40 h-40 rounded-[2rem] overflow-hidden bg-white dark:bg-slate-800 border-4 border-white dark:border-slate-700 shadow-xl flex items-center justify-center transition-transform group-hover:scale-105 duration-500">
+                                <div className="w-48 h-48 rounded-[2.5rem] overflow-hidden bg-white dark:bg-slate-800 border-4 border-white dark:border-slate-700 shadow-2xl flex items-center justify-center transition-all group-hover:scale-[1.02] duration-500">
                                     {formData.imagenUrl ? (
                                         <img src={formData.imagenUrl} alt="Product" className="w-full h-full object-cover" />
                                     ) : (
-                                        <div className="text-gray-300 dark:text-gray-600 flex flex-col items-center">
-                                            <Save size={40} className="mb-2 opacity-20" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Sin Imagen</span>
+                                        <div className="text-slate-200 dark:text-slate-700 flex flex-col items-center">
+                                            <ImageIcon size={48} className="mb-3 opacity-20" />
+                                            <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">Sin Imagen</span>
                                         </div>
                                     )}
                                     {uploading && (
@@ -170,8 +181,8 @@ export default function ProductForm({ isOpen, onClose, onSubmit, initialData, ti
                                         </div>
                                     )}
                                 </div>
-                                <div className="absolute -bottom-2 -right-2 flex gap-2">
-                                    <div className="relative">
+                                <div className="absolute -bottom-3 -right-3 flex gap-2">
+                                    <div className="relative group/btn">
                                         <input 
                                             type="file" 
                                             accept="image/*"
@@ -179,33 +190,30 @@ export default function ProductForm({ isOpen, onClose, onSubmit, initialData, ti
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                             disabled={uploading}
                                         />
-                                        <div className="p-3 bg-primary text-white rounded-2xl shadow-lg shadow-primary/30 hover:scale-110 transition-transform cursor-pointer">
-                                            <Save size={20} />
+                                        <div className="p-4 bg-primary text-white rounded-2xl shadow-xl shadow-primary/40 hover:scale-110 group-hover/btn:rotate-12 transition-all cursor-pointer">
+                                            <Plus size={24} />
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div className="flex-1 space-y-4 w-full">
-                                <div>
-                                    <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 px-1">Enlace de Imagen</label>
+                            <div className="flex-1 space-y-6 w-full pt-2">
+                                <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-200 dark:border-white/5 rounded-[2.5rem] bg-slate-50 dark:bg-white/[0.02] hover:bg-slate-100 dark:hover:bg-white/[0.04] transition-all group/upload relative overflow-hidden">
                                     <input
-                                        type="url"
-                                        name="imagenUrl"
-                                        value={formData.imagenUrl}
-                                        onChange={handleChange}
-                                        className="w-full px-5 py-4 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition text-gray-900 dark:text-white font-medium"
-                                        placeholder="https://..."
+                                        type="file"
+                                        onChange={handleFileUpload}
+                                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                        accept="image/*"
                                     />
+                                    <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-4 group-hover/upload:scale-110 transition-transform">
+                                        <Plus size={32} />
+                                    </div>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-white/30">Subir Nueva Imagen</p>
                                 </div>
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter px-1">
-                                    * Puedes pegar una URL o subir un archivo desde tu computadora
-                                </p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                            {/* Form Fields with premium labels */}
                             <div className="space-y-6 md:col-span-2">
                                 <div className="group">
                                     <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 px-1 transition-colors group-focus-within:text-primary">Nombre del Producto</label>
@@ -337,7 +345,7 @@ export default function ProductForm({ isOpen, onClose, onSubmit, initialData, ti
                 </form>
 
                 {/* Footer Buttons */}
-                <div className="p-8 border-t border-gray-100 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-900/50 flex gap-4">
+                <div className="p-8 border-t border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 flex gap-4">
                     <button
                         type="button"
                         onClick={onClose}
@@ -355,6 +363,7 @@ export default function ProductForm({ isOpen, onClose, onSubmit, initialData, ti
                     </button>
                 </div>
             </div>
-        </div>
+        </motion.div>,
+        document.body
     );
 }

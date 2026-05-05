@@ -39,7 +39,12 @@ class DashboardFragment : Fragment() {
 
         val prefs = requireActivity().getSharedPreferences("GemaPrefs", Context.MODE_PRIVATE)
         val userName = prefs.getString("user_nombre", "Usuario") ?: "Usuario"
-        composeHelper?.updateUserName(userName)
+        val userRol = prefs.getInt("user_rol", 1)
+        
+        composeHelper?.apply {
+            updateUserName(userName)
+            setUserRol(userRol)
+        }
 
         setupListeners()
         fetchDashboardSummary()
