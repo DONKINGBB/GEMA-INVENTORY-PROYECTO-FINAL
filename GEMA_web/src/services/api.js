@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: '/api', // Proxy handles redirection to http://localhost:8080
+    baseURL: 'https://gema-inventory-backend.onrender.com',
     headers: {
         'Content-Type': 'application/json',
     },
