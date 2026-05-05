@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://gema-inventory-backend.onrender.com',
+    baseURL: 'https://gema-inventory-backend.onrender.com/api',
     headers: {
         'Content-Type': 'application/json',
     },
