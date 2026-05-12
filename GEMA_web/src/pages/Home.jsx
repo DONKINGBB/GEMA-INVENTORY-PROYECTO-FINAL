@@ -15,6 +15,8 @@ import {
     Tooltip, ResponsiveContainer, BarChart, Bar,
     Cell
 } from 'recharts';
+import WelcomeGuide from '../components/WelcomeGuide';
+import { useLocation } from 'react-router-dom';
 
 const MOCK_CHART_DATA = [
     { name: 'Lun', ventas: 4200, compras: 2400 },
@@ -29,7 +31,9 @@ const MOCK_CHART_DATA = [
 export default function Home() {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const isAdmin = user?.idRol === 1 || user?.idRol === 2;
+    const [showTutorial, setShowTutorial] = useState(location.state?.showTutorial || false);
     const [stats, setStats] = useState({
         inventoryValue: 0,
         pendingOrders: 0,
@@ -144,6 +148,10 @@ export default function Home() {
             animate="visible"
             className="space-y-12 pb-24"
         >
+            <WelcomeGuide 
+                isOpen={showTutorial} 
+                onClose={() => setShowTutorial(false)} 
+            />
             {/* Background Glows */}
             <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 blur-[120px] -z-10 rounded-full" />
             <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-600/5 blur-[100px] -z-10 rounded-full" />

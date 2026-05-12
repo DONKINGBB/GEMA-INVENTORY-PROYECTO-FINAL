@@ -62,12 +62,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
             if (usuario != null && jwtUtil.validateToken(jwt, usuario.getCorreo())) {
 
-                // Mapping 1=ROLE_ADMIN, 2=ROLE_SUPERVISOR, 3=ROLE_OPERARIO
+                // Mapping: 1,2 -> ROLE_ADMIN | 3 -> ROLE_SUPERVISOR | 4,5,6 -> ROLE_OPERARIO
                 String roleName = "ROLE_OPERARIO";
-                if (usuario.getIdRol() != null && usuario.getIdRol() == 1)
-                    roleName = "ROLE_ADMIN";
-                else if (usuario.getIdRol() != null && usuario.getIdRol() == 2)
-                    roleName = "ROLE_SUPERVISOR";
+                Integer idRol = usuario.getIdRol();
+                if (idRol != null) {
+                    if (idRol == 1 || idRol == 2) {
+                        roleName = "ROLE_ADMIN";
+                    } else if (idRol == 3) {
+                        roleName = "ROLE_SUPERVISOR";
+                    }
+                }
                 
                 System.err.println("SEC_DEBUG: User=" + username + " | ServiceRole=" + roleName + " | ID_ROL=" + usuario.getIdRol());
 

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import PropTypes from 'prop-types';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Onboarding from './pages/Onboarding';
 import ForgotPassword from './pages/ForgotPassword';
 import LandingPage from './pages/LandingPage';
 import Layout from './components/Layout';
@@ -29,11 +30,23 @@ import ManageTeam from './pages/ManageTeam';
 import PremiumUpgrade from './pages/PremiumUpgrade';
 
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, requireBusiness = true }) => {
   const { user } = useAuth();
+  
   if (!user) {
     return <Navigate to="/login" replace />;
   }
+
+  // If user has no business but is trying to access protected content
+  if (requireBusiness && !user.idNegocio) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  // If user ALREADY has a business and tries to go to onboarding
+  if (!requireBusiness && user.idNegocio) {
+    return <Navigate to="/app" replace />;
+  }
+
   return children;
 };
 
@@ -52,6 +65,14 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route 
+              path="/onboarding" 
+              element={
+                <ProtectedRoute requireBusiness={false}>
+                  <Onboarding />
+                </ProtectedRoute>
+              } 
+            />
 
             {/* Main Layout containing nested routes */}
             <Route
